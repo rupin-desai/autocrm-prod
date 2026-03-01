@@ -114,13 +114,17 @@ async function findExistingProductByIdentity(params: {
   const normalizedModel = normalizeProductField(params.model);
 
   const nameRegex = { $regex: `^${escapeRegex(normalizedName)}$`, $options: "i" };
+  const modelRegex = { $regex: `^${escapeRegex(normalizedModel)}$`, $options: "i" };
   const query: any = {
     $or: [
       { productName: nameRegex },
       { name: nameRegex }, // Legacy support for older records
     ],
     brand: { $regex: `^${escapeRegex(normalizedBrand)}$`, $options: "i" },
-    model: { $regex: `^${escapeRegex(normalizedModel)}$`, $options: "i" },
+    // Legacy support: treat missing/null model as empty for duplicate matching.
+    model: normalizedModel
+      ? modelRegex
+      : { $in: ["", null] },
   };
 
   if (params.excludeId) {
@@ -3904,7 +3908,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         "Tripura": "TR", "Uttar Pradesh": "UP", "Uttarakhand": "UK", "West Bengal": "WB"
       };
       
-      const stateCode = stateCodeMap[validatedData.state] || validatedData.state.substring(0, 2).toUpperCase();
+      const normalizedState = (validatedData.state ?? "").trim();
+      const stateCode = stateCodeMap[normalizedState] || normalizedState.substring(0, 2).toUpperCase() || "NA";
       
       // Generate reference code by finding the next available number (reuse deleted IDs)
       const customerCount = await RegistrationCustomer.countDocuments({ referenceCode: new RegExp(`^CUST-${stateCode}-`) });
