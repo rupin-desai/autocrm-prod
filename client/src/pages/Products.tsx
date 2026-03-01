@@ -28,10 +28,13 @@ import { Plus, Search, Package, X, ImagePlus, Barcode, Trash2, ImageIcon, Downlo
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useAuth } from "@/lib/auth";
 import * as XLSX from "xlsx";
 import { VEHICLE_DATA } from "@shared/vehicleData";
 
 export default function Products() {
+  const { user } = useAuth();
+  const canDeleteProducts = (user?.permissions?.products || []).includes('delete');
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("brand-asc");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -1017,7 +1020,7 @@ export default function Products() {
       <div className="space-y-2">
         <Label>Model Compatibility</Label>
         <p className="text-xs text-muted-foreground">
-          Select vehicle brands and models this product is compatible with
+          Select vehicle brands and models this product is compatible with. Choosing model "Other" makes it universal.
         </p>
         {formData.modelCompatibility.map((model, index) => (
           <div key={index} className="space-y-2">
@@ -1199,16 +1202,18 @@ export default function Products() {
             <Upload className="h-4 w-4 mr-2" />
             Import
           </Button>
-          <Button
-            variant="outline"
-            onClick={() => deleteDuplicatesMutation.mutate()}
-            disabled={deleteDuplicatesMutation.isPending}
-            data-testid="button-delete-duplicates"
-            size="sm"
-          >
-            <Copy className="h-4 w-4 mr-2" />
-            Delete Duplicates
-          </Button>
+          {canDeleteProducts && (
+            <Button
+              variant="outline"
+              onClick={() => deleteDuplicatesMutation.mutate()}
+              disabled={deleteDuplicatesMutation.isPending}
+              data-testid="button-delete-duplicates"
+              size="sm"
+            >
+              <Copy className="h-4 w-4 mr-2" />
+              Delete Duplicates
+            </Button>
+          )}
           <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
             <DialogTrigger asChild>
               <Button data-testid="button-add-product" size="sm">
@@ -1382,17 +1387,19 @@ export default function Products() {
                     >
                       Manage Stock
                     </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={() => {
-                        setSelectedProduct(product);
-                        setIsDeleteDialogOpen(true);
-                      }}
-                      data-testid={`button-delete-${product._id}`}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    {canDeleteProducts && (
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => {
+                          setSelectedProduct(product);
+                          setIsDeleteDialogOpen(true);
+                        }}
+                        data-testid={`button-delete-${product._id}`}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
                   </div>
                 </CardContent>
               </Card>

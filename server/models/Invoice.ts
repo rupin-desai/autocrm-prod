@@ -10,6 +10,7 @@ const invoiceItemSchema = new mongoose.Schema({
   unitPrice: { type: Number, required: true },
   total: { type: Number, required: true },
   hasGst: { type: Boolean, default: false },
+  gstPercentage: { type: Number, default: 18 },
   gstAmount: { type: Number, default: 0 },
   warrantyId: { type: mongoose.Schema.Types.ObjectId, ref: 'Warranty' },
   hasWarranty: { type: Boolean, default: false },

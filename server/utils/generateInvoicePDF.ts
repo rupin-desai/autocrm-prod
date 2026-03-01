@@ -49,6 +49,7 @@ interface InvoiceData {
     unitPrice: number;
     total: number;
     hasGst?: boolean;
+    gstPercentage?: number;
     gstAmount?: number;
   }>;
   subtotal: number;
@@ -231,12 +232,13 @@ export async function generateInvoicePDF(invoiceData: InvoiceData): Promise<stri
       yPosition += 20;
 
       doc.fontSize(10).font('Helvetica-Bold');
-      doc.text('Product Name', 50, yPosition);
-      doc.text('Qty', 230, yPosition, { width: 30, align: 'right' });
-      doc.text('Unit Price', 270, yPosition, { width: 70, align: 'right' });
-      doc.text('GST', 350, yPosition, { width: 50, align: 'right' });
-      doc.fontSize(8).text('(18%)', 350, yPosition + 11, { width: 50, align: 'right' });
-      doc.fontSize(10).text('Total', 410, yPosition, { width: 120, align: 'right' });
+      doc.text('Product Name', 50, yPosition, { width: 130 });
+      doc.text('HSN', 190, yPosition, { width: 60, align: 'left' });
+      doc.text('Qty', 255, yPosition, { width: 30, align: 'right' });
+      doc.text('Unit', 295, yPosition, { width: 60, align: 'right' });
+      doc.text('GST %', 365, yPosition, { width: 45, align: 'right' });
+      doc.text('GST Amt', 415, yPosition, { width: 55, align: 'right' });
+      doc.text('Total', 475, yPosition, { width: 75, align: 'right' });
 
       yPosition += 20;
       doc.moveTo(50, yPosition).lineTo(550, yPosition).stroke();
@@ -258,39 +260,44 @@ export async function generateInvoicePDF(invoiceData: InvoiceData): Promise<stri
           yPosition = 50;
           
           doc.fontSize(10).font('Helvetica-Bold');
-          doc.text('Product Name', 50, yPosition);
-          doc.text('Qty', 230, yPosition, { width: 30, align: 'right' });
-          doc.text('Unit Price', 270, yPosition, { width: 70, align: 'right' });
-          doc.text('GST', 350, yPosition, { width: 50, align: 'right' });
-          doc.fontSize(8).text('(18%)', 350, yPosition + 11, { width: 50, align: 'right' });
-          doc.fontSize(10).text('Total', 410, yPosition, { width: 120, align: 'right' });
+          doc.text('Product Name', 50, yPosition, { width: 130 });
+          doc.text('HSN', 190, yPosition, { width: 60, align: 'left' });
+          doc.text('Qty', 255, yPosition, { width: 30, align: 'right' });
+          doc.text('Unit', 295, yPosition, { width: 60, align: 'right' });
+          doc.text('GST %', 365, yPosition, { width: 45, align: 'right' });
+          doc.text('GST Amt', 415, yPosition, { width: 55, align: 'right' });
+          doc.text('Total', 475, yPosition, { width: 75, align: 'right' });
           yPosition += 20;
           doc.moveTo(50, yPosition).lineTo(550, yPosition).stroke();
           yPosition += 15;
           doc.font('Helvetica');
         }
 
-        const displayName = item.hsnNumber ? `${item.name} (${item.hsnNumber})` : item.name;
-        doc.fontSize(10).text(displayName, 50, yPosition, { width: 170 });
+        const displayHsn = item.hsnNumber || '-';
+        doc.fontSize(10).text(item.name, 50, yPosition, { width: 130 });
+        doc.fontSize(9).text(displayHsn, 190, yPosition, { width: 60, align: 'left' });
         const itemYPosition = yPosition;
         
         if (item.description) {
           yPosition += 12;
-          doc.fontSize(8).fillColor('#666').text(item.description, 50, yPosition, { width: 170 });
+          doc.fontSize(8).fillColor('#666').text(item.description, 50, yPosition, { width: 130 });
           doc.fillColor('#000');
         }
 
-        const unitPriceExclGst = item.hasGst 
-          ? (item.total - (item.gstAmount || 0))
+        const lineAmountExclGst = item.hasGst
+          ? item.total - (item.gstAmount || 0)
           : item.total;
-        const gstDisplay = item.hasGst && item.gstAmount 
+        const unitAmountExclGst = item.quantity > 0 ? lineAmountExclGst / item.quantity : lineAmountExclGst;
+        const gstRate = item.hasGst ? `${Math.round(item.gstPercentage ?? 18)}%` : '-';
+        const gstDisplay = item.hasGst && item.gstAmount
           ? `${Math.round(item.gstAmount)}`
           : '-';
 
-        doc.fontSize(10).text(item.quantity.toString(), 230, itemYPosition, { width: 30, align: 'right' });
-        doc.text(Math.round(unitPriceExclGst).toString(), 270, itemYPosition, { width: 70, align: 'right' });
-        doc.text(gstDisplay, 350, itemYPosition, { width: 50, align: 'right' });
-        doc.text(Math.round(item.total).toString(), 410, itemYPosition, { width: 120, align: 'right' });
+        doc.fontSize(10).text(item.quantity.toString(), 255, itemYPosition, { width: 30, align: 'right' });
+        doc.text(Math.round(unitAmountExclGst).toString(), 295, itemYPosition, { width: 60, align: 'right' });
+        doc.text(gstRate, 365, itemYPosition, { width: 45, align: 'right' });
+        doc.text(gstDisplay, 415, itemYPosition, { width: 55, align: 'right' });
+        doc.text(Math.round(item.total).toString(), 475, itemYPosition, { width: 75, align: 'right' });
 
         yPosition += item.description ? 25 : 25;
       });

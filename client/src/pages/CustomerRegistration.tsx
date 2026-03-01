@@ -206,6 +206,10 @@ export default function CustomerRegistration() {
 
   // Watch custom model input for compatibility matching
   const customModelValue = vehicleForm.watch("customModel");
+  const selectedModelLabel = selectedModel === "Other" ? (customModelValue || "Other") : selectedModel;
+
+  const normalizeText = (value: string = "") =>
+    value.toString().trim().toLowerCase().replace(/\s+/g, " ");
 
   // Helper functions for managing part quantities
   const getPartQuantity = (partId: string): number => {
@@ -251,37 +255,92 @@ export default function CustomerRegistration() {
       if (!selectedBrand || !selectedModel) {
         return [];
       }
-      
-      // Build the vehicle key based on whether a custom model is being used
-      let vehicleKey: string;
-      if (selectedModel === "Other" && customModelValue) {
-        // For custom models under a known brand, use "Brand - CustomModel" format
-        vehicleKey = `${selectedBrand} - ${customModelValue}`;
-      } else {
-        // For standard models, use "Brand - Model" format
-        vehicleKey = `${selectedBrand} - ${selectedModel}`;
-      }
-      
+
+      const selectedModelLabel =
+        selectedModel === "Other" ? (customModelValue || "") : selectedModel;
+      const normalizedBrand = normalizeText(selectedBrand);
+      const normalizedModel = normalizeText(selectedModelLabel);
+      const normalizedVehicleKey = normalizeText(`${selectedBrand} - ${selectedModelLabel}`);
+
       const response = await fetch('/api/products', {
         credentials: 'include',
       });
-      if (!response.ok) return [];
+      if (!response.ok) {
+        throw new Error("Failed to fetch inventory products");
+      }
       const allProducts = await response.json();
-      
-      // Filter products that have this exact vehicle in their modelCompatibility
-      return allProducts.filter((product: any) => 
-        product.modelCompatibility && 
-        product.modelCompatibility.some((compat: string) => 
-          compat === vehicleKey
-        )
-      );
+
+      const inStockProducts = allProducts.filter((product: any) => Number(product.stockQty ?? 0) > 0);
+
+      const strictCompatibleProducts = inStockProducts.filter((product: any) => {
+        const compatibilityList = Array.isArray(product.modelCompatibility) ? product.modelCompatibility : [];
+
+        const compatibilityMatch = compatibilityList.some((compatRaw: string) => {
+          const normalizedCompat = normalizeText(compatRaw || "");
+          if (!normalizedCompat) return false;
+
+          const isUniversal =
+            normalizedCompat === "other" ||
+            normalizedCompat === "all models" ||
+            normalizedCompat === "all model" ||
+            normalizedCompat === "all vehicles" ||
+            normalizedCompat === "all cars";
+          if (isUniversal) return true;
+
+          const isBrandUniversal = normalizedCompat === `${normalizedBrand} - other`;
+          const isAnyBrandOther = normalizedCompat.endsWith(" - other");
+          if (isBrandUniversal || isAnyBrandOther) return true;
+
+          if (normalizedCompat === normalizedVehicleKey) return true;
+
+          return (
+            normalizedCompat.includes(normalizedBrand) &&
+            (normalizedModel ? normalizedCompat.includes(normalizedModel) : true)
+          );
+        });
+
+        const productBrand = normalizeText(product.brand || "");
+        const productModel = normalizeText(product.model || "");
+        const productCategory = normalizeText(product.category || "");
+
+        const directBrandModelMatch =
+          productBrand === normalizedBrand &&
+          (
+            !productModel ||
+            productModel === normalizedModel ||
+            productModel.includes(normalizedModel) ||
+            normalizedModel.includes(productModel)
+          );
+
+        const categoryMatch =
+          productCategory.includes(normalizedBrand) &&
+          (normalizedModel ? productCategory.includes(normalizedModel) : true);
+
+        return compatibilityMatch || directBrandModelMatch || categoryMatch;
+      });
+
+      if (strictCompatibleProducts.length > 0) {
+        return strictCompatibleProducts;
+      }
+
+      const brandFallbackProducts = inStockProducts.filter((product: any) => {
+        const productBrand = normalizeText(product.brand || "");
+        const productCategory = normalizeText(product.category || "");
+        return productBrand === normalizedBrand || productCategory.includes(normalizedBrand);
+      });
+
+      if (brandFallbackProducts.length > 0) {
+        return brandFallbackProducts;
+      }
+
+      return inStockProducts;
     },
     enabled: !!selectedBrand && !!selectedModel && (selectedModel !== "Other" || !!customModelValue),
   });
 
   // Show only actual products from inventory - no fallback items
   useEffect(() => {
-    if (selectedModel && selectedModel !== "Other") {
+    if (selectedModel && (selectedModel !== "Other" || !!customModelValue)) {
       // Transform compatible products to match the part format
       const productParts = compatibleProducts.map((product: any) => ({
         id: `product-${product._id}`,
@@ -296,7 +355,7 @@ export default function CustomerRegistration() {
       // Only show actual products from inventory
       setAvailableParts(productParts);
     }
-  }, [selectedBrand, selectedModel, compatibleProducts]);
+  }, [selectedBrand, selectedModel, customModelValue, compatibleProducts]);
 
   // Register customer mutation
   const registerCustomer = useMutation({
@@ -1339,7 +1398,7 @@ export default function CustomerRegistration() {
                     />
                   )}
 
-                  {selectedModel && selectedModel !== "Other" && (
+                  {selectedModel && (selectedModel !== "Other" || !!customModelValue) && (
                     <FormField
                       control={vehicleForm.control}
                       name="selectedParts"
@@ -1359,7 +1418,7 @@ export default function CustomerRegistration() {
                                   No compatible products available for this vehicle model
                                 </p>
                                 <p className="text-xs text-amber-700 dark:text-amber-300 mt-2">
-                                  Please check your inventory or mark products as compatible with {selectedBrand} - {selectedModel}
+                                  Please check your inventory or mark products as compatible with {selectedBrand} - {selectedModelLabel}
                                 </p>
                               </CardContent>
                             </Card>

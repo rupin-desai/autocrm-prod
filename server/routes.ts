@@ -95,6 +95,41 @@ function buildProductResponse(product: any) {
   };
 }
 
+function normalizeProductField(value: any): string {
+  return String(value ?? "").trim();
+}
+
+function escapeRegex(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+async function findExistingProductByIdentity(params: {
+  productName: string;
+  brand: string;
+  model?: string;
+  excludeId?: string;
+}) {
+  const normalizedName = normalizeProductField(params.productName);
+  const normalizedBrand = normalizeProductField(params.brand);
+  const normalizedModel = normalizeProductField(params.model);
+
+  const nameRegex = { $regex: `^${escapeRegex(normalizedName)}$`, $options: "i" };
+  const query: any = {
+    $or: [
+      { productName: nameRegex },
+      { name: nameRegex }, // Legacy support for older records
+    ],
+    brand: { $regex: `^${escapeRegex(normalizedBrand)}$`, $options: "i" },
+    model: { $regex: `^${escapeRegex(normalizedModel)}$`, $options: "i" },
+  };
+
+  if (params.excludeId) {
+    query._id = { $ne: params.excludeId };
+  }
+
+  return Product.findOne(query);
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
   await connectDB();
   
@@ -647,6 +682,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/products", requireAuth, requirePermission('products', 'create'), async (req, res) => {
     try {
+      const normalizedName = normalizeProductField(req.body.productName || req.body.name);
+      const normalizedBrand = normalizeProductField(req.body.brand);
+      const normalizedModel = normalizeProductField(req.body.model);
+
+      if (!normalizedName || !normalizedBrand) {
+        return res.status(400).json({ error: "Product name and brand are required" });
+      }
+
+      const existingProduct = await findExistingProductByIdentity({
+        productName: normalizedName,
+        brand: normalizedBrand,
+        model: normalizedModel,
+      });
+
+      if (existingProduct) {
+        return res.status(409).json({
+          error: "A product with the same name, brand, and model already exists",
+        });
+      }
+
+      req.body.productName = normalizedName;
+      req.body.brand = normalizedBrand;
+      req.body.model = normalizedModel;
+
       const product = await Product.create(req.body);
       
       await logActivity({
@@ -669,7 +728,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.patch("/api/products/:id", requireAuth, requirePermission('products', 'update'), async (req, res) => {
     try {
-      const product = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true });
+      const existing = await Product.findById(req.params.id);
+      if (!existing) {
+        return res.status(404).json({ error: "Product not found" });
+      }
+
+      const mergedName = normalizeProductField(req.body.productName ?? req.body.name ?? existing.productName ?? (existing as any).name);
+      const mergedBrand = normalizeProductField(req.body.brand ?? existing.brand);
+      const mergedModel = normalizeProductField(req.body.model ?? existing.model);
+
+      if (!mergedName || !mergedBrand) {
+        return res.status(400).json({ error: "Product name and brand are required" });
+      }
+
+      const duplicateProduct = await findExistingProductByIdentity({
+        productName: mergedName,
+        brand: mergedBrand,
+        model: mergedModel,
+        excludeId: req.params.id,
+      });
+
+      if (duplicateProduct) {
+        return res.status(409).json({
+          error: "A product with the same name, brand, and model already exists",
+        });
+      }
+
+      const updatePayload = {
+        ...req.body,
+        productName: mergedName,
+        brand: mergedBrand,
+        model: mergedModel,
+      };
+
+      const product = await Product.findByIdAndUpdate(req.params.id, updatePayload, { new: true });
       if (!product) {
         return res.status(404).json({ error: "Product not found" });
       }
@@ -833,24 +925,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
       for (let i = 0; i < products.length; i++) {
         try {
           const productData = products[i];
-          
-          if (!productData.name || !productData.category || !productData.brand) {
-            errors.push({ row: i + 1, error: "Missing required fields (name, category, brand)" });
+
+          const normalizedName = normalizeProductField(productData.productName || productData.name);
+          const normalizedBrand = normalizeProductField(productData.brand);
+          const normalizedModel = normalizeProductField(productData.model);
+          const normalizedCategory = normalizeProductField(productData.category);
+
+          if (!normalizedName || !normalizedCategory || !normalizedBrand) {
+            errors.push({ row: i + 1, error: "Missing required fields (productName/name, category, brand)" });
             continue;
           }
 
+          const duplicateProduct = await findExistingProductByIdentity({
+            productName: normalizedName,
+            brand: normalizedBrand,
+            model: normalizedModel,
+          });
+
+          if (duplicateProduct) {
+            errors.push({ row: i + 1, error: "Duplicate product (same name, brand, and model)" });
+            continue;
+          }
+
+          const compatibilityValues = Array.isArray(productData.modelCompatibility)
+            ? productData.modelCompatibility.map((v: any) => String(v).trim()).filter(Boolean)
+            : typeof productData.modelCompatibility === "string"
+              ? productData.modelCompatibility.split(",").map((v: string) => v.trim()).filter(Boolean)
+              : [];
+
           const product = await Product.create({
-            name: productData.name,
-            category: productData.category,
-            brand: productData.brand,
-            modelCompatibility: productData.modelCompatibility || [],
+            productName: normalizedName,
+            model: normalizedModel,
+            category: normalizedCategory,
+            brand: normalizedBrand,
+            modelCompatibility: compatibilityValues,
             warranty: productData.warranty || "",
             mrp: Number(productData.mrp) || 0,
             sellingPrice: Number(productData.sellingPrice) || 0,
             discount: Number(productData.discount) || 0,
             stockQty: Number(productData.stockQty) || 0,
             minStockLevel: Number(productData.minStockLevel) || 10,
-            warehouseLocation: productData.warehouseLocation || "",
+            productId: normalizeProductField(productData.productId) || undefined,
+            hsnNumber: normalizeProductField(productData.hsnNumber) || undefined,
             barcode: productData.barcode || "",
             images: productData.images || [],
             variants: productData.variants || [],
@@ -4890,7 +5006,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         for (const item of invoice.items) {
           if (item.productId && !hsnMap.has(item.productId.toString())) {
-            const product = await Product.findById(item.productId).lean();
+            const product: any = await Product.findById(item.productId).lean();
             hsnMap.set(item.productId.toString(), product?.hsnNumber || null);
           }
         }
@@ -4911,6 +5027,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             unitPrice: item.unitPrice,
             total: item.total,
             hasGst: item.hasGst,
+            gstPercentage: item.gstPercentage,
             gstAmount: item.gstAmount,
           })),
           subtotal: invoice.subtotal,
@@ -5169,7 +5286,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             if (item.productId && !hsnMap.has(item.productId.toString())) {
               try {
                 console.log(`   🔍 Looking up Product in DB: ${item.productId}`);
-                const product = await Product.findById(item.productId).lean();
+                const product: any = await Product.findById(item.productId).lean();
                 console.log(`   ✅ Product found: ${product?.name}, HSN: ${product?.hsnNumber || 'NONE'}`);
                 hsnMap.set(item.productId.toString(), product?.hsnNumber || null);
               } catch (lookupError) {
@@ -5200,6 +5317,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 unitPrice: item.unitPrice,
                 total: item.total,
                 hasGst: item.hasGst,
+                gstPercentage: item.gstPercentage,
                 gstAmount: item.gstAmount,
               };
             }),
@@ -5323,7 +5441,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         for (const item of invoice.items) {
           if (item.productId && !hsnMap.has(item.productId.toString())) {
-            const product = await Product.findById(item.productId).lean();
+            const product: any = await Product.findById(item.productId).lean();
             hsnMap.set(item.productId.toString(), product?.hsnNumber || null);
           }
         }
@@ -5342,6 +5460,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             unitPrice: item.unitPrice,
             total: item.total,
             hasGst: item.hasGst,
+            gstPercentage: item.gstPercentage,
             gstAmount: item.gstAmount,
           })),
           subtotal: invoice.subtotal,

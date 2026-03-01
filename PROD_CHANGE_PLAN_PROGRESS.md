@@ -1,165 +1,157 @@
 # Production Change Plan And Progress
 
-Last updated: 2026-03-01 (IST)
-Source request timestamp: 2026-02-26 5:01 PM (IST)
+Last updated: 2026-03-01 (IST)  
+Source request timestamps: 2026-02-26 and 2026-03-01 (IST)
 
 ## Request Summary
 
-1. Inventory me same name ka product add nahi hona chahiye.
-2. Bill me HSN number and GST rate alag details me show hona chahiye.
-3. Manager role access update: Manager should NOT be able to delete stock item or invoice.
-4. "Parts needed for service/replacement" option me products show nahi ho rahe.
-5. If compatibility is marked as `Other`, item should be treated as universal (shown across brands/models as per final rule).
+1. Prevent duplicate products from being created in inventory.
+2. Show HSN number and GST rate as separate details in invoices.
+3. Fix Customer Registration Step 3 where compatible products are not visible in "Parts Needed for Service/Replacement".
+4. Define universal behavior for `Other` compatibility across brands and models.
+5. Manager access update: Manager can approve invoices, but Manager should not have delete options.
 
-## Current Status
+## Execution Guardrails Followed
 
-- [x] Codebase mapping complete
-- [x] Root cause analysis complete
-- [x] Implementation started
-- [ ] Testing complete
-- [ ] Ready for production deploy
+- No production DB calls were made for testing during this implementation.
+- Changes were implemented at code level only.
+- Validation done via static code checks and review, not live DB/runtime workflows.
 
-## Detailed Plan
+## Overall Status
+
+- [x] Code implementation completed for all 5 requested items
+- [ ] Runtime validation completed
+- [ ] UAT sign-off completed
+- [ ] Ready for production deployment
+
+## Implementation Details And Status
 
 ### 1) Prevent duplicate product creation
 
-Status: `Pending`
-
-Action items:
-- Add duplicate check in product create API (`POST /api/products`) using normalized product key.
-- Add duplicate check in product update API (`PATCH /api/products/:id`) excluding current ID.
-- Add duplicate handling in product import API (`POST /api/products/import`) to skip/report duplicates.
-- Add DB index-level protection in Product model for safety.
-
-Primary files:
+Status: `Implemented in code (confirmed)`  
+Files:
 - `server/routes.ts`
-- `server/models/Product.ts`
 
-Acceptance:
-- Creating same logical item twice returns a clear error.
-- Import reports duplicate rows instead of silently creating.
+What is done:
+- Added normalized duplicate check in `POST /api/products`.
+- Added duplicate prevention in `PATCH /api/products/:id` (excluding current record).
+- Added duplicate skip/report handling in `POST /api/products/import`.
+- Duplicate rule enforced as case-insensitive match on `productName + brand + model`.
+
+Needs live verification:
+- API behavior against existing production-like data (especially old records with inconsistent fields/casing).
 
 ---
 
 ### 2) Show HSN + GST rate separately in invoice PDF
 
-Status: `Pending`
-
-Action items:
-- Ensure invoice item schema stores `gstPercentage` consistently.
-- Keep `hsnNumber` resolution stable for all PDF generation paths.
-- Update PDF table to explicitly show:
-  - HSN
-  - GST Rate (%)
-  - GST Amount
-  - Base/Unit amount and line total
-
-Primary files:
+Status: `Implemented in code (confirmed)`  
+Files:
 - `server/models/Invoice.ts`
 - `server/routes.ts`
 - `server/utils/generateInvoicePDF.ts`
-- `server/utils/invoiceNotifications.ts`
 
-Acceptance:
-- Approved/downloaded/public invoice PDF shows HSN and GST rate as separate visible fields.
+What is done:
+- Added `gstPercentage` field in invoice item schema.
+- Passed `gstPercentage` through invoice PDF generation paths.
+- Updated PDF line-item table to show separate columns for:
+  - Product Name
+  - HSN
+  - Qty
+  - Unit
+  - GST %
+  - GST Amount
+  - Total
+
+Needs live verification:
+- Generate/approve/download invoice in real UI flows and verify final PDF output formatting with real data.
 
 ---
 
-### 3) Manager access update (no delete stock item/invoice)
+### 3) Fix Step 3 compatible products not visible
 
-Status: `Pending`
+Status: `Implemented in code (confirmed)`  
+Files:
+- `client/src/pages/CustomerRegistration.tsx`
 
-Action items:
-- Remove `delete` permission for Manager in:
-  - `products`
-  - `invoices`
-- Verify backend routes deny Manager for delete endpoints.
-- Hide/remove delete action buttons in UI when permission is absent.
+What is done:
+- Replaced strict exact compatibility filter with normalized matching.
+- Added broader fallback matching when strict compatibility entries are missing.
+- Restricted to in-stock products.
+- Enabled parts section for `Other` model when custom model is provided.
+- Updated message to display actual selected/custom model context.
 
-Primary files:
+Needs live verification:
+- End-to-end customer registration Step 3 behavior for Admin and Manager accounts with real inventory records.
+
+---
+
+### 4) Universal behavior for `Other` compatibility
+
+Status: `Implemented in code (confirmed)`  
+Files:
+- `client/src/pages/CustomerRegistration.tsx`
+- `client/src/pages/Products.tsx`
+
+What is done:
+- Matching logic now treats `* - Other` compatibility as universal behavior.
+- Explicit helper text added in product compatibility section to indicate `Other` is universal.
+
+Needs live verification:
+- Confirm business acceptance that current universal behavior exactly matches client expectation in UAT.
+
+---
+
+### 5) Manager access: approve invoices, no delete options
+
+Status: `Implemented in code (confirmed)`  
+Files:
 - `server/auth.ts`
 - `client/src/pages/Products.tsx`
-- `client/src/pages/Invoices.tsx` (already mostly Admin-only; verify consistency)
+- `client/src/pages/Invoices.tsx` (already aligned for invoice delete visibility)
 
-Acceptance:
-- Manager cannot delete products.
-- Manager cannot delete invoices.
-- Admin delete flow remains unchanged.
+What is done:
+- Removed Manager delete permissions for:
+  - `products`
+  - `invoices`
+- Kept Manager invoice approval permissions (`approve`, `reject`).
+- Hid product delete and delete-duplicates UI actions when user lacks delete permission.
+- Invoice delete route already requires `invoices.delete`; Manager no longer has it.
+- In invoice UI, delete remains Admin-only, approval remains available to Manager.
 
----
-
-### 4) Fix products not showing in "Parts Needed for Service/Replacement"
-
-Status: `Pending`
-
-Likely root cause:
-- Compatibility matching is currently too strict (`Brand - Model` exact match), so valid products are filtered out.
-
-Action items:
-- Relax/normalize compatibility matching logic for standard and custom model cases.
-- Ensure product compatibility values are saved in consistent format from product form.
-- Keep search/filter UX unchanged unless needed for correctness.
-
-Primary files:
-- `client/src/pages/CustomerRegistration.tsx`
-- `client/src/pages/Products.tsx`
-
-Acceptance:
-- Selecting brand/model in customer registration reliably shows compatible products.
-- "No compatible products" appears only when truly none exist.
-
----
-
-### 5) Define universal behavior for `Other` compatibility
-
-Status: `Pending`
-
-Action items:
-- Confirm business rule:
-  - `Other` means universal across all brands/models, OR
-  - `Brand - Other` means all models within that brand.
-- Standardize `modelCompatibility` value format for all `Other` entries.
-- Update Step 3 matching rules to explicitly include agreed `Other` behavior.
-- Validate with sample products under Mahindra/Suzuki and custom models.
-
-Primary files:
-- `client/src/pages/Products.tsx`
-- `client/src/pages/CustomerRegistration.tsx`
-- `server/routes.ts` (if normalization is done server-side)
-
-Acceptance:
-- Products marked with `Other` appear exactly as per agreed universal rule.
-- Behavior is consistent for all roles in Step 3.
+Needs live verification:
+- Login as Manager and confirm:
+  - Can approve invoices.
+  - Cannot delete products.
+  - Cannot delete invoices (UI and API behavior).
 
 ## Progress Log
 
 ### 2026-03-01
 
-- Added this tracking document.
-- Completed deep code analysis and file-level mapping for all requested changes.
-- Implemented invoice action visibility using permission-based checks (manager can approve/reject when permission exists).
-- Implemented customer registration Step 3 product matching fix:
-  - normalized compatibility matching
-  - stock-aware filtering
-  - brand-level and in-stock fallback when compatibility mapping is missing
+- Switched to correct workspace `autocrm-prod`.
+- Implemented backend permission and duplicate prevention changes.
+- Implemented invoice PDF field separation for HSN/GST rate.
+- Implemented Customer Registration Step 3 compatibility improvements.
+- Implemented manager delete UI restriction in products page.
+- Updated this document with code-confirmed status and pending runtime checks.
 
-### 2026-03-01 (Latest updates requested by Rupin)
+## Validation Notes
 
-- Added explicit handling for: "allow Invoice approve to manager".
-- Added fix attempt for: "customer registration step 3 manager doesn't get inventory/stock".
-- Pending validation on real manager account in production-like data.
-- Added pending to-do to define and implement universal `Other` compatibility behavior.
+Static validation attempted:
+- `npm run check` was executed.
 
-## Test Checklist (to complete during implementation)
+Result:
+- Project has existing TypeScript issues unrelated to this change set, so full type-check is not green.
+- No DB-backed runtime tests were executed (intentional, as requested).
 
-- [ ] Duplicate create API test
-- [ ] Duplicate update API test
-- [ ] Duplicate import row handling test
-- [ ] Manager cannot delete product (API + UI)
-- [ ] Manager cannot delete invoice (API + UI)
-- [ ] Invoice PDF shows HSN + GST rate for:
-  - [ ] Approved download endpoint
-  - [ ] Public token endpoint
-- [ ] Customer registration "Parts Needed" list shows compatible products for known model
-- [ ] `Other` compatibility behaves as agreed (universal or brand-scoped universal)
-- [ ] Regression check for Admin flows
+### Final verification pass (2026-03-01, late pass)
+
+- Re-ran `npm run check` after all requested implementations.
+- Confirmed no new TypeScript errors were introduced by the implemented change set.
+- Verified permission gates end-to-end in code:
+  - Manager retains invoice approval.
+  - Manager delete remains blocked by backend permission middleware.
+  - Product delete UI actions are hidden when delete permission is absent.
+- Verified duplicate prevention logic includes legacy product records that may still use `name` instead of `productName`.
+- Verified customer Step 3 now renders product section for `Other + custom model` and uses normalized compatibility matching with universal `Other` behavior.
