@@ -1,0 +1,36 @@
+Invoices.tsx:175  GET https://b70f58a4-5efd-42f9-8f72-f1d40558e5ee-00-305kj0c625qgj.riker.replit.dev/api/invoices/69020f6e8295c30db01f385b/pdf 400 (Bad Request)
+handleViewPDF @ Invoices.tsx:175
+onClick @ Invoices.tsx:347
+callCallback2 @ chunk-RPCDYKBN.js?v=b922647b:3674
+invokeGuardedCallbackDev @ chunk-RPCDYKBN.js?v=b922647b:3699
+invokeGuardedCallback @ chunk-RPCDYKBN.js?v=b922647b:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-RPCDYKBN.js?v=b922647b:3736
+executeDispatch @ chunk-RPCDYKBN.js?v=b922647b:7014
+processDispatchQueueItemsInOrder @ chunk-RPCDYKBN.js?v=b922647b:7034
+processDispatchQueue @ chunk-RPCDYKBN.js?v=b922647b:7043
+dispatchEventsForPlugins @ chunk-RPCDYKBN.js?v=b922647b:7051
+(anonymous) @ chunk-RPCDYKBN.js?v=b922647b:7174
+batchedUpdates$1 @ chunk-RPCDYKBN.js?v=b922647b:18913
+batchedUpdates @ chunk-RPCDYKBN.js?v=b922647b:3579
+dispatchEventForPluginEventSystem @ chunk-RPCDYKBN.js?v=b922647b:7173
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-RPCDYKBN.js?v=b922647b:5478
+dispatchEvent @ chunk-RPCDYKBN.js?v=b922647b:5472
+dispatchDiscreteEvent @ chunk-RPCDYKBN.js?v=b922647b:5449
+Invoices.tsx:175  GET https://b70f58a4-5efd-42f9-8f72-f1d40558e5ee-00-305kj0c625qgj.riker.replit.dev/api/invoices/69020f6e8295c30db01f385b/pdf 400 (Bad Request)
+handleViewPDF @ Invoices.tsx:175
+onClick @ Invoices.tsx:347
+callCallback2 @ chunk-RPCDYKBN.js?v=b922647b:3674
+invokeGuardedCallbackDev @ chunk-RPCDYKBN.js?v=b922647b:3699
+invokeGuardedCallback @ chunk-RPCDYKBN.js?v=b922647b:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-RPCDYKBN.js?v=b922647b:3736
+executeDispatch @ chunk-RPCDYKBN.js?v=b922647b:7014
+processDispatchQueueItemsInOrder @ chunk-RPCDYKBN.js?v=b922647b:7034
+processDispatchQueue @ chunk-RPCDYKBN.js?v=b922647b:7043
+dispatchEventsForPlugins @ chunk-RPCDYKBN.js?v=b922647b:7051
+(anonymous) @ chunk-RPCDYKBN.js?v=b922647b:7174
+batchedUpdates$1 @ chunk-RPCDYKBN.js?v=b922647b:18913
+batchedUpdates @ chunk-RPCDYKBN.js?v=b922647b:3579
+dispatchEventForPluginEventSystem @ chunk-RPCDYKBN.js?v=b922647b:7173
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-RPCDYKBN.js?v=b922647b:5478
+dispatchEvent @ chunk-RPCDYKBN.js?v=b922647b:5472
+dispatchDiscreteEvent @ chunk-RPCDYKBN.js?v=b922647b:5449

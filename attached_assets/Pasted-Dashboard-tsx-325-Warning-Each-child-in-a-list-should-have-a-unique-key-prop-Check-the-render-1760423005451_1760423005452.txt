@@ -1,0 +1,114 @@
+Dashboard.tsx:325 Warning: Each child in a list should have a unique "key" prop.
+
+Check the render method of `Dashboard`. See https://reactjs.org/link/warning-keys for more information.
+    at _c1 (https://4878953f-9aaf-4570-968a-574fcc86cbe2-00-1mq56q0gd6uxx.spock.replit.dev/src/components/ui/select.tsx:208:12)
+    at Dashboard (https://4878953f-9aaf-4570-968a-574fcc86cbe2-00-1mq56q0gd6uxx.spock.replit.dev/src/pages/Dashboard.tsx:50:20)
+    at ProtectedRoute (https://4878953f-9aaf-4570-968a-574fcc86cbe2-00-1mq56q0gd6uxx.spock.replit.dev/src/App.tsx?v=H-uTH4JN0-MuEH2NIZf-5:79:38)
+    at Route (https://4878953f-9aaf-4570-968a-574fcc86cbe2-00-1mq56q0gd6uxx.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=f461bdf4:323:16)
+    at Switch (https://4878953f-9aaf-4570-968a-574fcc86cbe2-00-1mq56q0gd6uxx.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=f461bdf4:379:17)
+    at Router
+    at main
+    at div
+    at div
+    at div
+    at Provider (https://4878953f-9aaf-4570-968a-574fcc86cbe2-00-1mq56q0gd6uxx.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-E7IAXTU4.js?v=0a06d63e:38:15)
+    at TooltipProvider (https://4878953f-9aaf-4570-968a-574fcc86cbe2-00-1mq56q0gd6uxx.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=51a7384c:63:5)
+    at SidebarProvider (https://4878953f-9aaf-4570-968a-574fcc86cbe2-00-1mq56q0gd6uxx.spock.replit.dev/src/components/ui/sidebar.tsx:59:3)
+    at AppLayout (https://4878953f-9aaf-4570-968a-574fcc86cbe2-00-1mq56q0gd6uxx.spock.replit.dev/src/App.tsx?v=H-uTH4JN0-MuEH2NIZf-5:306:20)
+    at AuthProvider (https://4878953f-9aaf-4570-968a-574fcc86cbe2-00-1mq56q0gd6uxx.spock.replit.dev/src/lib/auth.tsx:22:32)
+    at ThemeProvider (https://4878953f-9aaf-4570-968a-574fcc86cbe2-00-1mq56q0gd6uxx.spock.replit.dev/src/components/ThemeProvider.tsx:20:33)
+    at Provider (https://4878953f-9aaf-4570-968a-574fcc86cbe2-00-1mq56q0gd6uxx.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-E7IAXTU4.js?v=0a06d63e:38:15)
+    at TooltipProvider (https://4878953f-9aaf-4570-968a-574fcc86cbe2-00-1mq56q0gd6uxx.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=51a7384c:63:5)
+    at QueryClientProvider (https://4878953f-9aaf-4570-968a-574fcc86cbe2-00-1mq56q0gd6uxx.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=5cd359e3:2805:3)
+    at App
+printWarning @ react_jsx-dev-runtime.js?v=15564e0f:64
+error @ react_jsx-dev-runtime.js?v=15564e0f:48
+validateExplicitKey @ react_jsx-dev-runtime.js?v=15564e0f:724
+validateChildKeys @ react_jsx-dev-runtime.js?v=15564e0f:737
+jsxWithValidation @ react_jsx-dev-runtime.js?v=15564e0f:855
+Dashboard @ Dashboard.tsx:325
+renderWithHooks @ chunk-RPCDYKBN.js?v=0a06d63e:11548
+updateFunctionComponent @ chunk-RPCDYKBN.js?v=0a06d63e:14582
+beginWork @ chunk-RPCDYKBN.js?v=0a06d63e:15924
+beginWork$1 @ chunk-RPCDYKBN.js?v=0a06d63e:19753
+performUnitOfWork @ chunk-RPCDYKBN.js?v=0a06d63e:19198
+workLoopSync @ chunk-RPCDYKBN.js?v=0a06d63e:19137
+renderRootSync @ chunk-RPCDYKBN.js?v=0a06d63e:19116
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=0a06d63e:18874
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=0a06d63e:9119
+(anonymous) @ chunk-RPCDYKBN.js?v=0a06d63e:18627
+setTimeout
+scheduleFn @ @tanstack_react-query.js?v=5cd359e3:555
+flush @ @tanstack_react-query.js?v=5cd359e3:569
+batch @ @tanstack_react-query.js?v=5cd359e3:587
+dispatch_fn @ @tanstack_react-query.js?v=5cd359e3:996
+setData @ @tanstack_react-query.js?v=5cd359e3:696
+onSuccess @ @tanstack_react-query.js?v=5cd359e3:897
+resolve @ @tanstack_react-query.js?v=5cd359e3:456
+Promise.then
+run @ @tanstack_react-query.js?v=5cd359e3:498
+start @ @tanstack_react-query.js?v=5cd359e3:536
+fetch @ @tanstack_react-query.js?v=5cd359e3:926
+executeFetch_fn @ @tanstack_react-query.js?v=5cd359e3:2211
+onSubscribe @ @tanstack_react-query.js?v=5cd359e3:1898
+subscribe @ @tanstack_react-query.js?v=5cd359e3:24
+(anonymous) @ @tanstack_react-query.js?v=5cd359e3:3022
+subscribeToStore @ chunk-RPCDYKBN.js?v=0a06d63e:11984
+commitHookEffectListMount @ chunk-RPCDYKBN.js?v=0a06d63e:16915
+commitPassiveMountOnFiber @ chunk-RPCDYKBN.js?v=0a06d63e:18156
+commitPassiveMountEffects_complete @ chunk-RPCDYKBN.js?v=0a06d63e:18129
+commitPassiveMountEffects_begin @ chunk-RPCDYKBN.js?v=0a06d63e:18119
+commitPassiveMountEffects @ chunk-RPCDYKBN.js?v=0a06d63e:18109
+flushPassiveEffectsImpl @ chunk-RPCDYKBN.js?v=0a06d63e:19490
+flushPassiveEffects @ chunk-RPCDYKBN.js?v=0a06d63e:19447
+commitRootImpl @ chunk-RPCDYKBN.js?v=0a06d63e:19416
+commitRoot @ chunk-RPCDYKBN.js?v=0a06d63e:19277
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=0a06d63e:18895
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=0a06d63e:9119
+(anonymous) @ chunk-RPCDYKBN.js?v=0a06d63e:18627
+queryClient.ts:50  GET https://4878953f-9aaf-4570-968a-574fcc86cbe2-00-1mq56q0gd6uxx.spock.replit.dev/api/service-visits 500 (Internal Server Error)
+(anonymous) @ queryClient.ts:50
+fetchFn @ @tanstack_react-query.js?v=5cd359e3:840
+run @ @tanstack_react-query.js?v=5cd359e3:494
+start @ @tanstack_react-query.js?v=5cd359e3:536
+fetch @ @tanstack_react-query.js?v=5cd359e3:926
+executeFetch_fn @ @tanstack_react-query.js?v=5cd359e3:2211
+onSubscribe @ @tanstack_react-query.js?v=5cd359e3:1898
+subscribe @ @tanstack_react-query.js?v=5cd359e3:24
+(anonymous) @ @tanstack_react-query.js?v=5cd359e3:3022
+subscribeToStore @ chunk-RPCDYKBN.js?v=0a06d63e:11984
+commitHookEffectListMount @ chunk-RPCDYKBN.js?v=0a06d63e:16915
+commitPassiveMountOnFiber @ chunk-RPCDYKBN.js?v=0a06d63e:18156
+commitPassiveMountEffects_complete @ chunk-RPCDYKBN.js?v=0a06d63e:18129
+commitPassiveMountEffects_begin @ chunk-RPCDYKBN.js?v=0a06d63e:18119
+commitPassiveMountEffects @ chunk-RPCDYKBN.js?v=0a06d63e:18109
+flushPassiveEffectsImpl @ chunk-RPCDYKBN.js?v=0a06d63e:19490
+flushPassiveEffects @ chunk-RPCDYKBN.js?v=0a06d63e:19447
+commitRootImpl @ chunk-RPCDYKBN.js?v=0a06d63e:19416
+commitRoot @ chunk-RPCDYKBN.js?v=0a06d63e:19277
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=0a06d63e:18895
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=0a06d63e:9119
+(anonymous) @ chunk-RPCDYKBN.js?v=0a06d63e:18627
+queryClient.ts:50  GET https://4878953f-9aaf-4570-968a-574fcc86cbe2-00-1mq56q0gd6uxx.spock.replit.dev/api/dashboard-stats 500 (Internal Server Error)
+(anonymous) @ queryClient.ts:50
+fetchFn @ @tanstack_react-query.js?v=5cd359e3:840
+run @ @tanstack_react-query.js?v=5cd359e3:494
+start @ @tanstack_react-query.js?v=5cd359e3:536
+fetch @ @tanstack_react-query.js?v=5cd359e3:926
+executeFetch_fn @ @tanstack_react-query.js?v=5cd359e3:2211
+onSubscribe @ @tanstack_react-query.js?v=5cd359e3:1898
+subscribe @ @tanstack_react-query.js?v=5cd359e3:24
+(anonymous) @ @tanstack_react-query.js?v=5cd359e3:3022
+subscribeToStore @ chunk-RPCDYKBN.js?v=0a06d63e:11984
+commitHookEffectListMount @ chunk-RPCDYKBN.js?v=0a06d63e:16915
+commitPassiveMountOnFiber @ chunk-RPCDYKBN.js?v=0a06d63e:18156
+commitPassiveMountEffects_complete @ chunk-RPCDYKBN.js?v=0a06d63e:18129
+commitPassiveMountEffects_begin @ chunk-RPCDYKBN.js?v=0a06d63e:18119
+commitPassiveMountEffects @ chunk-RPCDYKBN.js?v=0a06d63e:18109
+flushPassiveEffectsImpl @ chunk-RPCDYKBN.js?v=0a06d63e:19490
+flushPassiveEffects @ chunk-RPCDYKBN.js?v=0a06d63e:19447
+commitRootImpl @ chunk-RPCDYKBN.js?v=0a06d63e:19416
+commitRoot @ chunk-RPCDYKBN.js?v=0a06d63e:19277
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=0a06d63e:18895
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=0a06d63e:9119
+(anonymous) @ chunk-RPCDYKBN.js?v=0a06d63e:18627

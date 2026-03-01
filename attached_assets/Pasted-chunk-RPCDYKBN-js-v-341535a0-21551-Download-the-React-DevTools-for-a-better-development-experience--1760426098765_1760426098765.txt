@@ -1,0 +1,26 @@
+chunk-RPCDYKBN.js?v=341535a0:21551 Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+api/auth/me:1  Failed to load resource: the server responded with a status of 401 (Unauthorized)
+react_jsx-dev-runtime.js?v=884be82c:64 Warning: Each child in a list should have a unique "key" prop.
+
+Check the render method of `ServiceVisits`. See https://reactjs.org/link/warning-keys for more information.
+    at _c1 (https://4137d008-b6d4-4fd2-baa0-33f28056d48a-00-2yq80oqvggsba.janeway.replit.dev/src/components/ui/select.tsx:208:12)
+    at ServiceVisits (https://4137d008-b6d4-4fd2-baa0-33f28056d48a-00-2yq80oqvggsba.janeway.replit.dev/src/pages/ServiceVisits.tsx:38:21)
+    at ProtectedRoute (https://4137d008-b6d4-4fd2-baa0-33f28056d48a-00-2yq80oqvggsba.janeway.replit.dev/src/App.tsx?v=6gMbhh583tmV-xqUI62Or:79:38)
+    at Route (https://4137d008-b6d4-4fd2-baa0-33f28056d48a-00-2yq80oqvggsba.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=928a4775:323:16)
+    at Switch (https://4137d008-b6d4-4fd2-baa0-33f28056d48a-00-2yq80oqvggsba.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=928a4775:379:17)
+    at Router
+    at main
+    at div
+    at div
+    at div
+    at Provider (https://4137d008-b6d4-4fd2-baa0-33f28056d48a-00-2yq80oqvggsba.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-E7IAXTU4.js?v=341535a0:38:15)
+    at TooltipProvider (https://4137d008-b6d4-4fd2-baa0-33f28056d48a-00-2yq80oqvggsba.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=f47f8682:63:5)
+    at SidebarProvider (https://4137d008-b6d4-4fd2-baa0-33f28056d48a-00-2yq80oqvggsba.janeway.replit.dev/src/components/ui/sidebar.tsx:59:3)
+    at AppLayout (https://4137d008-b6d4-4fd2-baa0-33f28056d48a-00-2yq80oqvggsba.janeway.replit.dev/src/App.tsx?v=6gMbhh583tmV-xqUI62Or:306:20)
+    at AuthProvider (https://4137d008-b6d4-4fd2-baa0-33f28056d48a-00-2yq80oqvggsba.janeway.replit.dev/src/lib/auth.tsx:22:32)
+    at ThemeProvider (https://4137d008-b6d4-4fd2-baa0-33f28056d48a-00-2yq80oqvggsba.janeway.replit.dev/src/components/ThemeProvider.tsx:20:33)
+    at Provider (https://4137d008-b6d4-4fd2-baa0-33f28056d48a-00-2yq80oqvggsba.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-E7IAXTU4.js?v=341535a0:38:15)
+    at TooltipProvider (https://4137d008-b6d4-4fd2-baa0-33f28056d48a-00-2yq80oqvggsba.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=f47f8682:63:5)
+    at QueryClientProvider (https://4137d008-b6d4-4fd2-baa0-33f28056d48a-00-2yq80oqvggsba.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=0e304327:2805:3)
+    at App
+printWarning @ react_jsx-dev-runtime.js?v=884be82c:64

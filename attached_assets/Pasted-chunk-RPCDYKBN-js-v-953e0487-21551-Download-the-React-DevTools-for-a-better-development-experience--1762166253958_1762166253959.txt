@@ -1,0 +1,60 @@
+chunk-RPCDYKBN.js?v=953e0487:21551 Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+api/auth/me:1  Failed to load resource: the server responded with a status of 401 (Unauthorized)
+CustomerRegistrationDashboard.tsx:1098 Uncaught ReferenceError: loadingProducts is not defined
+    at CustomerRegistrationDashboard.tsx:1098:36
+    at Array.map (<anonymous>)
+    at CustomerRegistrationDashboard (CustomerRegistrationDashboard.tsx:1039:41)
+    at renderWithHooks (chunk-RPCDYKBN.js?v=953e0487:11548:26)
+    at updateFunctionComponent (chunk-RPCDYKBN.js?v=953e0487:14582:28)
+    at beginWork (chunk-RPCDYKBN.js?v=953e0487:15924:22)
+    at HTMLUnknownElement.callCallback2 (chunk-RPCDYKBN.js?v=953e0487:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-RPCDYKBN.js?v=953e0487:3699:24)
+    at invokeGuardedCallback (chunk-RPCDYKBN.js?v=953e0487:3733:39)
+    at beginWork$1 (chunk-RPCDYKBN.js?v=953e0487:19765:15)
+CustomerRegistrationDashboard.tsx:1098 Uncaught ReferenceError: loadingProducts is not defined
+    at CustomerRegistrationDashboard.tsx:1098:36
+    at Array.map (<anonymous>)
+    at CustomerRegistrationDashboard (CustomerRegistrationDashboard.tsx:1039:41)
+    at renderWithHooks (chunk-RPCDYKBN.js?v=953e0487:11548:26)
+    at updateFunctionComponent (chunk-RPCDYKBN.js?v=953e0487:14582:28)
+    at beginWork (chunk-RPCDYKBN.js?v=953e0487:15924:22)
+    at HTMLUnknownElement.callCallback2 (chunk-RPCDYKBN.js?v=953e0487:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-RPCDYKBN.js?v=953e0487:3699:24)
+    at invokeGuardedCallback (chunk-RPCDYKBN.js?v=953e0487:3733:39)
+    at beginWork$1 (chunk-RPCDYKBN.js?v=953e0487:19765:15)
+chunk-RPCDYKBN.js?v=953e0487:14032 The above error occurred in the <CustomerRegistrationDashboard> component:
+
+    at CustomerRegistrationDashboard (https://2e2ac43b-0bcf-43bc-991a-6e555500f8b4-00-1hdkrni3fvhi4.picard.replit.dev/src/pages/CustomerRegistrationDashboard.tsx:465:20)
+    at ProtectedRoute (https://2e2ac43b-0bcf-43bc-991a-6e555500f8b4-00-1hdkrni3fvhi4.picard.replit.dev/src/App.tsx?v=mtNigiGevNvoppZCPp6nR:81:38)
+    at Route (https://2e2ac43b-0bcf-43bc-991a-6e555500f8b4-00-1hdkrni3fvhi4.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=953e0487:323:16)
+    at Switch (https://2e2ac43b-0bcf-43bc-991a-6e555500f8b4-00-1hdkrni3fvhi4.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=953e0487:379:17)
+    at Router
+    at main
+    at div
+    at div
+    at div
+    at Provider (https://2e2ac43b-0bcf-43bc-991a-6e555500f8b4-00-1hdkrni3fvhi4.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-E7IAXTU4.js?v=953e0487:38:15)
+    at TooltipProvider (https://2e2ac43b-0bcf-43bc-991a-6e555500f8b4-00-1hdkrni3fvhi4.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=953e0487:63:5)
+    at SidebarProvider (https://2e2ac43b-0bcf-43bc-991a-6e555500f8b4-00-1hdkrni3fvhi4.picard.replit.dev/src/components/ui/sidebar.tsx:59:3)
+    at AppLayout (https://2e2ac43b-0bcf-43bc-991a-6e555500f8b4-00-1hdkrni3fvhi4.picard.replit.dev/src/App.tsx?v=mtNigiGevNvoppZCPp6nR:327:31)
+    at AuthProvider (https://2e2ac43b-0bcf-43bc-991a-6e555500f8b4-00-1hdkrni3fvhi4.picard.replit.dev/src/lib/auth.tsx:22:32)
+    at ThemeProvider (https://2e2ac43b-0bcf-43bc-991a-6e555500f8b4-00-1hdkrni3fvhi4.picard.replit.dev/src/components/ThemeProvider.tsx:20:33)
+    at Provider (https://2e2ac43b-0bcf-43bc-991a-6e555500f8b4-00-1hdkrni3fvhi4.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-E7IAXTU4.js?v=953e0487:38:15)
+    at TooltipProvider (https://2e2ac43b-0bcf-43bc-991a-6e555500f8b4-00-1hdkrni3fvhi4.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=953e0487:63:5)
+    at QueryClientProvider (https://2e2ac43b-0bcf-43bc-991a-6e555500f8b4-00-1hdkrni3fvhi4.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=953e0487:2805:3)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+logCapturedError @ chunk-RPCDYKBN.js?v=953e0487:14032
+chunk-RPCDYKBN.js?v=953e0487:9129 Uncaught ReferenceError: loadingProducts is not defined
+    at CustomerRegistrationDashboard.tsx:1098:36
+    at Array.map (<anonymous>)
+    at CustomerRegistrationDashboard (CustomerRegistrationDashboard.tsx:1039:41)
+    at renderWithHooks (chunk-RPCDYKBN.js?v=953e0487:11548:26)
+    at updateFunctionComponent (chunk-RPCDYKBN.js?v=953e0487:14582:28)
+    at beginWork (chunk-RPCDYKBN.js?v=953e0487:15924:22)
+    at beginWork$1 (chunk-RPCDYKBN.js?v=953e0487:19753:22)
+    at performUnitOfWork (chunk-RPCDYKBN.js?v=953e0487:19198:20)
+    at workLoopSync (chunk-RPCDYKBN.js?v=953e0487:19137:13)
+    at renderRootSync (chunk-RPCDYKBN.js?v=953e0487:19116:15)

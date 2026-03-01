@@ -1,0 +1,392 @@
+================================================================================
+WHATSAPP INTEGRATION - COMPLETE TECHNICAL DOCUMENTATION
+Mauli Car World - Customer Registration System
+================================================================================
+
+PROJECT: Mauli Car World CRM
+PURPOSE: Send WhatsApp messages for customer registration (OTP & Welcome)
+API PROVIDER: CloudAPI (https://cloudapi.akst.in/)
+INTEGRATION DATE: October 20, 2025
+
+================================================================================
+1. API CONFIGURATION
+================================================================================
+
+Base URL: https://cloudapi.akst.in/
+
+API Endpoints:
+--------------
+1. Text Messages (OTP):
+   https://cloudapi.akst.in/api/v1.0/messages/send-text/{CHANNEL_NUMBER}
+
+2. Template Messages (Welcome):
+   https://cloudapi.akst.in/api/v1.0/messages/send-template/{CHANNEL_NUMBER}
+
+================================================================================
+2. CREDENTIALS (Environment Variables)
+================================================================================
+
+Required Secrets in Replit:
+---------------------------
+Variable Name: WHATSAPP_API_KEY
+Value: 7RlFwj57s8gu4... (your full API key from CloudAPI dashboard)
+Purpose: Bearer token for authentication
+
+Variable Name: WHATSAPP_PHONE_NUMBER_ID
+Value: 919970127778
+Purpose: Your WhatsApp channel number (from CloudAPI dashboard)
+
+How to Set in Replit:
+---------------------
+1. Go to Tools → Secrets
+2. Add WHATSAPP_API_KEY with your API key
+3. Add WHATSAPP_PHONE_NUMBER_ID with value: 919970127778
+4. Workflow auto-restarts when secrets are updated
+
+================================================================================
+3. API REQUEST STRUCTURE
+================================================================================
+
+3.1 OTP TEXT MESSAGE REQUEST
+-----------------------------
+Endpoint: POST https://cloudapi.akst.in/api/v1.0/messages/send-text/919970127778
+
+Headers:
+{
+  "Content-Type": "application/json",
+  "Authorization": "Bearer {WHATSAPP_API_KEY}"
+}
+
+Request Body:
+{
+  "messaging_product": "whatsapp",
+  "recipient_type": "individual",
+  "to": "917507219775",
+  "type": "text",
+  "text": {
+    "preview_url": false,
+    "body": "Your OTP for Mauli Car World registration is: 613754\n\nThis OTP is valid for 10 minutes. Please do not share this code with anyone.\n\n- Mauli Car World"
+  }
+}
+
+Success Response:
+{
+  "success": true,
+  "statusDesc": "Message(s) sent sucessfully...",
+  "statusCode": 0,
+  "data": [
+    {
+      "Number": "+917507219775",
+      "MaskId": "VoCGAjdTdUWESMpEmcPOWg"
+    }
+  ]
+}
+
+3.2 TEMPLATE MESSAGE REQUEST
+-----------------------------
+Endpoint: POST https://cloudapi.akst.in/api/v1.0/messages/send-template/919970127778
+
+Headers:
+{
+  "Content-Type": "application/json",
+  "Authorization": "Bearer {WHATSAPP_API_KEY}"
+}
+
+Request Body:
+{
+  "messaging_product": "whatsapp",
+  "recipient_type": "individual",
+  "to": "917507219775",
+  "type": "template",
+  "template": {
+    "name": "autocrmtest",
+    "language": {
+      "code": "en"
+    },
+    "components": []
+  }
+}
+
+Success Response:
+{
+  "success": true,
+  "statusDesc": "Message Sent Successfully.",
+  "statusCode": 0,
+  "data": [
+    {
+      "Number": "917507219775",
+      "MaskId": "2qFnwdb86EiByPG71vxAIw"
+    }
+  ]
+}
+
+================================================================================
+4. PHONE NUMBER FORMATTING
+================================================================================
+
+The system automatically formats phone numbers for India:
+
+Input:  7507219775 (10 digits)
+Output: 917507219775 (adds country code 91)
+
+Already formatted numbers (12 digits starting with 91) are left as-is.
+
+Logic (in server/services/whatsapp.ts):
+---------------------------------------
+let formattedPhone = to.replace(/\D/g, '');
+
+if (formattedPhone.length === 10) {
+  formattedPhone = '91' + formattedPhone;
+}
+
+================================================================================
+5. IMPLEMENTATION FILES
+================================================================================
+
+5.1 server/services/whatsapp.ts
+-------------------------------
+Main WhatsApp service file containing:
+
+Function: sendWhatsAppMessage({ to, message })
+- Purpose: Send text messages (OTP)
+- Returns: { success: boolean, error?: string }
+- Endpoint: /api/v1.0/messages/send-text/{channel}
+
+Function: sendWhatsAppTemplate({ to, templateName })
+- Purpose: Send template messages (Welcome)
+- Returns: { success: boolean, error?: string }
+- Endpoint: /api/v1.0/messages/send-template/{channel}
+- Default Template: "autocrmtest"
+
+Function: createOTPMessage(otp)
+- Purpose: Generate OTP message text
+- Returns: Formatted OTP message string
+
+Function: createWelcomeMessage(customerName)
+- Purpose: Generate welcome message text (not currently used, using template instead)
+- Returns: Formatted welcome message string
+
+5.2 server/routes.ts
+--------------------
+API Route: POST /api/registration/customers (Line ~1725)
+- Generates OTP
+- Creates customer in database
+- Calls sendWhatsAppMessage() to send OTP via WhatsApp
+- Returns customer ID and OTP (in development mode)
+
+API Route: POST /api/registration/verify-otp (Line ~1787)
+- Validates OTP
+- Marks customer as verified
+- Calls sendWhatsAppTemplate() to send welcome message
+- Returns customer data
+
+5.3 client/src/pages/CustomerRegistration.tsx
+----------------------------------------------
+Frontend component handling:
+- Customer registration form
+- OTP verification form
+- Displays WhatsApp error messages if sending fails
+- Shows detailed logging in browser console
+
+================================================================================
+6. CUSTOMER REGISTRATION FLOW
+================================================================================
+
+STEP 1: CUSTOMER REGISTRATION
+------------------------------
+User Action: Customer fills registration form with mobile number
+System Action:
+  1. Validates customer data
+  2. Generates 6-digit OTP
+  3. Saves customer to database (unverified)
+  4. Sends OTP via WhatsApp text message
+  5. Returns customer ID and OTP (dev mode only)
+
+API Call: POST /api/registration/customers
+WhatsApp: sendWhatsAppMessage() → Text message with OTP
+
+STEP 2: OTP VERIFICATION
+-------------------------
+User Action: Customer enters OTP from WhatsApp
+System Action:
+  1. Validates OTP and expiry time
+  2. Marks customer as verified
+  3. Sends welcome message via WhatsApp template
+  4. Creates activity log entry
+  5. Returns customer data
+
+API Call: POST /api/registration/verify-otp
+WhatsApp: sendWhatsAppTemplate() → Template message "autocrmtest"
+
+================================================================================
+7. APPROVED WHATSAPP TEMPLATE
+================================================================================
+
+Template Name: autocrmtest
+Template Language: English (en)
+Template Status: Approved
+Template Components: [] (no dynamic parameters)
+
+Template Configuration (from CloudAPI dashboard):
+{
+  "messaging_product": "whatsapp",
+  "recipient_type": "individual",
+  "to": "{{Recipient-Phone-Number}}",
+  "type": "template",
+  "template": {
+    "name": "autocrmtest",
+    "language": {
+      "code": "en"
+    },
+    "components": []
+  }
+}
+
+Note: Template content is managed in CloudAPI dashboard. No parameters needed.
+
+================================================================================
+8. ERROR HANDLING
+================================================================================
+
+Common Error Scenarios:
+-----------------------
+
+Error: "Channel Number not Found" (statusCode: 38)
+Cause: Incorrect WHATSAPP_PHONE_NUMBER_ID
+Solution: Verify channel number in CloudAPI dashboard → User Channel
+
+Error: "WhatsApp credentials not configured"
+Cause: Missing environment variables
+Solution: Add WHATSAPP_API_KEY and WHATSAPP_PHONE_NUMBER_ID in Replit Secrets
+
+Error: 401 Unauthorized
+Cause: Invalid API key
+Solution: Verify WHATSAPP_API_KEY in CloudAPI dashboard
+
+Error Logging:
+--------------
+All WhatsApp API errors are logged with:
+- HTTP status code
+- Error message from CloudAPI
+- Full request payload (with sensitive data masked)
+- Response details
+
+Check server logs for detailed error information.
+
+================================================================================
+9. TESTING & DEBUGGING
+================================================================================
+
+Development Mode Features:
+--------------------------
+- OTP returned in API response for easy testing
+- Detailed console logging in browser
+- Full request/response logging in server logs
+
+How to Test:
+------------
+1. Register a customer with Indian mobile number (10 digits)
+2. Check browser console for detailed process logs
+3. Check server logs for WhatsApp API request/response
+4. Verify WhatsApp message received on mobile
+5. Enter OTP to verify registration
+6. Verify welcome template message received
+
+Server Logs Show:
+-----------------
+✅ Configuration details (API URL, masked API key, channel number)
+✅ Phone number formatting process
+✅ Complete request payload
+✅ Response time in milliseconds
+✅ Success/failure status
+✅ Full response data from CloudAPI
+
+Browser Console Shows:
+----------------------
+✅ Registration process steps
+✅ API response data
+✅ WhatsApp sending status
+✅ Error messages if WhatsApp fails
+
+================================================================================
+10. SECURITY BEST PRACTICES
+================================================================================
+
+1. Never expose API keys in code - use environment variables
+2. API keys are stored in Replit Secrets (encrypted)
+3. Server logs mask sensitive parts of API key (shows only first 8 chars)
+4. OTP is only returned in development mode (NODE_ENV=development)
+5. OTP expires after 10 minutes
+6. Phone numbers are validated and formatted server-side
+
+================================================================================
+11. CLOUDAPI DASHBOARD REFERENCE
+================================================================================
+
+Dashboard URL: https://cloudapi.akst.in/
+
+Your Channel Details:
+---------------------
+Number: 919970127778
+PhoneNumberID: 763394680192431
+WABA ID: 763456736065455
+Quality Rating: High Quality (Green)
+Status: Current
+
+Important Pages:
+----------------
+- User Channel: View your WhatsApp channel details
+- Meta Templates: Manage approved message templates
+- API Documentation: Complete API reference
+
+================================================================================
+12. MAINTENANCE & UPDATES
+================================================================================
+
+To Update WhatsApp Template:
+-----------------------------
+1. Go to CloudAPI dashboard → Meta Templates
+2. Edit or create new template
+3. Wait for Meta approval (usually 24-48 hours)
+4. Update template name in code if needed (server/routes.ts line ~1819)
+
+To Update Channel Number:
+--------------------------
+1. Get new channel number from CloudAPI dashboard
+2. Update WHATSAPP_PHONE_NUMBER_ID in Replit Secrets
+3. Workflow will auto-restart
+
+To Add New Message Types:
+--------------------------
+1. Create function in server/services/whatsapp.ts
+2. Call function from appropriate route in server/routes.ts
+3. Follow existing patterns for error handling and logging
+
+================================================================================
+13. INTEGRATION SUMMARY
+================================================================================
+
+✅ API Provider: CloudAPI (https://cloudapi.akst.in/)
+✅ Base URL: https://cloudapi.akst.in/api/v1.0/messages/
+✅ Authentication: Bearer token via WHATSAPP_API_KEY
+✅ Channel Number: 919970127778
+✅ OTP Sending: Text message via /send-text endpoint
+✅ Welcome Message: Template message via /send-template endpoint
+✅ Template Name: autocrmtest
+✅ Phone Formatting: Auto-adds +91 for Indian numbers
+✅ Error Handling: Detailed logging and user-friendly messages
+✅ Security: Environment variables, masked logs, OTP expiry
+
+Status: FULLY OPERATIONAL ✅
+
+================================================================================
+END OF DOCUMENTATION
+================================================================================
+
+For support or questions:
+- Check CloudAPI documentation: https://cloudapi.akst.in/
+- Review server logs for detailed error messages
+- Verify credentials in Replit Secrets
+- Ensure templates are approved in CloudAPI dashboard
+
+Last Updated: October 20, 2025

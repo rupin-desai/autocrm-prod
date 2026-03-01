@@ -1,0 +1,610 @@
+[root@66-116-196-192 AutoCarV8]# pm2 logs --lines 200
+[TAILING] Tailing last 200 lines for [all] processes (change the value with --lines option)
+/root/.pm2/pm2.log last 200 lines:
+PM2        | 2025-10-28T12:36:09: PM2 log: App [autocarv5:0] exited with code [1] via signal [SIGINT]
+PM2        | 2025-10-28T12:36:09: PM2 log: App [autocarv5:0] starting in -fork mode-
+PM2        | 2025-10-28T12:36:09: PM2 log: App [autocarv5:0] online
+PM2        | 2025-10-28T12:36:10: PM2 log: App [autocarv5:0] exited with code [1] via signal [SIGINT]
+PM2        | 2025-10-28T12:36:10: PM2 log: App [autocarv5:0] starting in -fork mode-
+PM2        | 2025-10-28T12:36:10: PM2 log: App [autocarv5:0] online
+PM2        | 2025-10-28T12:36:11: PM2 log: App [autocarv5:0] exited with code [1] via signal [SIGINT]
+PM2        | 2025-10-28T12:36:11: PM2 log: App [autocarv5:0] starting in -fork mode-
+PM2        | 2025-10-28T12:36:11: PM2 log: App [autocarv5:0] online
+PM2        | 2025-10-28T12:36:13: PM2 log: App [autocarv5:0] exited with code [1] via signal [SIGINT]
+PM2        | 2025-10-28T12:36:13: PM2 log: App [autocarv5:0] starting in -fork mode-
+PM2        | 2025-10-28T12:36:13: PM2 log: App [autocarv5:0] online
+PM2        | 2025-10-28T12:36:16: PM2 log: App [autocarv5:0] exited with code [1] via signal [SIGINT]
+PM2        | 2025-10-28T12:36:16: PM2 log: App [autocarv5:0] starting in -fork mode-
+PM2        | 2025-10-28T12:36:16: PM2 log: App [autocarv5:0] online
+PM2        | 2025-10-28T12:36:18: PM2 log: App [autocarv5:0] exited with code [1] via signal [SIGINT]
+PM2        | 2025-10-28T12:36:18: PM2 log: App [autocarv5:0] starting in -fork mode-
+PM2        | 2025-10-28T12:36:18: PM2 log: App [autocarv5:0] online
+PM2        | 2025-10-28T12:36:19: PM2 log: App [autocarv5:0] exited with code [1] via signal [SIGINT]
+PM2        | 2025-10-28T12:36:19: PM2 log: App [autocarv5:0] starting in -fork mode-
+PM2        | 2025-10-28T12:36:19: PM2 log: App [autocarv5:0] online
+PM2        | 2025-10-28T12:36:24: PM2 log: App [autocarv5:0] exited with code [1] via signal [SIGINT]
+PM2        | 2025-10-28T12:36:24: PM2 log: App [autocarv5:0] starting in -fork mode-
+PM2        | 2025-10-28T12:36:24: PM2 log: App [autocarv5:0] online
+PM2        | 2025-10-28T12:36:40: PM2 log: Stopping app:autocarv5 id:0
+PM2        | 2025-10-28T12:36:40: PM2 log: App [autocarv5:0] exited with code [0] via signal [SIGINT]
+PM2        | 2025-10-28T12:36:40: PM2 log: pid=786815 msg=process killed
+PM2        | 2025-10-28T12:37:39: PM2 log: App [autocarv7:0] starting in -fork mode-
+PM2        | 2025-10-28T12:37:39: PM2 log: App [autocarv7:0] online
+PM2        | 2025-10-28T12:37:55: PM2 log: App [autocarv7:0] exited with code [1] via signal [SIGINT]
+PM2        | 2025-10-28T12:37:55: PM2 log: App [autocarv7:0] starting in -fork mode-
+PM2        | 2025-10-28T12:37:55: PM2 log: App [autocarv7:0] online
+PM2        | 2025-10-28T12:37:56: PM2 log: App [autocarv7:0] exited with code [1] via signal [SIGINT]
+PM2        | 2025-10-28T12:37:56: PM2 log: App [autocarv7:0] starting in -fork mode-
+PM2        | 2025-10-28T12:37:56: PM2 log: App [autocarv7:0] online
+PM2        | 2025-10-28T12:37:57: PM2 log: App [autocarv7:0] exited with code [1] via signal [SIGINT]
+PM2        | 2025-10-28T12:37:57: PM2 log: App [autocarv7:0] starting in -fork mode-
+PM2        | 2025-10-28T12:37:57: PM2 log: App [autocarv7:0] online
+PM2        | 2025-10-28T12:38:35: PM2 log: Stopping app:autocarv7 id:0
+PM2        | 2025-10-28T12:38:35: PM2 log: App [autocarv7:0] exited with code [0] via signal [SIGINT]
+PM2        | 2025-10-28T12:38:35: PM2 log: pid=787019 msg=process killed
+PM2        | 2025-10-28T12:38:35: PM2 log: App [autocarv7:0] starting in -fork mode-
+PM2        | 2025-10-28T12:38:35: PM2 log: App [autocarv7:0] online
+PM2        | 2025-10-28T12:38:56: PM2 log: App [autocarv7:0] exited with code [1] via signal [SIGINT]
+PM2        | 2025-10-28T12:38:56: PM2 log: App [autocarv7:0] starting in -fork mode-
+PM2        | 2025-10-28T12:38:56: PM2 log: App [autocarv7:0] online
+PM2        | 2025-10-28T12:38:58: PM2 log: App [autocarv7:0] exited with code [1] via signal [SIGINT]
+PM2        | 2025-10-28T12:38:58: PM2 log: App [autocarv7:0] starting in -fork mode-
+PM2        | 2025-10-28T12:38:58: PM2 log: App [autocarv7:0] online
+PM2        | 2025-10-28T12:38:59: PM2 log: App [autocarv7:0] exited with code [1] via signal [SIGINT]
+PM2        | 2025-10-28T12:38:59: PM2 log: App [autocarv7:0] starting in -fork mode-
+PM2        | 2025-10-28T12:38:59: PM2 log: App [autocarv7:0] online
+PM2        | 2025-10-28T12:39:00: PM2 log: App [autocarv7:0] exited with code [1] via signal [SIGINT]
+PM2        | 2025-10-28T12:39:00: PM2 log: App [autocarv7:0] starting in -fork mode-
+PM2        | 2025-10-28T12:39:00: PM2 log: App [autocarv7:0] online
+PM2        | 2025-10-28T12:39:02: PM2 log: App [autocarv7:0] exited with code [1] via signal [SIGINT]
+PM2        | 2025-10-28T12:39:02: PM2 log: App [autocarv7:0] starting in -fork mode-
+PM2        | 2025-10-28T12:39:02: PM2 log: App [autocarv7:0] online
+PM2        | 2025-10-28T12:39:03: PM2 log: App [autocarv7:0] exited with code [1] via signal [SIGINT]
+PM2        | 2025-10-28T12:39:03: PM2 log: App [autocarv7:0] starting in -fork mode-
+PM2        | 2025-10-28T12:39:03: PM2 log: App [autocarv7:0] online
+PM2        | 2025-10-28T12:39:09: PM2 log: App [autocarv7:0] exited with code [1] via signal [SIGINT]
+PM2        | 2025-10-28T12:39:09: PM2 log: App [autocarv7:0] starting in -fork mode-
+PM2        | 2025-10-28T12:39:09: PM2 log: App [autocarv7:0] online
+PM2        | 2025-10-28T12:39:32: PM2 log: App [autocarv7:0] exited with code [1] via signal [SIGINT]
+PM2        | 2025-10-28T12:39:32: PM2 log: App [autocarv7:0] starting in -fork mode-
+PM2        | 2025-10-28T12:39:32: PM2 log: App [autocarv7:0] online
+PM2        | 2025-10-28T12:39:37: PM2 log: App [autocarv7:0] exited with code [1] via signal [SIGINT]
+PM2        | 2025-10-28T12:39:37: PM2 log: App [autocarv7:0] starting in -fork mode-
+PM2        | 2025-10-28T12:39:37: PM2 log: App [autocarv7:0] online
+PM2        | 2025-10-28T12:40:21: PM2 log: App [autocarv7:0] exited with code [1] via signal [SIGINT]
+PM2        | 2025-10-28T12:40:21: PM2 log: App [autocarv7:0] starting in -fork mode-
+PM2        | 2025-10-28T12:40:21: PM2 log: App [autocarv7:0] online
+PM2        | 2025-10-28T12:40:23: PM2 log: App [autocarv7:0] exited with code [1] via signal [SIGINT]
+PM2        | 2025-10-28T12:40:23: PM2 log: App [autocarv7:0] starting in -fork mode-
+PM2        | 2025-10-28T12:40:23: PM2 log: App [autocarv7:0] online
+PM2        | 2025-10-28T12:40:27: PM2 log: App [autocarv7:0] exited with code [1] via signal [SIGINT]
+PM2        | 2025-10-28T12:40:27: PM2 log: App [autocarv7:0] starting in -fork mode-
+PM2        | 2025-10-28T12:40:27: PM2 log: App [autocarv7:0] online
+PM2        | 2025-10-28T12:41:06: PM2 log: App [autocarv7:0] exited with code [1] via signal [SIGINT]
+PM2        | 2025-10-28T12:41:06: PM2 log: App [autocarv7:0] starting in -fork mode-
+PM2        | 2025-10-28T12:41:06: PM2 log: App [autocarv7:0] online
+PM2        | 2025-10-28T12:41:07: PM2 log: App [autocarv7:0] exited with code [1] via signal [SIGINT]
+PM2        | 2025-10-28T12:41:07: PM2 log: App [autocarv7:0] starting in -fork mode-
+PM2        | 2025-10-28T12:41:07: PM2 log: App [autocarv7:0] online
+PM2        | 2025-10-28T12:41:42: PM2 log: App [autocarv7:0] exited with code [1] via signal [SIGINT]
+PM2        | 2025-10-28T12:41:42: PM2 log: App [autocarv7:0] starting in -fork mode-
+PM2        | 2025-10-28T12:41:42: PM2 log: App [autocarv7:0] online
+PM2        | 2025-10-28T12:41:43: PM2 log: App [autocarv7:0] exited with code [1] via signal [SIGINT]
+PM2        | 2025-10-28T12:41:43: PM2 log: App [autocarv7:0] starting in -fork mode-
+PM2        | 2025-10-28T12:41:43: PM2 log: App [autocarv7:0] online
+PM2        | 2025-10-28T12:44:03: PM2 log: Stopping app:autocarv7 id:0
+PM2        | 2025-10-28T12:44:03: PM2 log: App [autocarv7:0] exited with code [0] via signal [SIGINT]
+PM2        | 2025-10-28T12:44:04: PM2 log: pid=787570 msg=process killed
+PM2        | 2025-10-28T12:44:04: PM2 log: App [autocarv7:0] starting in -fork mode-
+PM2        | 2025-10-28T12:44:04: PM2 log: App [autocarv7:0] online
+PM2        | 2025-10-28T12:44:11: PM2 log: App [autocarv7:0] exited with code [1] via signal [SIGINT]
+PM2        | 2025-10-28T12:44:11: PM2 log: App [autocarv7:0] starting in -fork mode-
+PM2        | 2025-10-28T12:44:11: PM2 log: App [autocarv7:0] online
+PM2        | 2025-10-28T12:44:16: PM2 log: App [autocarv7:0] exited with code [1] via signal [SIGINT]
+PM2        | 2025-10-28T12:44:16: PM2 log: App [autocarv7:0] starting in -fork mode-
+PM2        | 2025-10-28T12:44:16: PM2 log: App [autocarv7:0] online
+PM2        | 2025-10-28T12:44:25: PM2 log: App [autocarv7:0] exited with code [1] via signal [SIGINT]
+PM2        | 2025-10-28T12:44:25: PM2 log: App [autocarv7:0] starting in -fork mode-
+PM2        | 2025-10-28T12:44:25: PM2 log: App [autocarv7:0] online
+PM2        | 2025-10-28T12:44:26: PM2 log: App [autocarv7:0] exited with code [1] via signal [SIGINT]
+PM2        | 2025-10-28T12:44:26: PM2 log: App [autocarv7:0] starting in -fork mode-
+PM2        | 2025-10-28T12:44:26: PM2 log: App [autocarv7:0] online
+PM2        | 2025-10-28T12:44:28: PM2 log: App [autocarv7:0] exited with code [1] via signal [SIGINT]
+PM2        | 2025-10-28T12:44:28: PM2 log: App [autocarv7:0] starting in -fork mode-
+PM2        | 2025-10-28T12:44:28: PM2 log: App [autocarv7:0] online
+PM2        | 2025-10-28T12:44:29: PM2 log: App [autocarv7:0] exited with code [1] via signal [SIGINT]
+PM2        | 2025-10-28T12:44:29: PM2 log: App [autocarv7:0] starting in -fork mode-
+PM2        | 2025-10-28T12:44:29: PM2 log: App [autocarv7:0] online
+PM2        | 2025-10-28T12:44:32: PM2 log: App [autocarv7:0] exited with code [1] via signal [SIGINT]
+PM2        | 2025-10-28T12:44:32: PM2 log: App [autocarv7:0] starting in -fork mode-
+PM2        | 2025-10-28T12:44:32: PM2 log: App [autocarv7:0] online
+PM2        | 2025-10-28T12:46:40: PM2 log: Stopping app:autocarv7 id:0
+PM2        | 2025-10-28T12:46:40: PM2 log: App [autocarv7:0] exited with code [0] via signal [SIGINT]
+PM2        | 2025-10-28T12:46:40: PM2 log: pid=787959 msg=process killed
+PM2        | 2025-10-28T12:53:14: PM2 log: App [autocarv7:0] starting in -cluster mode-
+PM2        | 2025-10-28T12:53:14: PM2 log: App [autocarv7:0] online
+PM2        | 2025-10-29T11:06:39: PM2 log: Stopping app:autocarv7 id:0
+PM2        | 2025-10-29T11:06:39: PM2 log: App name:autocarv7 id:0 disconnected
+PM2        | 2025-10-29T11:06:39: PM2 log: App [autocarv7:0] exited with code [0] via signal [SIGINT]
+PM2        | 2025-10-29T11:06:39: PM2 log: pid=788736 msg=process killed
+PM2        | 2025-10-29T11:06:39: PM2 log: App [autocarv7:0] starting in -cluster mode-
+PM2        | 2025-10-29T11:06:40: PM2 log: App [autocarv7:0] online
+PM2        | 2025-10-29T11:08:18: PM2 log: Stopping app:autocarv7 id:0
+PM2        | 2025-10-29T11:08:18: PM2 log: App name:autocarv7 id:0 disconnected
+PM2        | 2025-10-29T11:08:18: PM2 log: App [autocarv7:0] exited with code [0] via signal [SIGINT]
+PM2        | 2025-10-29T11:08:18: PM2 log: pid=892322 msg=process killed
+PM2        | 2025-10-29T11:11:15: PM2 log: App [autocarv7:0] starting in -cluster mode-
+PM2        | 2025-10-29T11:11:15: PM2 log: App [autocarv7:0] online
+PM2        | 2025-10-30T07:57:32: PM2 log: Stopping app:autocarv7 id:0
+PM2        | 2025-10-30T07:57:32: PM2 log: App name:autocarv7 id:0 disconnected
+PM2        | 2025-10-30T07:57:32: PM2 log: App [autocarv7:0] exited with code [0] via signal [SIGINT]
+PM2        | 2025-10-30T07:57:32: PM2 log: pid=892698 msg=process killed
+PM2        | 2025-10-30T07:57:32: PM2 log: App [autocarv7:0] starting in -cluster mode-
+PM2        | 2025-10-30T07:57:32: PM2 log: App [autocarv7:0] online
+PM2        | 2025-10-30T08:01:02: PM2 log: Stopping app:autocarv7 id:0
+PM2        | 2025-10-30T08:01:02: PM2 log: App name:autocarv7 id:0 disconnected
+PM2        | 2025-10-30T08:01:02: PM2 log: App [autocarv7:0] exited with code [0] via signal [SIGINT]
+PM2        | 2025-10-30T08:01:02: PM2 log: pid=934831 msg=process killed
+PM2        | 2025-10-30T08:03:31: PM2 log: App [autocarv7:0] starting in -cluster mode-
+PM2        | 2025-10-30T08:03:31: PM2 log: App [autocarv7:0] online
+PM2        | 2025-10-31T00:47:04: PM2 log: Stopping app:autocarv7 id:0
+PM2        | 2025-10-31T00:47:04: PM2 log: App name:autocarv7 id:0 disconnected
+PM2        | 2025-10-31T00:47:04: PM2 log: App [autocarv7:0] exited with code [0] via signal [SIGINT]
+PM2        | 2025-10-31T00:47:04: PM2 log: pid=935227 msg=process killed
+PM2        | 2025-10-31T00:47:04: PM2 log: App [autocarv7:0] starting in -cluster mode-
+PM2        | 2025-10-31T00:47:04: PM2 log: App [autocarv7:0] online
+PM2        | 2025-10-31T00:48:54: PM2 log: Stopping app:autocarv7 id:0
+PM2        | 2025-10-31T00:48:54: PM2 log: App name:autocarv7 id:0 disconnected
+PM2        | 2025-10-31T00:48:54: PM2 log: App [autocarv7:0] exited with code [0] via signal [SIGINT]
+PM2        | 2025-10-31T00:48:54: PM2 log: pid=968364 msg=process killed
+PM2        | 2025-10-31T00:50:33: PM2 log: App [autocarv7:0] starting in -cluster mode-
+PM2        | 2025-10-31T00:50:33: PM2 log: App [autocarv7:0] online
+PM2        | 2025-11-01T01:11:20: PM2 log: Stopping app:autocarv7 id:0
+PM2        | 2025-11-01T01:11:20: PM2 log: App name:autocarv7 id:0 disconnected
+PM2        | 2025-11-01T01:11:20: PM2 log: App [autocarv7:0] exited with code [0] via signal [SIGINT]
+PM2        | 2025-11-01T01:11:20: PM2 log: pid=968718 msg=process killed
+PM2        | 2025-11-01T01:13:26: PM2 log: App [autocarv7:0] starting in -cluster mode-
+PM2        | 2025-11-01T01:13:26: PM2 log: App [autocarv7:0] online
+PM2        | 2025-11-01T01:13:39: PM2 log: Stopping app:autocarv7 id:0
+PM2        | 2025-11-01T01:13:40: PM2 log: App name:autocarv7 id:0 disconnected
+PM2        | 2025-11-01T01:13:40: PM2 log: App [autocarv7:0] exited with code [0] via signal [SIGINT]
+PM2        | 2025-11-01T01:13:40: PM2 log: pid=1023547 msg=process killed
+PM2        | 2025-11-01T01:13:40: PM2 log: App [autocarv7:0] starting in -cluster mode-
+PM2        | 2025-11-01T01:13:40: PM2 log: App [autocarv7:0] online
+PM2        | 2025-11-01T09:07:28: PM2 log: Stopping app:autocarv7 id:0
+PM2        | 2025-11-01T09:07:28: PM2 log: App name:autocarv7 id:0 disconnected
+PM2        | 2025-11-01T09:07:28: PM2 log: App [autocarv7:0] exited with code [0] via signal [SIGINT]
+PM2        | 2025-11-01T09:07:28: PM2 log: pid=1023614 msg=process killed
+PM2        | 2025-11-01T09:07:28: PM2 log: App [autocarv7:0] starting in -cluster mode-
+PM2        | 2025-11-01T09:07:28: PM2 log: App [autocarv7:0] online
+PM2        | 2025-11-01T10:29:05: PM2 log: Stopping app:autocarv7 id:0
+PM2        | 2025-11-01T10:29:05: PM2 log: App name:autocarv7 id:0 disconnected
+PM2        | 2025-11-01T10:29:05: PM2 log: App [autocarv7:0] exited with code [0] via signal [SIGINT]
+PM2        | 2025-11-01T10:29:05: PM2 log: pid=1040141 msg=process killed
+PM2        | 2025-11-01T10:29:05: PM2 log: App [autocarv7:0] starting in -cluster mode-
+PM2        | 2025-11-01T10:29:05: PM2 log: App [autocarv7:0] online
+PM2        | 2025-11-01T10:42:31: PM2 log: Stopping app:autocarv7 id:0
+PM2        | 2025-11-01T10:42:31: PM2 log: App name:autocarv7 id:0 disconnected
+PM2        | 2025-11-01T10:42:31: PM2 log: App [autocarv7:0] exited with code [0] via signal [SIGINT]
+PM2        | 2025-11-01T10:42:32: PM2 log: pid=1044018 msg=process killed
+PM2        | 2025-11-01T10:42:32: PM2 log: App [autocarv7:0] starting in -cluster mode-
+PM2        | 2025-11-01T10:42:32: PM2 log: App [autocarv7:0] online
+PM2        | 2025-11-01T10:54:53: PM2 log: Stopping app:autocarv7 id:0
+PM2        | 2025-11-01T10:54:53: PM2 log: App name:autocarv7 id:0 disconnected
+PM2        | 2025-11-01T10:54:53: PM2 log: App [autocarv7:0] exited with code [0] via signal [SIGINT]
+PM2        | 2025-11-01T10:54:53: PM2 log: pid=1044660 msg=process killed
+PM2        | 2025-11-01T10:59:19: PM2 log: App [autocarv7:0] starting in -cluster mode-
+PM2        | 2025-11-01T10:59:19: PM2 log: App [autocarv7:0] online
+PM2        | 2025-11-01T10:59:29: PM2 log: Stopping app:autocarv7 id:0
+PM2        | 2025-11-01T10:59:29: PM2 log: App name:autocarv7 id:0 disconnected
+PM2        | 2025-11-01T10:59:29: PM2 log: App [autocarv7:0] exited with code [0] via signal [SIGINT]
+PM2        | 2025-11-01T10:59:30: PM2 log: pid=1045486 msg=process killed
+PM2        | 2025-11-01T10:59:30: PM2 log: App [autocarv7:0] starting in -cluster mode-
+PM2        | 2025-11-01T10:59:30: PM2 log: App [autocarv7:0] online
+
+/root/.pm2/logs/autocarv7-error-0.log last 200 lines:
+0|autocarv |     resourceId: CastError: Cast to ObjectId failed for value "bulk" (type string) at path "resourceId" because of "BSONError"
+0|autocarv |         at SchemaObjectId.cast (/var/www/AutoCarV7/node_modules/mongoose/lib/schema/objectId.js:251:11)
+0|autocarv |         at SchemaType.applySetters (/var/www/AutoCarV7/node_modules/mongoose/lib/schemaType.js:1259:12)
+0|autocarv |         at model.$set (/var/www/AutoCarV7/node_modules/mongoose/lib/document.js:1442:22)
+0|autocarv |         at model.$set (/var/www/AutoCarV7/node_modules/mongoose/lib/document.js:1136:16)
+0|autocarv |         at model.Document (/var/www/AutoCarV7/node_modules/mongoose/lib/document.js:178:12)
+0|autocarv |         at model.Model (/var/www/AutoCarV7/node_modules/mongoose/lib/model.js:127:12)
+0|autocarv |         at new model (/var/www/AutoCarV7/node_modules/mongoose/lib/model.js:4845:15)
+0|autocarv |         at /var/www/AutoCarV7/node_modules/mongoose/lib/model.js:2775:20
+0|autocarv |         at Array.map (<anonymous>)
+0|autocarv |         at Function.create (/var/www/AutoCarV7/node_modules/mongoose/lib/model.js:2763:34) {
+0|autocarv |       stringValue: '"bulk"',
+0|autocarv |       messageFormat: undefined,
+0|autocarv |       kind: 'ObjectId',
+0|autocarv |       value: 'bulk',
+0|autocarv |       path: 'resourceId',
+0|autocarv |       reason: BSONError: input must be a 24 character hex string, 12 byte Uint8Array, or an integer
+0|autocarv |           at new ObjectId (/var/www/AutoCarV7/node_modules/bson/lib/bson.cjs:2538:23)
+0|autocarv |           at castObjectId (/var/www/AutoCarV7/node_modules/mongoose/lib/cast/objectid.js:25:12)
+0|autocarv |           at SchemaObjectId.cast (/var/www/AutoCarV7/node_modules/mongoose/lib/schema/objectId.js:249:12)
+0|autocarv |           at SchemaType.applySetters (/var/www/AutoCarV7/node_modules/mongoose/lib/schemaType.js:1259:12)
+0|autocarv |           at model.$set (/var/www/AutoCarV7/node_modules/mongoose/lib/document.js:1442:22)
+0|autocarv |           at model.$set (/var/www/AutoCarV7/node_modules/mongoose/lib/document.js:1136:16)
+0|autocarv |           at model.Document (/var/www/AutoCarV7/node_modules/mongoose/lib/document.js:178:12)
+0|autocarv |           at model.Model (/var/www/AutoCarV7/node_modules/mongoose/lib/model.js:127:12)
+0|autocarv |           at new model (/var/www/AutoCarV7/node_modules/mongoose/lib/model.js:4845:15)
+0|autocarv |           at /var/www/AutoCarV7/node_modules/mongoose/lib/model.js:2775:20,
+0|autocarv |       valueType: 'string'
+0|autocarv |     }
+0|autocarv |   },
+0|autocarv |   _message: 'ActivityLog validation failed'
+0|autocarv | }
+0|autocarv | Failed to log activity: Error: ActivityLog validation failed: resourceId: Cast to ObjectId failed for value "bulk" (type string) at path "resourceId" because of "BSONError"
+0|autocarv |     at ValidationError.inspect (/var/www/AutoCarV7/node_modules/mongoose/lib/error/validation.js:52:26)
+0|autocarv |     at formatValue (node:internal/util/inspect:829:19)
+0|autocarv |     at inspect (node:internal/util/inspect:372:10)
+0|autocarv |     at formatWithOptionsInternal (node:internal/util/inspect:2334:40)
+0|autocarv |     at formatWithOptions (node:internal/util/inspect:2196:10)
+0|autocarv |     at console.value (node:internal/console/constructor:350:14)
+0|autocarv |     at console.warn (node:internal/console/constructor:383:61)
+0|autocarv |     at logActivity (file:///var/www/AutoCarV7/dist/index.js:1399:13)
+0|autocarv |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|autocarv |     at async file:///var/www/AutoCarV7/dist/index.js:3655:7 {
+0|autocarv |   errors: {
+0|autocarv |     resourceId: CastError: Cast to ObjectId failed for value "bulk" (type string) at path "resourceId" because of "BSONError"
+0|autocarv |         at SchemaObjectId.cast (/var/www/AutoCarV7/node_modules/mongoose/lib/schema/objectId.js:251:11)
+0|autocarv |         at SchemaType.applySetters (/var/www/AutoCarV7/node_modules/mongoose/lib/schemaType.js:1259:12)
+0|autocarv |         at model.$set (/var/www/AutoCarV7/node_modules/mongoose/lib/document.js:1442:22)
+0|autocarv |         at model.$set (/var/www/AutoCarV7/node_modules/mongoose/lib/document.js:1136:16)
+0|autocarv |         at model.Document (/var/www/AutoCarV7/node_modules/mongoose/lib/document.js:178:12)
+0|autocarv |         at model.Model (/var/www/AutoCarV7/node_modules/mongoose/lib/model.js:127:12)
+0|autocarv |         at new model (/var/www/AutoCarV7/node_modules/mongoose/lib/model.js:4845:15)
+0|autocarv |         at /var/www/AutoCarV7/node_modules/mongoose/lib/model.js:2775:20
+0|autocarv |         at Array.map (<anonymous>)
+0|autocarv |         at Function.create (/var/www/AutoCarV7/node_modules/mongoose/lib/model.js:2763:34) {
+0|autocarv |       stringValue: '"bulk"',
+0|autocarv |       messageFormat: undefined,
+0|autocarv |       kind: 'ObjectId',
+0|autocarv |       value: 'bulk',
+0|autocarv |       path: 'resourceId',
+0|autocarv |       reason: BSONError: input must be a 24 character hex string, 12 byte Uint8Array, or an integer
+0|autocarv |           at new ObjectId (/var/www/AutoCarV7/node_modules/bson/lib/bson.cjs:2538:23)
+0|autocarv |           at castObjectId (/var/www/AutoCarV7/node_modules/mongoose/lib/cast/objectid.js:25:12)
+0|autocarv |           at SchemaObjectId.cast (/var/www/AutoCarV7/node_modules/mongoose/lib/schema/objectId.js:249:12)
+0|autocarv |           at SchemaType.applySetters (/var/www/AutoCarV7/node_modules/mongoose/lib/schemaType.js:1259:12)
+0|autocarv |           at model.$set (/var/www/AutoCarV7/node_modules/mongoose/lib/document.js:1442:22)
+0|autocarv |           at model.$set (/var/www/AutoCarV7/node_modules/mongoose/lib/document.js:1136:16)
+0|autocarv |           at model.Document (/var/www/AutoCarV7/node_modules/mongoose/lib/document.js:178:12)
+0|autocarv |           at model.Model (/var/www/AutoCarV7/node_modules/mongoose/lib/model.js:127:12)
+0|autocarv |           at new model (/var/www/AutoCarV7/node_modules/mongoose/lib/model.js:4845:15)
+0|autocarv |           at /var/www/AutoCarV7/node_modules/mongoose/lib/model.js:2775:20,
+0|autocarv |       valueType: 'string'
+0|autocarv |     }
+0|autocarv |   },
+0|autocarv |   _message: 'ActivityLog validation failed'
+0|autocarv | }
+0|autocarv | Warranty creation error: MongoServerError: E11000 duplicate key error collection: test.warranties index: warrantyNumber_1 dup key: { warrantyNumber: "WRT/2025/0049" }
+0|autocarv |     at InsertOneOperation.handleOk (/var/www/AutoCarV7/node_modules/mongodb/lib/operations/insert.js:51:19)
+0|autocarv |     at tryOperation (/var/www/AutoCarV7/node_modules/mongodb/lib/operations/execute_operation.js:214:34)
+0|autocarv |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|autocarv |     at async executeOperation (/var/www/AutoCarV7/node_modules/mongodb/lib/operations/execute_operation.js:78:16)
+0|autocarv |     at async Collection.insertOne (/var/www/AutoCarV7/node_modules/mongodb/lib/collection.js:154:16) {
+0|autocarv |   errorLabelSet: Set(0) {},
+0|autocarv |   errorResponse: {
+0|autocarv |     index: 0,
+0|autocarv |     code: 11000,
+0|autocarv |     errmsg: 'E11000 duplicate key error collection: test.warranties index: warrantyNumber_1 dup key: { warrantyNumber: "WRT/2025/0049" }',
+0|autocarv |     keyPattern: { warrantyNumber: 1 },
+0|autocarv |     keyValue: { warrantyNumber: 'WRT/2025/0049' }
+0|autocarv |   },
+0|autocarv |   index: 0,
+0|autocarv |   code: 11000,
+0|autocarv |   keyPattern: { warrantyNumber: 1 },
+0|autocarv |   keyValue: { warrantyNumber: 'WRT/2025/0049' }
+0|autocarv | }
+0|autocarv | Warranty creation error: MongoServerError: E11000 duplicate key error collection: test.warranties index: warrantyNumber_1 dup key: { warrantyNumber: "WRT/2025/0050" }
+0|autocarv |     at InsertOneOperation.handleOk (/var/www/AutoCarV8/node_modules/mongodb/lib/operations/insert.js:51:19)
+0|autocarv |     at tryOperation (/var/www/AutoCarV8/node_modules/mongodb/lib/operations/execute_operation.js:214:34)
+0|autocarv |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|autocarv |     at async executeOperation (/var/www/AutoCarV8/node_modules/mongodb/lib/operations/execute_operation.js:78:16)
+0|autocarv |     at async Collection.insertOne (/var/www/AutoCarV8/node_modules/mongodb/lib/collection.js:154:16) {
+0|autocarv |   errorLabelSet: Set(0) {},
+0|autocarv |   errorResponse: {
+0|autocarv |     index: 0,
+0|autocarv |     code: 11000,
+0|autocarv |     errmsg: 'E11000 duplicate key error collection: test.warranties index: warrantyNumber_1 dup key: { warrantyNumber: "WRT/2025/0050" }',
+0|autocarv |     keyPattern: { warrantyNumber: 1 },
+0|autocarv |     keyValue: { warrantyNumber: 'WRT/2025/0050' }
+0|autocarv |   },
+0|autocarv |   index: 0,
+0|autocarv |   code: 11000,
+0|autocarv |   keyPattern: { warrantyNumber: 1 },
+0|autocarv |   keyValue: { warrantyNumber: 'WRT/2025/0050' }
+0|autocarv | }
+0|autocarv | ❌ Warranty creation error: MongoServerError: E11000 duplicate key error collection: test.warranties index: warrantyNumber_1 dup key: { warrantyNumber: "WRT/2025/0051" }
+0|autocarv |     at InsertOneOperation.handleOk (/var/www/AutoCarV8/node_modules/mongodb/lib/operations/insert.js:51:19)
+0|autocarv |     at tryOperation (/var/www/AutoCarV8/node_modules/mongodb/lib/operations/execute_operation.js:214:34)
+0|autocarv |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|autocarv |     at async executeOperation (/var/www/AutoCarV8/node_modules/mongodb/lib/operations/execute_operation.js:78:16)
+0|autocarv |     at async Collection.insertOne (/var/www/AutoCarV8/node_modules/mongodb/lib/collection.js:154:16) {
+0|autocarv |   errorLabelSet: Set(0) {},
+0|autocarv |   errorResponse: {
+0|autocarv |     index: 0,
+0|autocarv |     code: 11000,
+0|autocarv |     errmsg: 'E11000 duplicate key error collection: test.warranties index: warrantyNumber_1 dup key: { warrantyNumber: "WRT/2025/0051" }',
+0|autocarv |     keyPattern: { warrantyNumber: 1 },
+0|autocarv |     keyValue: { warrantyNumber: 'WRT/2025/0051' }
+0|autocarv |   },
+0|autocarv |   index: 0,
+0|autocarv |   code: 11000,
+0|autocarv |   keyPattern: { warrantyNumber: 1 },
+0|autocarv |   keyValue: { warrantyNumber: 'WRT/2025/0051' }
+0|autocarv | }
+0|autocarv | ❌ Warranty creation error: MongoServerError: E11000 duplicate key error collection: test.warranties index: warrantyNumber_1 dup key: { warrantyNumber: "WRT/2025/0052" }
+0|autocarv |     at InsertOneOperation.handleOk (/var/www/AutoCarV8/node_modules/mongodb/lib/operations/insert.js:51:19)
+0|autocarv |     at tryOperation (/var/www/AutoCarV8/node_modules/mongodb/lib/operations/execute_operation.js:214:34)
+0|autocarv |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|autocarv |     at async executeOperation (/var/www/AutoCarV8/node_modules/mongodb/lib/operations/execute_operation.js:78:16)
+0|autocarv |     at async Collection.insertOne (/var/www/AutoCarV8/node_modules/mongodb/lib/collection.js:154:16) {
+0|autocarv |   errorLabelSet: Set(0) {},
+0|autocarv |   errorResponse: {
+0|autocarv |     index: 0,
+0|autocarv |     code: 11000,
+0|autocarv |     errmsg: 'E11000 duplicate key error collection: test.warranties index: warrantyNumber_1 dup key: { warrantyNumber: "WRT/2025/0052" }',
+0|autocarv |     keyPattern: { warrantyNumber: 1 },
+0|autocarv |     keyValue: { warrantyNumber: 'WRT/2025/0052' }
+0|autocarv |   },
+0|autocarv |   index: 0,
+0|autocarv |   code: 11000,
+0|autocarv |   keyPattern: { warrantyNumber: 1 },
+0|autocarv |   keyValue: { warrantyNumber: 'WRT/2025/0052' }
+0|autocarv | }
+0|autocarv | PDF download error: CastError: Cast to ObjectId failed for value "[ID]" (type string) at path "_id" for model "Invoice"
+0|autocarv |     at SchemaObjectId.cast (/var/www/AutoCarV8/node_modules/mongoose/lib/schema/objectId.js:251:11)
+0|autocarv |     at SchemaType.applySetters (/var/www/AutoCarV8/node_modules/mongoose/lib/schemaType.js:1259:12)
+0|autocarv |     at SchemaType.castForQuery (/var/www/AutoCarV8/node_modules/mongoose/lib/schemaType.js:1695:17)
+0|autocarv |     at cast (/var/www/AutoCarV8/node_modules/mongoose/lib/cast.js:390:32)
+0|autocarv |     at Query.cast (/var/www/AutoCarV8/node_modules/mongoose/lib/query.js:5060:12)
+0|autocarv |     at Query._castConditions (/var/www/AutoCarV8/node_modules/mongoose/lib/query.js:2374:10)
+0|autocarv |     at model.Query._findOne (/var/www/AutoCarV8/node_modules/mongoose/lib/query.js:2697:8)
+0|autocarv |     at model.Query.exec (/var/www/AutoCarV8/node_modules/mongoose/lib/query.js:4627:80)
+0|autocarv |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|autocarv |     at async file:///var/www/AutoCarV8/dist/index.js:7045:23 {
+0|autocarv |   stringValue: '"[ID]"',
+0|autocarv |   messageFormat: undefined,
+0|autocarv |   kind: 'ObjectId',
+0|autocarv |   value: '[ID]',
+0|autocarv |   path: '_id',
+0|autocarv |   reason: BSONError: input must be a 24 character hex string, 12 byte Uint8Array, or an integer
+0|autocarv |       at new ObjectId (/var/www/AutoCarV8/node_modules/bson/lib/bson.cjs:2538:23)
+0|autocarv |       at castObjectId (/var/www/AutoCarV8/node_modules/mongoose/lib/cast/objectid.js:25:12)
+0|autocarv |       at SchemaObjectId.cast (/var/www/AutoCarV8/node_modules/mongoose/lib/schema/objectId.js:249:12)
+0|autocarv |       at SchemaType.applySetters (/var/www/AutoCarV8/node_modules/mongoose/lib/schemaType.js:1259:12)
+0|autocarv |       at SchemaType.castForQuery (/var/www/AutoCarV8/node_modules/mongoose/lib/schemaType.js:1695:17)
+0|autocarv |       at cast (/var/www/AutoCarV8/node_modules/mongoose/lib/cast.js:390:32)
+0|autocarv |       at Query.cast (/var/www/AutoCarV8/node_modules/mongoose/lib/query.js:5060:12)
+0|autocarv |       at Query._castConditions (/var/www/AutoCarV8/node_modules/mongoose/lib/query.js:2374:10)
+0|autocarv |       at model.Query._findOne (/var/www/AutoCarV8/node_modules/mongoose/lib/query.js:2697:8)
+0|autocarv |       at model.Query.exec (/var/www/AutoCarV8/node_modules/mongoose/lib/query.js:4627:80),
+0|autocarv |   valueType: 'string'
+0|autocarv | }
+0|autocarv | ❌ Warranty creation error: MongoServerError: E11000 duplicate key error collection: test.warranties index: warrantyNumber_1 dup key: { warrantyNumber: "WRT/2025/0053" }
+0|autocarv |     at InsertOneOperation.handleOk (/var/www/AutoCarV8/node_modules/mongodb/lib/operations/insert.js:51:19)
+0|autocarv |     at tryOperation (/var/www/AutoCarV8/node_modules/mongodb/lib/operations/execute_operation.js:214:34)
+0|autocarv |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|autocarv |     at async executeOperation (/var/www/AutoCarV8/node_modules/mongodb/lib/operations/execute_operation.js:78:16)
+0|autocarv |     at async Collection.insertOne (/var/www/AutoCarV8/node_modules/mongodb/lib/collection.js:154:16) {
+0|autocarv |   errorLabelSet: Set(0) {},
+0|autocarv |   errorResponse: {
+0|autocarv |     index: 0,
+0|autocarv |     code: 11000,
+0|autocarv |     errmsg: 'E11000 duplicate key error collection: test.warranties index: warrantyNumber_1 dup key: { warrantyNumber: "WRT/2025/0053" }',
+0|autocarv |     keyPattern: { warrantyNumber: 1 },
+0|autocarv |     keyValue: { warrantyNumber: 'WRT/2025/0053' }
+0|autocarv |   },
+0|autocarv |   index: 0,
+0|autocarv |   code: 11000,
+0|autocarv |   keyPattern: { warrantyNumber: 1 },
+0|autocarv |   keyValue: { warrantyNumber: 'WRT/2025/0053' }
+0|autocarv | }
+
+/root/.pm2/logs/autocarv7-out-0.log last 200 lines:
+0|autocarv |   vehicleId: 'VEH056',
+0|autocarv |   selectedPartsCount: 2,
+0|autocarv |   selectedParts: [ 'front-bumper', 'side-step' ]
+0|autocarv | }
+0|autocarv |   🔹 Part ID "front-bumper" -> Name: "Front Bumper Guard"
+0|autocarv |   🔹 Part ID "side-step" -> Name: "Side Step"
+0|autocarv | 📝 Resolved Part Names: [ 'Front Bumper Guard', 'Side Step' ]
+0|autocarv |
+0|autocarv | 🔍 Using exact, case-sensitive name matching
+0|autocarv | Looking for exact matches of: [ 'Front Bumper Guard', 'Side Step' ]
+0|autocarv | ✅ Found 2 products with exact name matches
+0|autocarv | Matched products: [ 'Front Bumper Guard', 'Side Step' ]
+0|autocarv |
+0|autocarv | ✅ Final Product Search Results:
+0|autocarv |   Total products found: 2
+0|autocarv |   Product details: [
+0|autocarv |   { name: 'Front Bumper Guard', category: 'Exterior', price: 1500 },
+0|autocarv |   { name: 'Side Step', category: 'Exterior', price: 3000 }
+0|autocarv | ]
+0|autocarv | 🎯 Returning 2 suggested products
+0|autocarv | ========================================
+0|autocarv |
+0|autocarv | 11:00:21 AM [express] GET /api/service-visits/6906394c2ae9f51b0c78fb9c/suggested-products 304 in 22ms…
+0|autocarv | 11:00:24 AM [express] POST /api/invoices/from-service-visit 200 in 42ms :: {"serviceVisitId":"6906394…
+0|autocarv |
+0|autocarv | ========================================
+0|autocarv | 🔍 SUGGESTED PRODUCTS API - START
+0|autocarv | ========================================
+0|autocarv | 📋 Service Visit Info: {
+0|autocarv |   id: new ObjectId('6906394c2ae9f51b0c78fb9c'),
+0|autocarv |   vehicleReg: 'VEH056',
+0|autocarv |   customerId: new ObjectId('690639282ae9f51b0c78fb8f'),
+0|autocarv |   partsUsedCount: 0
+0|autocarv | }
+0|autocarv | 🔄 No partsUsed, falling back to vehicle selectedParts
+0|autocarv | 🚗 Vehicle Lookup: {
+0|autocarv |   vehicleReg: 'VEH056',
+0|autocarv |   customerId: '690639282ae9f51b0c78fb8f',
+0|autocarv |   vehicleFound: true,
+0|autocarv |   vehicleNumber: undefined,
+0|autocarv |   vehicleId: 'VEH056',
+0|autocarv |   selectedPartsCount: 2,
+0|autocarv |   selectedParts: [ 'front-bumper', 'side-step' ]
+0|autocarv | }
+0|autocarv |   🔹 Part ID "front-bumper" -> Name: "Front Bumper Guard"
+0|autocarv |   🔹 Part ID "side-step" -> Name: "Side Step"
+0|autocarv | 📝 Resolved Part Names: [ 'Front Bumper Guard', 'Side Step' ]
+0|autocarv |
+0|autocarv | 🔍 Using exact, case-sensitive name matching
+0|autocarv | Looking for exact matches of: [ 'Front Bumper Guard', 'Side Step' ]
+0|autocarv | 11:00:24 AM [express] GET /api/service-visits 304 in 19ms :: [{"stageTimestamps":{"inquired":"2025-11…
+0|autocarv | ✅ Found 2 products with exact name matches
+0|autocarv | Matched products: [ 'Front Bumper Guard', 'Side Step' ]
+0|autocarv |
+0|autocarv | ✅ Final Product Search Results:
+0|autocarv |   Total products found: 2
+0|autocarv |   Product details: [
+0|autocarv |   { name: 'Front Bumper Guard', category: 'Exterior', price: 1500 },
+0|autocarv |   { name: 'Side Step', category: 'Exterior', price: 3000 }
+0|autocarv | ]
+0|autocarv | 🎯 Returning 2 suggested products
+0|autocarv | ========================================
+0|autocarv |
+0|autocarv | 11:00:24 AM [express] GET /api/service-visits/6906394c2ae9f51b0c78fb9c/suggested-products 304 in 19ms…
+0|autocarv | 11:00:27 AM [express] GET /api/invoices 200 in 25ms :: [{"_id":"69063ca87e532d3b9c17df80","serviceVis…
+0|autocarv |
+0|autocarv | ================================================================================
+0|autocarv | 🔄 STARTING INVOICE APPROVAL PROCESS
+0|autocarv | ================================================================================
+0|autocarv | 📋 Request Details:
+0|autocarv |    Invoice ID: 69063ca87e532d3b9c17df80
+0|autocarv |    User ID: 68fb45e570480971a020cccf
+0|autocarv |    User Name: Aniket Rane
+0|autocarv |    User Role: Admin
+0|autocarv |    Request IP: 127.0.0.1
+0|autocarv | ✅ Invoice found:
+0|autocarv |    Invoice Number: INV/2025/0005
+0|autocarv |    Current Status: pending_approval
+0|autocarv |    Customer: ANIKET
+0|autocarv |    Customer Phone: 7507219775
+0|autocarv |    Total Amount: ₹ 4500
+0|autocarv | 📝 Updating invoice status to "approved"...
+0|autocarv | 🔐 Generating secure PDF access token...
+0|autocarv |    Token generated: dc5885afeb37...
+0|autocarv |    Token expires: 2025-11-08T18:00:38.412Z
+0|autocarv | 💾 Saving invoice to database...
+0|autocarv | ✅ Invoice saved successfully
+0|autocarv | 📄 Starting PDF generation...
+0|autocarv |    PDF Data prepared, generating file...
+0|autocarv | ✅ PDF generated and saved to: /var/www/AutoCarV8/invoices/invoice_INV_2025_0005.pdf
+0|autocarv | 🛡️ Creating warranties for items with warranty...
+0|autocarv | 📤 Sending WhatsApp and Email notifications...
+0|autocarv |    Environment check:
+0|autocarv |    - APP_URL: https://crm.maulicardecor.com
+0|autocarv |    - REPLIT_DEV_DOMAIN: NOT SET
+0|autocarv |    - NODE_ENV: production
+0|autocarv | 📄 Generating invoice PDF...
+0|autocarv |    Invoice: INV/2025/0005
+0|autocarv |    Invoice ID: new ObjectId('69063ca87e532d3b9c17df80')
+0|autocarv |    Using APP_URL: https://crm.maulicardecor.com
+0|autocarv | ✅ PDF generated successfully
+0|autocarv |    Local path: /var/www/AutoCarV8/invoices/invoice_INV_2025_0005.pdf
+0|autocarv |    Public URL: https://crm.maulicardecor.com/api/public/invoices/69063ca87e532d3b9c17df80/pdf?token=dc5885afeb37398b78ff8d7d52f1f8f005cff9cde22fe644640ac6b30844c355
+0|autocarv |    Access Token: dc5885afeb37...
+0|autocarv |    Token expires: 2025-11-08T18:00:38.412Z
+0|autocarv |    Current time: 2025-11-01T17:00:38.491Z
+0|autocarv |    Token valid: ✅ Yes
+0|autocarv | 📧 [STUB] Sending invoice email...
+0|autocarv |    To: raneaniket23@gmail.com
+0|autocarv |    Invoice: INV/2025/0005
+0|autocarv |    Amount: ₹ 4500
+0|autocarv |    PDF URL: https://crm.maulicardecor.com/api/public/invoices/69063ca87e532d3b9c17df80/pdf?token=dc5885afeb37398b78ff8d7d52f1f8f005cff9cde22fe644640ac6b30844c355
+0|autocarv | ✅ [STUB] Email sent successfully
+0|autocarv | 🔒 WhatsApp send flag set to true and persisted (prevents duplicates)
+0|autocarv | 📱 Sending invoice via WhatsApp...
+0|autocarv |    To: 7507219775
+0|autocarv |    Customer: ANIKET
+0|autocarv |    Invoice: INV/2025/0005
+0|autocarv |    Service: Service +1 more
+0|autocarv |    Amount: ₹ 4,500
+0|autocarv |    PDF URL: https://crm.maulicardecor.com/api/public/invoices/69063ca87e532d3b9c17df80/pdf?token=dc5885afeb37398b78ff8d7d52f1f8f005cff9cde22fe644640ac6b30844c355
+0|autocarv |
+0|autocarv | 📱 Sending WhatsApp Invoice Template with PDF
+0|autocarv | ================================
+0|autocarv | API URL: https://cloudapi.akst.in/api/v1.0/messages/send-template/919970127778
+0|autocarv | API Key: 7RlFwj57...
+0|autocarv | Channel Number: 919970127778
+0|autocarv | Template Name: invoicetest1
+0|autocarv | To (Original): 7507219775
+0|autocarv | To (Formatted): 917507219775
+0|autocarv | Customer Name: ANIKET
+0|autocarv | Invoice Number: INV/2025/0005
+0|autocarv | Service: Service +1 more
+0|autocarv | Total Amount: ₹4,500
+0|autocarv | PDF URL: https://crm.maulicardecor.com/api/public/invoices/69063ca87e532d3b9c17df80/pdf?token=dc5885afeb37398b78ff8d7d52f1f8f005cff9cde22fe644640ac6b30844c355
+0|autocarv | ================================
+0|autocarv |
+0|autocarv | Request Payload: {
+0|autocarv |   "messaging_product": "whatsapp",
+0|autocarv |   "recipient_type": "individual",
+0|autocarv |   "to": "917507219775",
+0|autocarv |   "type": "template",
+0|autocarv |   "template": {
+0|autocarv |     "name": "invoicetest1",
+0|autocarv |     "language": {
+0|autocarv |       "code": "en"
+0|autocarv |     },
+0|autocarv |     "components": [
+0|autocarv |       {
+0|autocarv |         "type": "header",
+0|autocarv |         "parameters": [
+0|autocarv |           {
+0|autocarv |             "type": "document",
+0|autocarv |             "document": {
+0|autocarv |               "link": "https://crm.maulicardecor.com/api/public/invoices/69063ca87e532d3b9c17df80/pdf?token=dc5885afeb37398b78ff8d7d52f1f8f005cff9cde22fe644640ac6b30844c355",
+0|autocarv |               "caption": "",
+0|autocarv |               "filename": "Invoice_INV_2025_0005.pdf"
+0|autocarv |             }
+0|autocarv |           }
+0|autocarv |         ]
+0|autocarv |       }
+0|autocarv |     ]
+0|autocarv |   }
+0|autocarv | }
+0|autocarv |
+0|autocarv | 📥 WhatsApp Invoice API Response (123ms)
+0|autocarv | ================================
+0|autocarv | HTTP Status: 200
+0|autocarv | Response Data: {
+0|autocarv |   "success": true,
+0|autocarv |   "statusDesc": "Message Sent Successfully.",
+0|autocarv |   "statusCode": 0,
+0|autocarv |   "data": [
+0|autocarv |     {
+0|autocarv |       "Number": "917507219775",
+0|autocarv |       "MaskId": "Vwf3B1Kx5UWDjAC3bYhb0g"
+0|autocarv |     }
+0|autocarv |   ]
+0|autocarv | }
+0|autocarv | ================================
+0|autocarv |
+0|autocarv | ✅ WhatsApp API reported SUCCESS
+0|autocarv |    Status Description: Message Sent Successfully.
+0|autocarv |    Message ID: Not provided
+0|autocarv | ✅ WhatsApp invoice sent successfully
+0|autocarv | 📨 Notifications summary:
+0|autocarv |    Email: ✅
+0|autocarv |    WhatsApp: ✅
+0|autocarv | ✅ Notifications sent successfully
+0|autocarv | 📊 Logging activity...
+0|autocarv | ✅ Activity logged successfully
+0|autocarv | ================================================================================
+0|autocarv | ✅ INVOICE APPROVAL PROCESS COMPLETED SUCCESSFULLY
+0|autocarv |    Invoice Number: INV/2025/0005
+0|autocarv |    Status: approved
+0|autocarv |    Total Amount: ₹ 4500
+0|autocarv | ================================================================================
+0|autocarv |
+0|autocarv | 11:00:38 AM [express] POST /api/invoices/69063ca87e532d3b9c17df80/approve 200 in 342ms :: {"approvalS…
+0|autocarv | 11:00:38 AM [express] GET /api/invoices 200 in 24ms :: [{"_id":"69063ca87e532d3b9c17df80","serviceVis…
+
+0|autocarv7  | 11:01:29 AM [express] GET /api/public/invoices/69063ca87e532d3b9c17df80/pdf 200 in 13ms
+

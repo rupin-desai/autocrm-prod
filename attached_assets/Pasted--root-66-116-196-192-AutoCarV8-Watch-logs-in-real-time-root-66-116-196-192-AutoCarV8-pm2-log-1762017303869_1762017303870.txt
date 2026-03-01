@@ -1,0 +1,355 @@
+[root@66-116-196-192 AutoCarV8]# # Watch logs in real-time
+[root@66-116-196-192 AutoCarV8]# pm2 logs autocarv7 --lines 0
+^C
+[root@66-116-196-192 AutoCarV8]# pm2 logs autocarv7 --lines 0
+0|autocarv7  | 11:10:44 AM [express] GET /api/notifications 401 in 3ms :: {"error":"Authentication required"}
+0|autocarv7  | 11:10:44 AM [express] GET /api/invoices 401 in 2ms :: {"error":"Authentication required"}
+0|autocarv7  | 11:10:50 AM [express] GET /api/auth/me 401 in 0ms :: {"error":"Authentication required"}
+0|autocarv7  | 11:10:59 AM [express] GET /api/auth/me 401 in 1ms :: {"error":"Authentication required"}
+0|autocarv7  | 📱 Sending WhatsApp Role OTP Template
+0|autocarv7  | ================================
+0|autocarv7  | API URL: https://cloudapi.akst.in/api/v1.0/messages/send-template/919970127778
+0|autocarv7  | API Key: 7RlFwj57...
+0|autocarv7  | Channel Number: 919970127778
+0|autocarv7  | Template Name: roleotp
+0|autocarv7  | To (Original): 7507219775
+0|autocarv7  | To (Formatted): 917507219775
+0|autocarv7  | OTP: 544956
+0|autocarv7  | ================================
+0|autocarv7  | Request Payload: {
+0|autocarv7  |   "messaging_product": "whatsapp",
+0|autocarv7  |   "recipient_type": "individual",
+0|autocarv7  |   "to": "917507219775",
+0|autocarv7  |   "type": "template",
+0|autocarv7  |   "template": {
+0|autocarv7  |     "name": "roleotp",
+0|autocarv7  |     "language": {
+0|autocarv7  |       "code": "en"
+0|autocarv7  |     },
+0|autocarv7  |     "components": [
+0|autocarv7  |       {
+0|autocarv7  |         "type": "body",
+0|autocarv7  |         "parameters": [
+0|autocarv7  |           {
+0|autocarv7  |             "type": "text",
+0|autocarv7  |             "text": "544956"
+0|autocarv7  |           }
+0|autocarv7  |         ]
+0|autocarv7  |       },
+0|autocarv7  |       {
+0|autocarv7  |         "type": "button",
+0|autocarv7  |         "sub_type": "url",
+0|autocarv7  |         "index": "0",
+0|autocarv7  |         "parameters": [
+0|autocarv7  |           {
+0|autocarv7  |             "type": "text",
+0|autocarv7  |             "text": "544956"
+0|autocarv7  |           }
+0|autocarv7  |         ]
+0|autocarv7  |       }
+0|autocarv7  |     ]
+0|autocarv7  |   }
+0|autocarv7  | }
+0|autocarv7  | ✅ WhatsApp Role OTP Response (169ms)
+0|autocarv7  | Status: 200
+0|autocarv7  | Response: {
+0|autocarv7  |   "success": true,
+0|autocarv7  |   "statusDesc": "Message Sent Successfully.",
+0|autocarv7  |   "statusCode": 0,
+0|autocarv7  |   "data": [
+0|autocarv7  |     {
+0|autocarv7  |       "Number": "917507219775",
+0|autocarv7  |       "MaskId": "0gfOm6c4C0W2b4pyAcgl4A"
+0|autocarv7  |     }
+0|autocarv7  |   ]
+0|autocarv7  | }
+0|autocarv7  | ================================
+0|autocarv7  | 11:11:07 AM [express] POST /api/auth/login 200 in 292ms :: {"requireOTP":true,"mobileNumber":"7507219…
+0|autocarv7  | 11:11:16 AM [express] POST /api/auth/verify-otp 200 in 17ms :: {"id":"68fb45e570480971a020cccf","emai…
+0|autocarv7  | 11:11:16 AM [express] GET /api/auth/me 304 in 5ms :: {"id":"68fb45e570480971a020cccf","email":"aniket…
+0|autocarv7  | 11:11:16 AM [express] GET /api/auth/me 304 in 4ms :: {"id":"68fb45e570480971a020cccf","email":"aniket…
+0|autocarv7  | 11:11:16 AM [express] GET /api/notifications 304 in 10ms :: [{"_id":"690639772ae9f51b0c78fbae","messa…
+0|autocarv7  | 11:11:16 AM [express] GET /api/activity-logs 200 in 13ms :: [{"_id":"69063f34f7e52f6d42c7842f","userI…
+0|autocarv7  | 11:11:16 AM [express] GET /api/dashboard/service-status 304 in 14ms :: [{"name":"Inquired","value":0,…
+0|autocarv7  | 11:11:16 AM [express] GET /api/dashboard-stats 304 in 43ms :: {"todaySales":2600,"activeServices":0,"…
+0|autocarv7  | 11:11:16 AM [express] GET /api/service-visits 304 in 26ms :: [{"stageTimestamps":{"inquired":"2025-11…
+0|autocarv7  | 11:11:16 AM [express] GET /api/dashboard/product-categories 304 in 9ms :: [{"category":"Interior","co…
+0|autocarv7  | 11:11:16 AM [express] GET /api/dashboard/sales-trends 304 in 66ms :: [{"day":"Sun","sales":0,"orders"…
+0|autocarv7  | 11:11:16 AM [express] GET /api/dashboard/customer-growth 304 in 106ms :: [{"month":"Jun","customers":…
+0|autocarv7  | 11:11:24 AM [express] GET /api/notifications 304 in 9ms :: [{"_id":"690639772ae9f51b0c78fbae","messag…
+0|autocarv7  | 11:11:24 AM [express] GET /api/service-visits 304 in 31ms :: [{"stageTimestamps":{"inquired":"2025-11…
+0|autocarv7  | 11:11:24 AM [express] GET /api/dashboard/service-status 304 in 18ms :: [{"name":"Inquired","value":0,…
+0|autocarv7  | 11:11:24 AM [express] GET /api/dashboard-stats 304 in 36ms :: {"todaySales":2600,"activeServices":0,"…
+0|autocarv7  | 11:11:24 AM [express] GET /api/dashboard/product-categories 200 in 4ms :: [{"category":"Interior","co…
+0|autocarv7  | 11:11:24 AM [express] GET /api/dashboard/customer-growth 304 in 35ms :: [{"month":"Jun","customers":0…
+0|autocarv7  | 11:11:24 AM [express] GET /api/activity-logs 304 in 7ms :: [{"_id":"69063f34f7e52f6d42c7842f","userId…
+0|autocarv7  | 11:11:24 AM [express] GET /api/dashboard/sales-trends 304 in 50ms :: [{"day":"Sun","sales":0,"orders"…
+0|autocarv7  | 11:11:25 AM [express] GET /api/registration/customers 304 in 6ms :: [{"id":"690639282ae9f51b0c78fb8f"…
+0|autocarv7  | 11:11:25 AM [express] GET /api/service-handlers 304 in 6ms :: [{"_id":"69038d0876d3ada54a7cb124","nam…
+0|autocarv7  | 11:11:25 AM [express] GET /api/service-visits 304 in 17ms :: [{"stageTimestamps":{"inquired":"2025-11…
+0|autocarv7  | 11:11:27 AM [express] GET /api/invoices 304 in 22ms :: [{"_id":"69063ca87e532d3b9c17df80","serviceVis…
+0|autocarv7  | 11:11:30 AM [express] DELETE /api/invoices/69063ca87e532d3b9c17df80 200 in 20ms :: {"message":"Invoic…
+0|autocarv7  | 11:11:30 AM [express] GET /api/invoices 200 in 22ms :: [{"_id":"690635f19819c1eb68d93b9d","serviceVis…
+0|autocarv7  | 11:11:32 AM [express] GET /api/support-tickets 200 in 5ms :: []
+0|autocarv7  | 11:11:32 AM [express] GET /api/registration/customers 304 in 4ms :: [{"id":"690639282ae9f51b0c78fb8f"…
+0|autocarv7  | 11:11:32 AM [express] GET /api/feedbacks/analytics/ratings 200 in 9ms :: {"monthlyStats":[],"overallS…
+0|autocarv7  | 11:11:33 AM [express] GET /api/registration/customers 304 in 6ms :: [{"id":"690639282ae9f51b0c78fb8f"…
+0|autocarv7  | 11:11:33 AM [express] GET /api/service-handlers 304 in 5ms :: [{"_id":"69038d0876d3ada54a7cb124","nam…
+0|autocarv7  | 11:11:33 AM [express] GET /api/service-visits 304 in 27ms :: [{"stageTimestamps":{"inquired":"2025-11…
+0|autocarv7  | 11:11:35 AM [express] GET /api/auth/me 401 in 0ms :: {"error":"Authentication required"}
+0|autocarv7  | 11:11:35 AM [express] GET /api/products 304 in 44ms :: [{"_id":"68fe392e8bf15920e753878d","name":"Fin…
+0|autocarv7  | 11:11:35 AM [express] GET /api/notifications 401 in 1ms :: {"error":"Authentication required"}
+0|autocarv7  | ========================================
+0|autocarv7  | 🔍 SUGGESTED PRODUCTS API - START
+0|autocarv7  | ========================================
+0|autocarv7  | 📋 Service Visit Info: {
+0|autocarv7  |   id: new ObjectId('6906394c2ae9f51b0c78fb9c'),
+0|autocarv7  |   vehicleReg: 'VEH056',
+0|autocarv7  |   customerId: new ObjectId('690639282ae9f51b0c78fb8f'),
+0|autocarv7  |   partsUsedCount: 0
+0|autocarv7  | }
+0|autocarv7  | 🔄 No partsUsed, falling back to vehicle selectedParts
+0|autocarv7  | 🚗 Vehicle Lookup: {
+0|autocarv7  |   vehicleReg: 'VEH056',
+0|autocarv7  |   customerId: '690639282ae9f51b0c78fb8f',
+0|autocarv7  |   vehicleFound: true,
+0|autocarv7  |   vehicleNumber: undefined,
+0|autocarv7  |   vehicleId: 'VEH056',
+0|autocarv7  |   selectedPartsCount: 2,
+0|autocarv7  |   selectedParts: [ 'front-bumper', 'side-step' ]
+0|autocarv7  | }
+0|autocarv7  |   🔹 Part ID "front-bumper" -> Name: "Front Bumper Guard"
+0|autocarv7  |   🔹 Part ID "side-step" -> Name: "Side Step"
+0|autocarv7  | 📝 Resolved Part Names: [ 'Front Bumper Guard', 'Side Step' ]
+0|autocarv7  | 🔍 Using exact, case-sensitive name matching
+0|autocarv7  | Looking for exact matches of: [ 'Front Bumper Guard', 'Side Step' ]
+0|autocarv7  | ✅ Found 2 products with exact name matches
+0|autocarv7  | Matched products: [ 'Front Bumper Guard', 'Side Step' ]
+0|autocarv7  | ✅ Final Product Search Results:
+0|autocarv7  |   Total products found: 2
+0|autocarv7  |   Product details: [
+0|autocarv7  |   { name: 'Front Bumper Guard', category: 'Exterior', price: 1500 },
+0|autocarv7  |   { name: 'Side Step', category: 'Exterior', price: 3000 }
+0|autocarv7  | ]
+0|autocarv7  | 🎯 Returning 2 suggested products
+0|autocarv7  | ========================================
+0|autocarv7  | 11:11:37 AM [express] GET /api/service-visits/6906394c2ae9f51b0c78fb9c/suggested-products 304 in 17ms…
+0|autocarv7  | 11:11:42 AM [express] GET /api/auth/me 401 in 0ms :: {"error":"Authentication required"}
+0|autocarv7  | 11:11:42 AM [express] GET /api/notifications 401 in 0ms :: {"error":"Authentication required"}
+0|autocarv7  | 11:11:43 AM [express] POST /api/invoices/from-service-visit 200 in 42ms :: {"serviceVisitId":"6906394…
+0|autocarv7  | ========================================
+0|autocarv7  | 🔍 SUGGESTED PRODUCTS API - START
+0|autocarv7  | ========================================
+0|autocarv7  | 📋 Service Visit Info: {
+0|autocarv7  |   id: new ObjectId('6906394c2ae9f51b0c78fb9c'),
+0|autocarv7  |   vehicleReg: 'VEH056',
+0|autocarv7  |   customerId: new ObjectId('690639282ae9f51b0c78fb8f'),
+0|autocarv7  |   partsUsedCount: 0
+0|autocarv7  | }
+0|autocarv7  | 🔄 No partsUsed, falling back to vehicle selectedParts
+0|autocarv7  | 🚗 Vehicle Lookup: {
+0|autocarv7  |   vehicleReg: 'VEH056',
+0|autocarv7  |   customerId: '690639282ae9f51b0c78fb8f',
+0|autocarv7  |   vehicleFound: true,
+0|autocarv7  |   vehicleNumber: undefined,
+0|autocarv7  |   vehicleId: 'VEH056',
+0|autocarv7  |   selectedPartsCount: 2,
+0|autocarv7  |   selectedParts: [ 'front-bumper', 'side-step' ]
+0|autocarv7  | }
+0|autocarv7  |   🔹 Part ID "front-bumper" -> Name: "Front Bumper Guard"
+0|autocarv7  |   🔹 Part ID "side-step" -> Name: "Side Step"
+0|autocarv7  | 📝 Resolved Part Names: [ 'Front Bumper Guard', 'Side Step' ]
+0|autocarv7  | 🔍 Using exact, case-sensitive name matching
+0|autocarv7  | Looking for exact matches of: [ 'Front Bumper Guard', 'Side Step' ]
+0|autocarv7  | 11:11:43 AM [express] GET /api/service-visits 304 in 20ms :: [{"stageTimestamps":{"inquired":"2025-11…
+0|autocarv7  | ✅ Found 2 products with exact name matches
+0|autocarv7  | Matched products: [ 'Front Bumper Guard', 'Side Step' ]
+0|autocarv7  | ✅ Final Product Search Results:
+0|autocarv7  |   Total products found: 2
+0|autocarv7  |   Product details: [
+0|autocarv7  |   { name: 'Front Bumper Guard', category: 'Exterior', price: 1500 },
+0|autocarv7  |   { name: 'Side Step', category: 'Exterior', price: 3000 }
+0|autocarv7  | ]
+0|autocarv7  | 🎯 Returning 2 suggested products
+0|autocarv7  | ========================================
+0|autocarv7  | 11:11:43 AM [express] GET /api/service-visits/6906394c2ae9f51b0c78fb9c/suggested-products 304 in 22ms…
+0|autocarv7  | 11:11:44 AM [express] GET /api/invoices 200 in 37ms :: [{"_id":"69063f4ef7e52f6d42c7849d","serviceVis…
+0|autocarv7  | 11:11:59 AM [express] GET /api/notifications 304 in 7ms :: [{"_id":"690639772ae9f51b0c78fbae","messag…
+0|autocarv7  | 11:11:59 AM [express] GET /api/invoices 304 in 28ms :: [{"_id":"69063f4ef7e52f6d42c7849d","serviceVis…
+0|autocarv7  | 11:12:03 AM [express] GET /api/notifications 304 in 6ms :: [{"_id":"690639772ae9f51b0c78fbae","messag…
+0|autocarv7  | 11:12:03 AM [express] GET /api/invoices 304 in 28ms :: [{"_id":"69063f4ef7e52f6d42c7849d","serviceVis…
+0|autocarv7  | 11:12:07 AM [express] GET /api/notifications 304 in 7ms :: [{"_id                                                                                        ":"690639772ae9f51b0c78fbae","messag…
+0|autocarv7  | 11:12:07 AM [express] GET /api/invoices 304 in 28ms :: [{"_id":"6                                                                                        9063f4ef7e52f6d42c7849d","serviceVis…
+0|autocarv7  | =================================================================                                                                                        ===============
+0|autocarv7  | 🔄 STARTING INVOICE APPROVAL PROCESS
+0|autocarv7  | =================================================================                                                                                        ===============
+0|autocarv7  | 📋 Request Details:
+0|autocarv7  |    Invoice ID: 69063f4ef7e52f6d42c7849d
+0|autocarv7  |    User ID: 68fb45e570480971a020cccf
+0|autocarv7  |    User Name: Aniket Rane
+0|autocarv7  |    User Role: Admin
+0|autocarv7  |    Request IP: 127.0.0.1
+0|autocarv7  | ✅ Invoice found:
+0|autocarv7  |    Invoice Number: INV/2025/0005
+0|autocarv7  |    Current Status: pending_approval
+0|autocarv7  |    Customer: ANIKET
+0|autocarv7  |    Customer Phone: 7507219775
+0|autocarv7  |    Total Amount: ₹ 4500
+0|autocarv7  | 📝 Updating invoice status to "approved"...
+0|autocarv7  | 🔐 Generating secure PDF access token...
+0|autocarv7  |    Token generated: 2532c856e850...
+0|autocarv7  |    Token expires: 2025-11-08T18:12:16.170Z
+0|autocarv7  | 💾 Saving invoice to database...
+0|autocarv7  | ✅ Invoice saved successfully
+0|autocarv7  | 📄 Starting PDF generation...
+0|autocarv7  |    PDF Data prepared, generating file...
+0|autocarv7  | ✅ PDF generated and saved to: /var/www/AutoCarV8/invoices/invoic                                                                                        e_INV_2025_0005.pdf
+0|autocarv7  | 🛡️ Creating warranties for items with warranty...
+0|autocarv7  | ❌ Warranty creation error: MongoServerError: E11000 duplicate ke                                                                                        y error collection: test.warranties index: warrantyNumber_1 dup key: { warrantyN                                                                                        umber: "WRT/2025/0054" }
+0|autocarv7  |     at InsertOneOperation.handleOk (/var/www/AutoCarV8/node_modul                                                                                        es/mongodb/lib/operations/insert.js:51:19)
+0|autocarv7  |     at tryOperation (/var/www/AutoCarV8/node_modules/mongodb/lib/                                                                                        operations/execute_operation.js:214:34)
+0|autocarv7  |     at process.processTicksAndRejections (node:internal/process/t                                                                                        ask_queues:95:5)
+0|autocarv7  |     at async executeOperation (/var/www/AutoCarV8/node_modules/mo                                                                                        ngodb/lib/operations/execute_operation.js:78:16)
+0|autocarv7  |     at async Collection.insertOne (/var/www/AutoCarV8/node_module                                                                                        s/mongodb/lib/collection.js:154:16) {
+0|autocarv7  |   errorLabelSet: Set(0) {},
+0|autocarv7  |   errorResponse: {
+0|autocarv7  |     index: 0,
+0|autocarv7  |     code: 11000,
+0|autocarv7  |     errmsg: 'E11000 duplicate key error collection: test.warranti                                                                                        es index: warrantyNumber_1 dup key: { warrantyNumber: "WRT/2025/0054" }',
+0|autocarv7  |     keyPattern: { warrantyNumber: 1 },
+0|autocarv7  |     keyValue: { warrantyNumber: 'WRT/2025/0054' }
+0|autocarv7  |   },
+0|autocarv7  |   index: 0,
+0|autocarv7  |   code: 11000,
+0|autocarv7  |   keyPattern: { warrantyNumber: 1 },
+0|autocarv7  |   keyValue: { warrantyNumber: 'WRT/2025/0054' }
+0|autocarv7  | }
+0|autocarv7  | 📤 Sending WhatsApp and Email notifications...
+0|autocarv7  |    Environment check:
+0|autocarv7  |    - APP_URL: https://crm.maulicardecor.com
+0|autocarv7  |    - REPLIT_DEV_DOMAIN: NOT SET
+0|autocarv7  |    - NODE_ENV: production
+0|autocarv7  | 📄 Generating invoice PDF...
+0|autocarv7  |    Invoice: INV/2025/0005
+0|autocarv7  |    Invoice ID: new ObjectId('69063f4ef7e52f6d42c7849d')
+0|autocarv7  |    Using APP_URL: https://crm.maulicardecor.com
+0|autocarv7  | ✅ PDF generated successfully
+0|autocarv7  |    Local path: /var/www/AutoCarV8/invoices/invoice_INV_2025_0005.                                                                                        pdf
+0|autocarv7  |    Public URL: https://crm.maulicardecor.com/api/public/invoices/                                                                                        69063f4ef7e52f6d42c7849d/pdf?token=2532c856e8507625ff7d2ba0734d5a87797a2a6380cc5                                                                                        2e05853a6f07c35023c
+0|autocarv7  |    Access Token: 2532c856e850...
+0|autocarv7  |    Token expires: 2025-11-08T18:12:16.170Z
+0|autocarv7  |    Current time: 2025-11-01T17:12:16.238Z
+0|autocarv7  |    Token valid: ✅ Yes
+0|autocarv7  | 📧 [STUB] Sending invoice email...
+0|autocarv7  |    To: raneaniket23@gmail.com
+0|autocarv7  |    Invoice: INV/2025/0005
+0|autocarv7  |    Amount: ₹ 4500
+0|autocarv7  |    PDF URL: https://crm.maulicardecor.com/api/public/invoices/690                                                                                        63f4ef7e52f6d42c7849d/pdf?token=2532c856e8507625ff7d2ba0734d5a87797a2a6380cc52e0                                                                                        5853a6f07c35023c
+0|autocarv7  | ✅ [STUB] Email sent successfully
+0|autocarv7  | 🔒 WhatsApp send flag set to true and persisted (prevents duplica                                                                                        tes)
+0|autocarv7  | 📱 Sending invoice via WhatsApp...
+0|autocarv7  |    To: 7507219775
+0|autocarv7  |    Customer: ANIKET
+0|autocarv7  |    Invoice: INV/2025/0005
+0|autocarv7  |    Service: Service +1 more
+0|autocarv7  |    Amount: ₹ 4,500
+0|autocarv7  |    PDF URL: https://crm.maulicardecor.com/api/public/invoices/690                                                                                        63f4ef7e52f6d42c7849d/pdf?token=2532c856e8507625ff7d2ba0734d5a87797a2a6380cc52e0                                                                                        5853a6f07c35023c
+0|autocarv7  | 📱 Sending WhatsApp Invoice Template with PDF
+0|autocarv7  | ================================
+0|autocarv7  | API URL: https://cloudapi.akst.in/api/v1.0/messages/send-template                                                                                        /919970127778
+0|autocarv7  | API Key: 7RlFwj57...
+0|autocarv7  | Channel Number: 919970127778
+0|autocarv7  | Template Name: invoicetest1
+0|autocarv7  | To (Original): 7507219775
+0|autocarv7  | To (Formatted): 917507219775
+0|autocarv7  | Customer Name: ANIKET
+0|autocarv7  | Invoice Number: INV/2025/0005
+0|autocarv7  | Service: Service +1 more
+0|autocarv7  | Total Amount: ₹4,500
+0|autocarv7  | PDF URL: https://crm.maulicardecor.com/api/public/invoices/69063f                                                                                        4ef7e52f6d42c7849d/pdf?token=2532c856e8507625ff7d2ba0734d5a87797a2a6380cc52e0585                                                                                        3a6f07c35023c
+0|autocarv7  | ================================
+0|autocarv7  | Request Payload: {
+0|autocarv7  |   "messaging_product": "whatsapp",
+0|autocarv7  |   "recipient_type": "individual",
+0|autocarv7  |   "to": "917507219775",
+0|autocarv7  |   "type": "template",
+0|autocarv7  |   "template": {
+0|autocarv7  |     "name": "invoicetest1",
+0|autocarv7  |     "language": {
+0|autocarv7  |       "code": "en"
+0|autocarv7  |     },
+0|autocarv7  |     "components": [
+0|autocarv7  |       {
+0|autocarv7  |         "type": "header",
+0|autocarv7  |         "parameters": [
+0|autocarv7  |           {
+0|autocarv7  |             "type": "document",
+0|autocarv7  |             "document": {
+0|autocarv7  |               "link": "https://crm.maulicardecor.com/api/public/i                                                                                        nvoices/69063f4ef7e52f6d42c7849d/pdf?token=2532c856e8507625ff7d2ba0734d5a87797a2                                                                                        a6380cc52e05853a6f07c35023c",
+0|autocarv7  |               "caption": "",
+0|autocarv7  |               "filename": "Invoice_INV_2025_0005.pdf"
+0|autocarv7  |             }
+0|autocarv7  |           }
+0|autocarv7  |         ]
+0|autocarv7  |       }
+0|autocarv7  |     ]
+0|autocarv7  |   }
+0|autocarv7  | }
+0|autocarv7  | 📥 WhatsApp Invoice API Response (86ms)
+0|autocarv7  | ================================
+0|autocarv7  | HTTP Status: 200
+0|autocarv7  | Response Data: {
+0|autocarv7  |   "success": true,
+0|autocarv7  |   "statusDesc": "Message Sent Successfully.",
+0|autocarv7  |   "statusCode": 0,
+0|autocarv7  |   "data": [
+0|autocarv7  |     {
+0|autocarv7  |       "Number": "917507219775",
+0|autocarv7  |       "MaskId": "lNuw7jElh0i7rwbZHKYFBQ"
+0|autocarv7  |     }
+0|autocarv7  |   ]
+0|autocarv7  | }
+0|autocarv7  | ================================
+0|autocarv7  | ✅ WhatsApp API reported SUCCESS
+0|autocarv7  |    Status Description: Message Sent Successfully.
+0|autocarv7  |    Message ID: Not provided
+0|autocarv7  | ✅ WhatsApp invoice sent successfully
+0|autocarv7  | 📨 Notifications summary:
+0|autocarv7  |    Email: ✅
+0|autocarv7  |    WhatsApp: ✅
+0|autocarv7  | ✅ Notifications sent successfully
+0|autocarv7  | 📊 Logging activity...
+0|autocarv7  | ✅ Activity logged successfully
+0|autocarv7  | =================================================================                                                                                        ===============
+0|autocarv7  | ✅ INVOICE APPROVAL PROCESS COMPLETED SUCCESSFULLY
+0|autocarv7  |    Invoice Number: INV/2025/0005
+0|autocarv7  |    Status: approved
+0|autocarv7  |    Total Amount: ₹ 4500
+0|autocarv7  | =================================================================                                                                                        ===============
+0|autocarv7  | 11:12:16 AM [express] POST /api/invoices/69063f4ef7e52f6d42c7849d                                                                                        /approve 200 in 292ms :: {"approvalS…
+0|autocarv7  | 11:12:16 AM [express] GET /api/invoices 200 in 22ms :: [{"_id":"6                                                                                        9063f4ef7e52f6d42c7849d","serviceVis…
+0|autocarv7  | 11:13:29 AM [express] GET /api/notifications 304 in 13ms :: [{"_id":"690639772ae9f51b0c78fbae","messa…
+0|autocarv7  | 11:13:29 AM [express] GET /api/invoices 304 in 35ms :: [{"_id":"69063f4ef7e52f6d42c7849d","serviceVis…
+0|autocarv7  | ================================================================================
+0|autocarv7  | 📥 PUBLIC PDF ACCESS REQUEST
+0|autocarv7  | ================================================================================
+0|autocarv7  |    Invoice ID: 69063f4ef7e52f6d42c7849d
+0|autocarv7  |    Token provided: 2532c856e850...
+0|autocarv7  |    User-Agent: facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)
+0|autocarv7  |    IP Address: 127.0.0.1
+0|autocarv7  |    Timestamp: 2025-11-01T17:13:46.934Z
+0|autocarv7  | ✅ Invoice found: INV/2025/0005
+0|autocarv7  |    Status: approved
+0|autocarv7  | 🔐 Token Verification:
+0|autocarv7  |    Expected token: 2532c856e850...
+0|autocarv7  |    Token expiry: 2025-11-08T18:12:16.170Z
+0|autocarv7  |    Current time: 2025-11-01T17:13:46.942Z
+0|autocarv7  |    Token valid: ✅
+0|autocarv7  | ✅ Token verification passed
+0|autocarv7  | 📄 Streaming PDF file...
+0|autocarv7  |    File path: /var/www/AutoCarV8/invoices/invoice_INV_2025_0005.pdf
+0|autocarv7  |    File exists: true
+0|autocarv7  | ✅ PDF successfully streamed to client
+0|autocarv7  | ================================================================================
+0|autocarv7  | 11:13:46 AM [express] GET /api/public/invoices/69063f4ef7e52f6d42c7849d/pdf 200 in 11ms
+

@@ -1,0 +1,181 @@
+chunk-RPCDYKBN.js?v=6e2c3ef3:21551 Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+CustomerRegistration.tsx:155 📱 CUSTOMER REGISTRATION - STARTING
+CustomerRegistration.tsx:156 ================================
+CustomerRegistration.tsx:157 Customer Data: Object
+CustomerRegistration.tsx:158 ================================
+
+CustomerRegistration.tsx:163 📱 CUSTOMER REGISTRATION - RESPONSE
+CustomerRegistration.tsx:164 ================================
+CustomerRegistration.tsx:165 Customer ID: 68f6759f99353752aea2acaa
+CustomerRegistration.tsx:166 OTP (Dev Mode): 663795
+CustomerRegistration.tsx:167 WhatsApp OTP Sent: ✅ SUCCESS
+CustomerRegistration.tsx:171 Response: {
+  "customerId": "68f6759f99353752aea2acaa",
+  "message": "OTP sent successfully",
+  "whatsappSent": true,
+  "otp": "663795"
+}
+CustomerRegistration.tsx:172 ================================
+
+CustomerRegistration.tsx:208 📱 OTP VERIFICATION - STARTING
+CustomerRegistration.tsx:209 ================================
+CustomerRegistration.tsx:210 Customer ID: 68f6759f99353752aea2acaa
+CustomerRegistration.tsx:211 OTP Entered: 663795
+CustomerRegistration.tsx:212 ================================
+
+CustomerRegistration.tsx:217 📱 OTP VERIFICATION - RESPONSE
+CustomerRegistration.tsx:218 ================================
+CustomerRegistration.tsx:219 Verification Success: ✅
+CustomerRegistration.tsx:220 Customer Reference Code: CUST-JH-000001
+CustomerRegistration.tsx:221 Response: {
+  "success": true,
+  "customer": {
+    "id": "68f6759f99353752aea2acaa",
+    "referenceCode": "CUST-JH-000001",
+    "fullName": "ANIKET",
+    "mobileNumber": "7507219775",
+    "alternativeNumber": "",
+    "email": "raneaniket23@gmail.com",
+    "address": "mumbai",
+    "city": "THANE",
+    "taluka": "test",
+    "district": "test",
+    "state": "Jharkhand",
+    "pinCode": "400606",
+    "referralSource": "Friend/Family Referral",
+    "isVerified": true,
+    "createdAt": "2025-10-20T17:47:11.059Z"
+  },
+  "message": "Customer verified successfully"
+}
+CustomerRegistration.tsx:222 ================================
+
+CustomerRegistration.tsx:250 🚗 VEHICLE REGISTRATION - STARTING
+CustomerRegistration.tsx:251 ================================
+CustomerRegistration.tsx:252 Vehicle Data: {vehicleNumber: 'MH12Ab1234', vehicleBrand: 'Renault', vehicleModel: 'Triber', customModel: '', variant: 'Base', …}
+CustomerRegistration.tsx:253 ================================
+
+CustomerRegistration.tsx:268 🚗 VEHICLE REGISTRATION - RESPONSE
+CustomerRegistration.tsx:269 ================================
+CustomerRegistration.tsx:270 Vehicle ID: VEH020
+CustomerRegistration.tsx:271 Customer Reference Code: CUST-JH-000001
+CustomerRegistration.tsx:272 Response: {
+  "vehicle": {
+    "id": "68f675d299353752aea2acb3",
+    "vehicleId": "VEH020",
+    "customerId": "68f6759f99353752aea2acaa",
+    "vehicleNumber": "MH12Ab1234",
+    "vehicleBrand": "Renault",
+    "vehicleModel": "Triber",
+    "customModel": null,
+    "variant": "Base",
+    "color": "Red",
+    "yearOfPurchase": 2005,
+    "vehiclePhoto": "data:image/png;base64,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",
+    "isNewVehicle": false,
+    "chassisNumber": null,
+    "selectedParts": [
+      "front-abs-guard",
+      "mirror-cover"
+    ],
+    "warrantyCard": null,
+    "createdAt": "2025-10-20T17:48:02.907Z"
+  },
+  "customer": {
+    "id": "68f6759f99353752aea2acaa",
+    "referenceCode": "CUST-JH-000001",
+    "fullName": "ANIKET"
+  },
+  "whatsappSent": true,
+  "message": "Vehicle registered successfully"
+}
+CustomerRegistration.tsx:273 ================================
+
+CustomerRegistration.tsx:318 ✅ COMPLETING REGISTRATION - STARTING
+CustomerRegistration.tsx:319 ================================
+CustomerRegistration.tsx:320 Customer ID: 68f6759f99353752aea2acaa
+CustomerRegistration.tsx:321 ================================
+
+queryClient.ts:43  POST https://623b0b93-311a-4da1-aa54-8583c527b948-00-1fs1zw7wgque5.spock.replit.dev/api/registration/complete 404 (Not Found)
+apiRequest @ queryClient.ts:43
+mutationFn @ CustomerRegistration.tsx:323
+fn @ @tanstack_react-query.js?v=6e2c3ef3:1189
+run @ @tanstack_react-query.js?v=6e2c3ef3:494
+start @ @tanstack_react-query.js?v=6e2c3ef3:536
+execute @ @tanstack_react-query.js?v=6e2c3ef3:1225
+await in execute
+mutate @ @tanstack_react-query.js?v=6e2c3ef3:2630
+(anonymous) @ @tanstack_react-query.js?v=6e2c3ef3:3295
+onClick @ CustomerRegistration.tsx:1058
+callCallback2 @ chunk-RPCDYKBN.js?v=6e2c3ef3:3674
+invokeGuardedCallbackDev @ chunk-RPCDYKBN.js?v=6e2c3ef3:3699
+invokeGuardedCallback @ chunk-RPCDYKBN.js?v=6e2c3ef3:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-RPCDYKBN.js?v=6e2c3ef3:3736
+executeDispatch @ chunk-RPCDYKBN.js?v=6e2c3ef3:7014
+processDispatchQueueItemsInOrder @ chunk-RPCDYKBN.js?v=6e2c3ef3:7034
+processDispatchQueue @ chunk-RPCDYKBN.js?v=6e2c3ef3:7043
+dispatchEventsForPlugins @ chunk-RPCDYKBN.js?v=6e2c3ef3:7051
+(anonymous) @ chunk-RPCDYKBN.js?v=6e2c3ef3:7174
+batchedUpdates$1 @ chunk-RPCDYKBN.js?v=6e2c3ef3:18913
+batchedUpdates @ chunk-RPCDYKBN.js?v=6e2c3ef3:3579
+dispatchEventForPluginEventSystem @ chunk-RPCDYKBN.js?v=6e2c3ef3:7173
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-RPCDYKBN.js?v=6e2c3ef3:5478
+dispatchEvent @ chunk-RPCDYKBN.js?v=6e2c3ef3:5472
+dispatchDiscreteEvent @ chunk-RPCDYKBN.js?v=6e2c3ef3:5449
+CustomerRegistration.tsx:353 ❌ COMPLETE REGISTRATION FAILED
+onError @ CustomerRegistration.tsx:353
+execute @ @tanstack_react-query.js?v=6e2c3ef3:1254
+await in execute
+mutate @ @tanstack_react-query.js?v=6e2c3ef3:2630
+(anonymous) @ @tanstack_react-query.js?v=6e2c3ef3:3295
+onClick @ CustomerRegistration.tsx:1058
+callCallback2 @ chunk-RPCDYKBN.js?v=6e2c3ef3:3674
+invokeGuardedCallbackDev @ chunk-RPCDYKBN.js?v=6e2c3ef3:3699
+invokeGuardedCallback @ chunk-RPCDYKBN.js?v=6e2c3ef3:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-RPCDYKBN.js?v=6e2c3ef3:3736
+executeDispatch @ chunk-RPCDYKBN.js?v=6e2c3ef3:7014
+processDispatchQueueItemsInOrder @ chunk-RPCDYKBN.js?v=6e2c3ef3:7034
+processDispatchQueue @ chunk-RPCDYKBN.js?v=6e2c3ef3:7043
+dispatchEventsForPlugins @ chunk-RPCDYKBN.js?v=6e2c3ef3:7051
+(anonymous) @ chunk-RPCDYKBN.js?v=6e2c3ef3:7174
+batchedUpdates$1 @ chunk-RPCDYKBN.js?v=6e2c3ef3:18913
+batchedUpdates @ chunk-RPCDYKBN.js?v=6e2c3ef3:3579
+dispatchEventForPluginEventSystem @ chunk-RPCDYKBN.js?v=6e2c3ef3:7173
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-RPCDYKBN.js?v=6e2c3ef3:5478
+dispatchEvent @ chunk-RPCDYKBN.js?v=6e2c3ef3:5472
+dispatchDiscreteEvent @ chunk-RPCDYKBN.js?v=6e2c3ef3:5449
+CustomerRegistration.tsx:354 Error: Error: <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot POST /api/registration/complete</pre>
+</body>
+</html>
+
+    at throwIfResNotOk (queryClient.ts:25:13)
+    at async apiRequest (queryClient.ts:50:3)
+    at async Object.mutationFn (CustomerRegistration.tsx:323:24)
+onError @ CustomerRegistration.tsx:354
+execute @ @tanstack_react-query.js?v=6e2c3ef3:1254
+await in execute
+mutate @ @tanstack_react-query.js?v=6e2c3ef3:2630
+(anonymous) @ @tanstack_react-query.js?v=6e2c3ef3:3295
+onClick @ CustomerRegistration.tsx:1058
+callCallback2 @ chunk-RPCDYKBN.js?v=6e2c3ef3:3674
+invokeGuardedCallbackDev @ chunk-RPCDYKBN.js?v=6e2c3ef3:3699
+invokeGuardedCallback @ chunk-RPCDYKBN.js?v=6e2c3ef3:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-RPCDYKBN.js?v=6e2c3ef3:3736
+executeDispatch @ chunk-RPCDYKBN.js?v=6e2c3ef3:7014
+processDispatchQueueItemsInOrder @ chunk-RPCDYKBN.js?v=6e2c3ef3:7034
+processDispatchQueue @ chunk-RPCDYKBN.js?v=6e2c3ef3:7043
+dispatchEventsForPlugins @ chunk-RPCDYKBN.js?v=6e2c3ef3:7051
+(anonymous) @ chunk-RPCDYKBN.js?v=6e2c3ef3:7174
+batchedUpdates$1 @ chunk-RPCDYKBN.js?v=6e2c3ef3:18913
+batchedUpdates @ chunk-RPCDYKBN.js?v=6e2c3ef3:3579
+dispatchEventForPluginEventSystem @ chunk-RPCDYKBN.js?v=6e2c3ef3:7173
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-RPCDYKBN.js?v=6e2c3ef3:5478
+dispatchEvent @ chunk-RPCDYKBN.js?v=6e2c3ef3:5472
+dispatchDiscreteEvent @ chunk-RPCDYKBN.js?v=6e2c3ef3:5449

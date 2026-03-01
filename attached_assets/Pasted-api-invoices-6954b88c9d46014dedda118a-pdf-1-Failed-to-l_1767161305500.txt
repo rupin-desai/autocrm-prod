@@ -1,0 +1,107 @@
+api/invoices/6954b88c9d46014dedda118a/pdf:1  Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+InvoiceGenerationDialog.tsx:111 
+========================================
+InvoiceGenerationDialog.tsx:112 📋 INVOICE DIALOG - Processing Products
+InvoiceGenerationDialog.tsx:113 ========================================
+InvoiceGenerationDialog.tsx:114 Service Visit ID: 6950cdd524dc90c6e553492c
+InvoiceGenerationDialog.tsx:115 Service Visit Vehicle: VEH075
+InvoiceGenerationDialog.tsx:116 Loading Suggested Products? false
+InvoiceGenerationDialog.tsx:117 Suggested Products Data: Object
+InvoiceGenerationDialog.tsx:118 Service Visit PartsUsed: Array(0)
+InvoiceGenerationDialog.tsx:119 Service Visit PartsUsed Count: 0
+InvoiceGenerationDialog.tsx:123 
+🗺️ Building fresh product map from suggested products...
+InvoiceGenerationDialog.tsx:125   Product 1: Object
+InvoiceGenerationDialog.tsx:125   Product 2: Object
+InvoiceGenerationDialog.tsx:137 Fresh product map size: 2
+InvoiceGenerationDialog.tsx:140 
+🔧 Processing PartsUsed items...
+InvoiceGenerationDialog.tsx:172 Total PartsUsed items created: 0
+InvoiceGenerationDialog.tsx:176 
+💡 Processing Suggested Products (excluding partsUsed)...
+InvoiceGenerationDialog.tsx:177 Used Product IDs: Array(0)
+InvoiceGenerationDialog.tsx:182   Product "Front Bumper Guard" (front-bumper): INCLUDE
+InvoiceGenerationDialog.tsx:182   Product "Rear Bumper Guard" (rear-bumper): INCLUDE
+InvoiceGenerationDialog.tsx:200 Total Unique Suggested items created: 2
+InvoiceGenerationDialog.tsx:201 Unique Suggested Items: Array(2)
+InvoiceGenerationDialog.tsx:203 
+📊 SUMMARY:
+InvoiceGenerationDialog.tsx:204   PartsUsed Items: 0
+InvoiceGenerationDialog.tsx:205   Unique Suggested Items: 2
+InvoiceGenerationDialog.tsx:206   Total Items: 2
+InvoiceGenerationDialog.tsx:225 
+✅ Setting 3 items in form (including Labour Charges)
+InvoiceGenerationDialog.tsx:226 All Items: Array(3)
+InvoiceGenerationDialog.tsx:233 ========================================
+
+InvoiceGenerationDialog.tsx:111 
+========================================
+InvoiceGenerationDialog.tsx:112 📋 INVOICE DIALOG - Processing Products
+InvoiceGenerationDialog.tsx:113 ========================================
+InvoiceGenerationDialog.tsx:114 Service Visit ID: 6950cdd524dc90c6e553492c
+InvoiceGenerationDialog.tsx:115 Service Visit Vehicle: VEH075
+InvoiceGenerationDialog.tsx:116 Loading Suggested Products? false
+InvoiceGenerationDialog.tsx:117 Suggested Products Data: Object
+InvoiceGenerationDialog.tsx:118 Service Visit PartsUsed: Array(0)
+InvoiceGenerationDialog.tsx:119 Service Visit PartsUsed Count: 0
+InvoiceGenerationDialog.tsx:123 
+🗺️ Building fresh product map from suggested products...
+InvoiceGenerationDialog.tsx:125   Product 1: Object
+InvoiceGenerationDialog.tsx:125   Product 2: Object
+InvoiceGenerationDialog.tsx:137 Fresh product map size: 2
+InvoiceGenerationDialog.tsx:140 
+🔧 Processing PartsUsed items...
+InvoiceGenerationDialog.tsx:172 Total PartsUsed items created: 0
+InvoiceGenerationDialog.tsx:176 
+💡 Processing Suggested Products (excluding partsUsed)...
+InvoiceGenerationDialog.tsx:177 Used Product IDs: Array(0)
+InvoiceGenerationDialog.tsx:182   Product "Front Bumper Guard" (front-bumper): INCLUDE
+InvoiceGenerationDialog.tsx:182   Product "Rear Bumper Guard" (rear-bumper): INCLUDE
+InvoiceGenerationDialog.tsx:200 Total Unique Suggested items created: 2
+InvoiceGenerationDialog.tsx:201 Unique Suggested Items: Array(2)
+InvoiceGenerationDialog.tsx:203 
+📊 SUMMARY:
+InvoiceGenerationDialog.tsx:204   PartsUsed Items: 0
+InvoiceGenerationDialog.tsx:205   Unique Suggested Items: 2
+InvoiceGenerationDialog.tsx:206   Total Items: 2
+InvoiceGenerationDialog.tsx:225 
+✅ Setting 3 items in form (including Labour Charges)
+InvoiceGenerationDialog.tsx:226 All Items: Array(3)
+InvoiceGenerationDialog.tsx:233 ========================================
+
+chunk-RPCDYKBN.js?v=c26a585b:521 Warning: Unknown event handler property `onOpenAutoFocus`. It will be ignored.
+    at div
+    at https://88e6f8c8-5200-412d-abc1-bc907b55f3f3-00-3eela2p19yrfd.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-AXMZZQ2X.js?v=c26a585b:42:13
+    at Provider (https://88e6f8c8-5200-412d-abc1-bc907b55f3f3-00-3eela2p19yrfd.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-E7IAXTU4.js?v=c26a585b:38:15)
+    at div
+    at https://88e6f8c8-5200-412d-abc1-bc907b55f3f3-00-3eela2p19yrfd.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-NVURRC7D.js?v=c26a585b:1944:7
+    at https://88e6f8c8-5200-412d-abc1-bc907b55f3f3-00-3eela2p19yrfd.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-select.js?v=c26a585b:721:5
+    at https://88e6f8c8-5200-412d-abc1-bc907b55f3f3-00-3eela2p19yrfd.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-2K77HOHX.js?v=c26a585b:79:13
+    at https://88e6f8c8-5200-412d-abc1-bc907b55f3f3-00-3eela2p19yrfd.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-2K77HOHX.js?v=c26a585b:56:13
+    at https://88e6f8c8-5200-412d-abc1-bc907b55f3f3-00-3eela2p19yrfd.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-AXMZZQ2X.js?v=c26a585b:42:13
+    at https://88e6f8c8-5200-412d-abc1-bc907b55f3f3-00-3eela2p19yrfd.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-7SWSU5HC.js?v=c26a585b:61:7
+    at https://88e6f8c8-5200-412d-abc1-bc907b55f3f3-00-3eela2p19yrfd.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-2K77HOHX.js?v=c26a585b:79:13
+    at https://88e6f8c8-5200-412d-abc1-bc907b55f3f3-00-3eela2p19yrfd.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-2K77HOHX.js?v=c26a585b:56:13
+    at https://88e6f8c8-5200-412d-abc1-bc907b55f3f3-00-3eela2p19yrfd.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-AXMZZQ2X.js?v=c26a585b:42:13
+    at https://88e6f8c8-5200-412d-abc1-bc907b55f3f3-00-3eela2p19yrfd.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-K7645CA4.js?v=c26a585b:34:5
+    at https://88e6f8c8-5200-412d-abc1-bc907b55f3f3-00-3eela2p19yrfd.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-2K77HOHX.js?v=c26a585b:79:13
+    at https://88e6f8c8-5200-412d-abc1-bc907b55f3f3-00-3eela2p19yrfd.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-2K77HOHX.js?v=c26a585b:56:13
+    at https://88e6f8c8-5200-412d-abc1-bc907b55f3f3-00-3eela2p19yrfd.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-K7645CA4.js?v=c26a585b:463:20
+    at Provider (https://88e6f8c8-5200-412d-abc1-bc907b55f3f3-00-3eela2p19yrfd.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-E7IAXTU4.js?v=c26a585b:38:15)
+    at https://88e6f8c8-5200-412d-abc1-bc907b55f3f3-00-3eela2p19yrfd.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-select.js?v=c26a585b:322:7
+    at https://88e6f8c8-5200-412d-abc1-bc907b55f3f3-00-3eela2p19yrfd.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-select.js?v=c26a585b:299:58
+    at https://88e6f8c8-5200-412d-abc1-bc907b55f3f3-00-3eela2p19yrfd.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-2K77HOHX.js?v=c26a585b:79:13
+    at https://88e6f8c8-5200-412d-abc1-bc907b55f3f3-00-3eela2p19yrfd.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-2K77HOHX.js?v=c26a585b:56:13
+    at https://88e6f8c8-5200-412d-abc1-bc907b55f3f3-00-3eela2p19yrfd.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-AXMZZQ2X.js?v=c26a585b:42:13
+    at https://88e6f8c8-5200-412d-abc1-bc907b55f3f3-00-3eela2p19yrfd.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-7SWSU5HC.js?v=c26a585b:260:22
+    at SelectPortal
+    at _c7 (https://88e6f8c8-5200-412d-abc1-bc907b55f3f3-00-3eela2p19yrfd.kirk.replit.dev/src/components/ui/select.tsx:123:12)
+    at Provider (https://88e6f8c8-5200-412d-abc1-bc907b55f3f3-00-3eela2p19yrfd.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-E7IAXTU4.js?v=c26a585b:38:15)
+    at Provider (https://88e6f8c8-5200-412d-abc1-bc907b55f3f3-00-3eela2p19yrfd.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-E7IAXTU4.js?v=c26a585b:38:15)
+    at CollectionProvider (https://88e6f8c8-5200-412d-abc1-bc907b55f3f3-00-3eela2p19yrfd.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-OKRBDNY4.js?v=c26a585b:29:13)
+    at Provider (https://88e6f8c8-5200-412d-abc1-bc907b55f3f3-00-3eela2p19yrfd.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-E7IAXTU4.js?v=c26a585b:38:15)
+    at Provider (https://88e6f8c8-5200-412d-abc1-bc907b55f3f3-00-3eela2p19yrfd.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-E7IAXTU4.js?v=c26a585b:38:15)
+    at Popper (https://88e6f8c8-5200-412d-abc1-bc
+printWarning @ chunk-RPCDYKBN.js?v=c26a585b:521
+api/invoices/6954bdc3e1b1e859bffb61db/pdf:1  Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+api/invoices/6954bdc3e1b1e859bffb61db/pdf:1  Failed to load resource: the server responded with a status of 500 (Internal Server Error)

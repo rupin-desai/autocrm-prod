@@ -1,0 +1,26 @@
+chunk-RPCDYKBN.js?v=206ef947:21551 Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+api/auth/me:1  Failed to load resource: the server responded with a status of 401 (Unauthorized)
+react_jsx-dev-runtime.js?v=6edf387e:64 Warning: Each child in a list should have a unique "key" prop.
+
+Check the render method of `Orders`. See https://reactjs.org/link/warning-keys for more information.
+    at _c1 (https://be276662-3558-41b3-8da9-674a09adde10-00-y8hizevxwrnn.kirk.replit.dev/src/components/ui/select.tsx:208:12)
+    at Orders (https://be276662-3558-41b3-8da9-674a09adde10-00-y8hizevxwrnn.kirk.replit.dev/src/pages/Orders.tsx:40:39)
+    at ProtectedRoute (https://be276662-3558-41b3-8da9-674a09adde10-00-y8hizevxwrnn.kirk.replit.dev/src/App.tsx?v=6CVOzYg9fpyQv5OpU3RyD:79:38)
+    at Route (https://be276662-3558-41b3-8da9-674a09adde10-00-y8hizevxwrnn.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=8e766490:323:16)
+    at Switch (https://be276662-3558-41b3-8da9-674a09adde10-00-y8hizevxwrnn.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=8e766490:379:17)
+    at Router
+    at main
+    at div
+    at div
+    at div
+    at Provider (https://be276662-3558-41b3-8da9-674a09adde10-00-y8hizevxwrnn.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-E7IAXTU4.js?v=206ef947:38:15)
+    at TooltipProvider (https://be276662-3558-41b3-8da9-674a09adde10-00-y8hizevxwrnn.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=bf03a684:63:5)
+    at SidebarProvider (https://be276662-3558-41b3-8da9-674a09adde10-00-y8hizevxwrnn.kirk.replit.dev/src/components/ui/sidebar.tsx:59:3)
+    at AppLayout (https://be276662-3558-41b3-8da9-674a09adde10-00-y8hizevxwrnn.kirk.replit.dev/src/App.tsx?v=6CVOzYg9fpyQv5OpU3RyD:306:20)
+    at AuthProvider (https://be276662-3558-41b3-8da9-674a09adde10-00-y8hizevxwrnn.kirk.replit.dev/src/lib/auth.tsx:22:32)
+    at ThemeProvider (https://be276662-3558-41b3-8da9-674a09adde10-00-y8hizevxwrnn.kirk.replit.dev/src/components/ThemeProvider.tsx:20:33)
+    at Provider (https://be276662-3558-41b3-8da9-674a09adde10-00-y8hizevxwrnn.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-E7IAXTU4.js?v=206ef947:38:15)
+    at TooltipProvider (https://be276662-3558-41b3-8da9-674a09adde10-00-y8hizevxwrnn.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=bf03a684:63:5)
+    at QueryClientProvider (https://be276662-3558-41b3-8da9-674a09adde10-00-y8hizevxwrnn.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=d74a5434:2805:3)
+    at App
+printWarning @ react_jsx-dev-runtime.js?v=6edf387e:64

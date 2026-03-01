@@ -1,0 +1,73 @@
+chunk-RPCDYKBN.js?v=f4694b34:21551 Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+Dashboard.tsx:325 Warning: Each child in a list should have a unique "key" prop.
+
+Check the render method of `Dashboard`. See https://reactjs.org/link/warning-keys for more information.
+    at _c1 (https://af182969-8df7-4ecd-a294-03f54bcaa5fc-00-2bk9jvbd032r2.kirk.replit.dev/src/components/ui/select.tsx:208:12)
+    at Dashboard (https://af182969-8df7-4ecd-a294-03f54bcaa5fc-00-2bk9jvbd032r2.kirk.replit.dev/src/pages/Dashboard.tsx:50:20)
+    at ProtectedRoute (https://af182969-8df7-4ecd-a294-03f54bcaa5fc-00-2bk9jvbd032r2.kirk.replit.dev/src/App.tsx?t=1760425243418&v=2jO58GS-dCDMGI7KMSylF:79:38)
+    at Route (https://af182969-8df7-4ecd-a294-03f54bcaa5fc-00-2bk9jvbd032r2.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=4f513003:323:16)
+    at Switch (https://af182969-8df7-4ecd-a294-03f54bcaa5fc-00-2bk9jvbd032r2.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=4f513003:379:17)
+    at Router
+    at main
+    at div
+    at div
+    at div
+    at Provider (https://af182969-8df7-4ecd-a294-03f54bcaa5fc-00-2bk9jvbd032r2.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-E7IAXTU4.js?v=f4694b34:38:15)
+    at TooltipProvider (https://af182969-8df7-4ecd-a294-03f54bcaa5fc-00-2bk9jvbd032r2.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=7035f414:63:5)
+    at SidebarProvider (https://af182969-8df7-4ecd-a294-03f54bcaa5fc-00-2bk9jvbd032r2.kirk.replit.dev/src/components/ui/sidebar.tsx:59:3)
+    at AppLayout (https://af182969-8df7-4ecd-a294-03f54bcaa5fc-00-2bk9jvbd032r2.kirk.replit.dev/src/App.tsx?t=1760425243418&v=2jO58GS-dCDMGI7KMSylF:306:20)
+    at AuthProvider (https://af182969-8df7-4ecd-a294-03f54bcaa5fc-00-2bk9jvbd032r2.kirk.replit.dev/src/lib/auth.tsx:22:32)
+    at ThemeProvider (https://af182969-8df7-4ecd-a294-03f54bcaa5fc-00-2bk9jvbd032r2.kirk.replit.dev/src/components/ThemeProvider.tsx:20:33)
+    at Provider (https://af182969-8df7-4ecd-a294-03f54bcaa5fc-00-2bk9jvbd032r2.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-E7IAXTU4.js?v=f4694b34:38:15)
+    at TooltipProvider (https://af182969-8df7-4ecd-a294-03f54bcaa5fc-00-2bk9jvbd032r2.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=7035f414:63:5)
+    at QueryClientProvider (https://af182969-8df7-4ecd-a294-03f54bcaa5fc-00-2bk9jvbd032r2.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=25d56e53:2805:3)
+    at App
+printWarning @ react_jsx-dev-runtime.js?v=6f3d21df:64
+error @ react_jsx-dev-runtime.js?v=6f3d21df:48
+validateExplicitKey @ react_jsx-dev-runtime.js?v=6f3d21df:724
+validateChildKeys @ react_jsx-dev-runtime.js?v=6f3d21df:737
+jsxWithValidation @ react_jsx-dev-runtime.js?v=6f3d21df:855
+Dashboard @ Dashboard.tsx:325
+renderWithHooks @ chunk-RPCDYKBN.js?v=f4694b34:11548
+updateFunctionComponent @ chunk-RPCDYKBN.js?v=f4694b34:14582
+beginWork @ chunk-RPCDYKBN.js?v=f4694b34:15924
+beginWork$1 @ chunk-RPCDYKBN.js?v=f4694b34:19753
+performUnitOfWork @ chunk-RPCDYKBN.js?v=f4694b34:19198
+workLoopSync @ chunk-RPCDYKBN.js?v=f4694b34:19137
+renderRootSync @ chunk-RPCDYKBN.js?v=f4694b34:19116
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=f4694b34:18874
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=f4694b34:9119
+(anonymous) @ chunk-RPCDYKBN.js?v=f4694b34:18627
+setTimeout
+scheduleFn @ @tanstack_react-query.js?v=25d56e53:555
+flush @ @tanstack_react-query.js?v=25d56e53:569
+batch @ @tanstack_react-query.js?v=25d56e53:587
+dispatch_fn @ @tanstack_react-query.js?v=25d56e53:996
+setData @ @tanstack_react-query.js?v=25d56e53:696
+onSuccess @ @tanstack_react-query.js?v=25d56e53:897
+resolve @ @tanstack_react-query.js?v=25d56e53:456
+Promise.then
+run @ @tanstack_react-query.js?v=25d56e53:498
+start @ @tanstack_react-query.js?v=25d56e53:536
+fetch @ @tanstack_react-query.js?v=25d56e53:926
+executeFetch_fn @ @tanstack_react-query.js?v=25d56e53:2211
+onSubscribe @ @tanstack_react-query.js?v=25d56e53:1898
+subscribe @ @tanstack_react-query.js?v=25d56e53:24
+(anonymous) @ @tanstack_react-query.js?v=25d56e53:3022
+subscribeToStore @ chunk-RPCDYKBN.js?v=f4694b34:11984
+commitHookEffectListMount @ chunk-RPCDYKBN.js?v=f4694b34:16915
+commitPassiveMountOnFiber @ chunk-RPCDYKBN.js?v=f4694b34:18156
+commitPassiveMountEffects_complete @ chunk-RPCDYKBN.js?v=f4694b34:18129
+commitPassiveMountEffects_begin @ chunk-RPCDYKBN.js?v=f4694b34:18119
+commitPassiveMountEffects @ chunk-RPCDYKBN.js?v=f4694b34:18109
+flushPassiveEffectsImpl @ chunk-RPCDYKBN.js?v=f4694b34:19490
+flushPassiveEffects @ chunk-RPCDYKBN.js?v=f4694b34:19447
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=f4694b34:18868
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=f4694b34:9119
+commitRootImpl @ chunk-RPCDYKBN.js?v=f4694b34:19432
+commitRoot @ chunk-RPCDYKBN.js?v=f4694b34:19277
+finishConcurrentRender @ chunk-RPCDYKBN.js?v=f4694b34:18805
+performConcurrentWorkOnRoot @ chunk-RPCDYKBN.js?v=f4694b34:18718
+workLoop @ chunk-RPCDYKBN.js?v=f4694b34:197
+flushWork @ chunk-RPCDYKBN.js?v=f4694b34:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=f4694b34:384

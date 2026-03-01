@@ -1,0 +1,81 @@
+index-BkKcn0Wh.js:855 📱 CUSTOMER REGISTRATION - STARTING
+index-BkKcn0Wh.js:855 ================================
+index-BkKcn0Wh.js:855 Customer Data: {fullName: 'ANIKET', mobileNumber: '07507219775', alternativeNumber: '', email: '', address: 'mumbai', …}
+index-BkKcn0Wh.js:855 ================================
+
+index-BkKcn0Wh.js:48  POST https://crm.maulicardecor.com/api/registration/customers 400 (Bad Request)
+ht @ index-BkKcn0Wh.js:48
+mutationFn @ index-BkKcn0Wh.js:856
+fn @ index-BkKcn0Wh.js:48
+g @ index-BkKcn0Wh.js:48
+start @ index-BkKcn0Wh.js:48
+execute @ index-BkKcn0Wh.js:48
+await in execute
+mutate @ index-BkKcn0Wh.js:48
+(anonymous) @ index-BkKcn0Wh.js:48
+z @ index-BkKcn0Wh.js:866
+(anonymous) @ index-BkKcn0Wh.js:730
+await in (anonymous)
+iX @ index-BkKcn0Wh.js:37
+oX @ index-BkKcn0Wh.js:37
+lX @ index-BkKcn0Wh.js:37
+UP @ index-BkKcn0Wh.js:37
+VL @ index-BkKcn0Wh.js:37
+(anonymous) @ index-BkKcn0Wh.js:37
+zC @ index-BkKcn0Wh.js:40
+hL @ index-BkKcn0Wh.js:37
+V2 @ index-BkKcn0Wh.js:37
+xC @ index-BkKcn0Wh.js:37
+_X @ index-BkKcn0Wh.js:37
+index-BkKcn0Wh.js:857 ❌ CUSTOMER REGISTRATION FAILED
+onError @ index-BkKcn0Wh.js:857
+execute @ index-BkKcn0Wh.js:48
+await in execute
+mutate @ index-BkKcn0Wh.js:48
+(anonymous) @ index-BkKcn0Wh.js:48
+z @ index-BkKcn0Wh.js:866
+(anonymous) @ index-BkKcn0Wh.js:730
+await in (anonymous)
+iX @ index-BkKcn0Wh.js:37
+oX @ index-BkKcn0Wh.js:37
+lX @ index-BkKcn0Wh.js:37
+UP @ index-BkKcn0Wh.js:37
+VL @ index-BkKcn0Wh.js:37
+(anonymous) @ index-BkKcn0Wh.js:37
+zC @ index-BkKcn0Wh.js:40
+hL @ index-BkKcn0Wh.js:37
+V2 @ index-BkKcn0Wh.js:37
+xC @ index-BkKcn0Wh.js:37
+_X @ index-BkKcn0Wh.js:37
+index-BkKcn0Wh.js:857 Error: Error: [
+  {
+    "validation": "email",
+    "code": "invalid_string",
+    "message": "Invalid email address",
+    "path": [
+      "email"
+    ]
+  }
+]
+    at w8 (index-BkKcn0Wh.js:48:43326)
+    at async ht (index-BkKcn0Wh.js:48:43543)
+    at async Object.mutationFn (index-BkKcn0Wh.js:856:19)
+onError @ index-BkKcn0Wh.js:857
+execute @ index-BkKcn0Wh.js:48
+await in execute
+mutate @ index-BkKcn0Wh.js:48
+(anonymous) @ index-BkKcn0Wh.js:48
+z @ index-BkKcn0Wh.js:866
+(anonymous) @ index-BkKcn0Wh.js:730
+await in (anonymous)
+iX @ index-BkKcn0Wh.js:37
+oX @ index-BkKcn0Wh.js:37
+lX @ index-BkKcn0Wh.js:37
+UP @ index-BkKcn0Wh.js:37
+VL @ index-BkKcn0Wh.js:37
+(anonymous) @ index-BkKcn0Wh.js:37
+zC @ index-BkKcn0Wh.js:40
+hL @ index-BkKcn0Wh.js:37
+V2 @ index-BkKcn0Wh.js:37
+xC @ index-BkKcn0Wh.js:37
+_X @ index-BkKcn0Wh.js:37

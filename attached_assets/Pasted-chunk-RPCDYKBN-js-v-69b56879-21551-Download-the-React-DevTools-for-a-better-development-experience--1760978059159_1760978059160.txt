@@ -1,0 +1,52 @@
+chunk-RPCDYKBN.js?v=69b56879:21551 Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+CustomerRegistration.tsx:155 📱 CUSTOMER REGISTRATION - STARTING
+CustomerRegistration.tsx:156 ================================
+CustomerRegistration.tsx:157 Customer Data: Object
+CustomerRegistration.tsx:158 ================================
+
+CustomerRegistration.tsx:163 📱 CUSTOMER REGISTRATION - RESPONSE
+CustomerRegistration.tsx:164 ================================
+CustomerRegistration.tsx:165 Customer ID: 68f6645282b14736e4cfc090
+CustomerRegistration.tsx:166 OTP (Dev Mode): 535630
+CustomerRegistration.tsx:167 WhatsApp OTP Sent: ❌ FAILED
+CustomerRegistration.tsx:171 Response: {
+  "customerId": "68f6645282b14736e4cfc090",
+  "message": "OTP sent successfully",
+  "otp": "535630"
+}
+CustomerRegistration.tsx:172 ================================
+
+CustomerRegistration.tsx:208 📱 OTP VERIFICATION - STARTING
+CustomerRegistration.tsx:209 ================================
+CustomerRegistration.tsx:210 Customer ID: 68f6645282b14736e4cfc090
+CustomerRegistration.tsx:211 OTP Entered: 535630
+CustomerRegistration.tsx:212 ================================
+
+CustomerRegistration.tsx:217 📱 OTP VERIFICATION - RESPONSE
+CustomerRegistration.tsx:218 ================================
+CustomerRegistration.tsx:219 Verification Success: ✅
+CustomerRegistration.tsx:220 Customer Reference Code: CUST-GJ-000001
+CustomerRegistration.tsx:221 WhatsApp Welcome Sent: ❌ FAILED
+CustomerRegistration.tsx:225 Response: {
+  "success": true,
+  "customer": {
+    "id": "68f6645282b14736e4cfc090",
+    "referenceCode": "CUST-GJ-000001",
+    "fullName": "ANIKET",
+    "mobileNumber": "917507219775",
+    "alternativeNumber": "9923525404",
+    "email": "raneaniket23@gmail.com",
+    "address": "mumbai",
+    "city": "THANE",
+    "taluka": "test",
+    "district": "test",
+    "state": "Gujarat",
+    "pinCode": "400606",
+    "referralSource": "Billboard/Hoarding",
+    "isVerified": true,
+    "createdAt": "2025-10-20T16:33:22.347Z"
+  },
+  "message": "Customer verified successfully"
+}
+CustomerRegistration.tsx:226 ================================
+

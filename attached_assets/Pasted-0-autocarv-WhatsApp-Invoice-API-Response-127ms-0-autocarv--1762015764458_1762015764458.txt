@@ -1,0 +1,43 @@
+0|autocarv | 📥 WhatsApp Invoice API Response (127ms)
+0|autocarv | ================================
+0|autocarv | HTTP Status: 200
+0|autocarv | Response Data: {
+0|autocarv |   "success": true,
+0|autocarv |   "statusDesc": "Message Sent Successfully.",
+0|autocarv |   "statusCode": 0,
+0|autocarv |   "data": [
+0|autocarv |     {
+0|autocarv |       "Number": "917507219775",
+0|autocarv |       "MaskId": "aHnGXYvCPEms7qyWJjC6wg"
+0|autocarv |     }
+0|autocarv |   ]
+0|autocarv | }
+0|autocarv | ================================
+0|autocarv |
+0|autocarv | ✅ WhatsApp API reported SUCCESS
+0|autocarv |    Status Description: Message Sent Successfully.
+0|autocarv |    Message ID: Not provided
+0|autocarv | ✅ WhatsApp invoice sent successfully
+0|autocarv | 📨 Notifications summary:
+0|autocarv |    Email: ✅
+0|autocarv |    WhatsApp: ✅
+0|autocarv | ✅ Notifications sent successfully
+0|autocarv | 📊 Logging activity...
+0|autocarv | ✅ Activity logged successfully
+0|autocarv | ================================================================================
+0|autocarv | ✅ INVOICE APPROVAL PROCESS COMPLETED SUCCESSFULLY
+0|autocarv |    Invoice Number: INV/2025/0005
+0|autocarv |    Status: approved
+0|autocarv |    Total Amount: ₹ 4500
+0|autocarv | ================================================================================
+0|autocarv |
+0|autocarv | 10:47:27 AM [express] POST /api/invoices/6906398e2ae9f51b0c78fbbf/approve 200 in 332ms :: {"approvalS…
+0|autocarv | 10:47:27 AM [express] GET /api/invoices 200 in 33ms :: [{"_id":"6906398e2ae9f51b0c78fbbf","serviceVis…
+
+0|autocarv7  | 10:48:25 AM [express] GET /api/notifications 401 in 0ms :: {"error":"Authentication required"}
+0|autocarv7  | 10:48:25 AM [express] GET /api/registration/customers 200 in 4ms :: [{"id":"690639282ae9f51b0c78fb8f"…
+0|autocarv7  | 10:48:25 AM [express] GET /api/registration/vehicles 200 in 3ms :: [{"id":"6906394a2ae9f51b0c78fb97",…
+0|autocarv7  | 10:48:26 AM [express] GET /api/notifications 401 in 1ms :: {"error":"Authentication required"}
+0|autocarv7  | 10:48:27 AM [express] GET /api/auth/me 401 in 0ms :: {"error":"Authentication required"}
+0|autocarv7  | 10:48:27 AM [express] GET /api/notifications 401 in 1ms :: {"error":"Authentication required"}
+

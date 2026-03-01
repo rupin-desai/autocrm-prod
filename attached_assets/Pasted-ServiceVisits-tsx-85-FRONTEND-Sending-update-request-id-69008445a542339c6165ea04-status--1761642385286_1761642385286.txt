@@ -1,0 +1,52 @@
+ServiceVisits.tsx:85 🚀 [FRONTEND] Sending update request: {id: '69008445a542339c6165ea04', status: 'completed', beforeImages: 0, afterImages: 0, handlerIds: undefined}
+queryClient.ts:43  PATCH https://27e8df76-df9c-4008-a245-d69f4e8fd8b5-00-2ad1uzm403jt4.riker.replit.dev/api/service-visits/69008445a542339c6165ea04 400 (Bad Request)
+apiRequest @ queryClient.ts:43
+mutationFn @ ServiceVisits.tsx:86
+fn @ @tanstack_react-query.js?v=03ded150:1189
+run @ @tanstack_react-query.js?v=03ded150:494
+start @ @tanstack_react-query.js?v=03ded150:536
+execute @ @tanstack_react-query.js?v=03ded150:1225
+await in execute
+mutate @ @tanstack_react-query.js?v=03ded150:2630
+(anonymous) @ @tanstack_react-query.js?v=03ded150:3295
+handleStatusUpdate @ ServiceVisits.tsx:239
+callCallback2 @ chunk-RPCDYKBN.js?v=03ded150:3674
+invokeGuardedCallbackDev @ chunk-RPCDYKBN.js?v=03ded150:3699
+invokeGuardedCallback @ chunk-RPCDYKBN.js?v=03ded150:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-RPCDYKBN.js?v=03ded150:3736
+executeDispatch @ chunk-RPCDYKBN.js?v=03ded150:7014
+processDispatchQueueItemsInOrder @ chunk-RPCDYKBN.js?v=03ded150:7034
+processDispatchQueue @ chunk-RPCDYKBN.js?v=03ded150:7043
+dispatchEventsForPlugins @ chunk-RPCDYKBN.js?v=03ded150:7051
+(anonymous) @ chunk-RPCDYKBN.js?v=03ded150:7174
+batchedUpdates$1 @ chunk-RPCDYKBN.js?v=03ded150:18913
+batchedUpdates @ chunk-RPCDYKBN.js?v=03ded150:3579
+dispatchEventForPluginEventSystem @ chunk-RPCDYKBN.js?v=03ded150:7173
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-RPCDYKBN.js?v=03ded150:5478
+dispatchEvent @ chunk-RPCDYKBN.js?v=03ded150:5472
+dispatchDiscreteEvent @ chunk-RPCDYKBN.js?v=03ded150:5449
+ServiceVisits.tsx:106 ❌ [FRONTEND] Update failed: Error: Failed to update service visit
+    at throwIfResNotOk (queryClient.ts:34:11)
+    at async apiRequest (queryClient.ts:50:3)
+    at async Object.mutationFn (ServiceVisits.tsx:86:24)
+onError @ ServiceVisits.tsx:106
+execute @ @tanstack_react-query.js?v=03ded150:1254
+await in execute
+mutate @ @tanstack_react-query.js?v=03ded150:2630
+(anonymous) @ @tanstack_react-query.js?v=03ded150:3295
+handleStatusUpdate @ ServiceVisits.tsx:239
+callCallback2 @ chunk-RPCDYKBN.js?v=03ded150:3674
+invokeGuardedCallbackDev @ chunk-RPCDYKBN.js?v=03ded150:3699
+invokeGuardedCallback @ chunk-RPCDYKBN.js?v=03ded150:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-RPCDYKBN.js?v=03ded150:3736
+executeDispatch @ chunk-RPCDYKBN.js?v=03ded150:7014
+processDispatchQueueItemsInOrder @ chunk-RPCDYKBN.js?v=03ded150:7034
+processDispatchQueue @ chunk-RPCDYKBN.js?v=03ded150:7043
+dispatchEventsForPlugins @ chunk-RPCDYKBN.js?v=03ded150:7051
+(anonymous) @ chunk-RPCDYKBN.js?v=03ded150:7174
+batchedUpdates$1 @ chunk-RPCDYKBN.js?v=03ded150:18913
+batchedUpdates @ chunk-RPCDYKBN.js?v=03ded150:3579
+dispatchEventForPluginEventSystem @ chunk-RPCDYKBN.js?v=03ded150:7173
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-RPCDYKBN.js?v=03ded150:5478
+dispatchEvent @ chunk-RPCDYKBN.js?v=03ded150:5472
+dispatchDiscreteEvent @ chunk-RPCDYKBN.js?v=03ded150:5449

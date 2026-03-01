@@ -1,0 +1,72 @@
+chunk-RPCDYKBN.js?v=959926da:21551 Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+@radix-ui_react-select.js?v=959926da:871 Uncaught Error: A <Select.Item /> must have a value prop that is not an empty string. This is because the Select value can be set to an empty string to clear the selection and show the placeholder.
+    at @radix-ui_react-select.js?v=959926da:871:13
+    at renderWithHooks (chunk-RPCDYKBN.js?v=959926da:11548:26)
+    at updateForwardRef (chunk-RPCDYKBN.js?v=959926da:14325:28)
+    at beginWork (chunk-RPCDYKBN.js?v=959926da:15946:22)
+    at HTMLUnknownElement.callCallback2 (chunk-RPCDYKBN.js?v=959926da:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-RPCDYKBN.js?v=959926da:3699:24)
+    at invokeGuardedCallback (chunk-RPCDYKBN.js?v=959926da:3733:39)
+    at beginWork$1 (chunk-RPCDYKBN.js?v=959926da:19765:15)
+    at performUnitOfWork (chunk-RPCDYKBN.js?v=959926da:19198:20)
+    at workLoopSync (chunk-RPCDYKBN.js?v=959926da:19137:13)
+@radix-ui_react-select.js?v=959926da:871 Uncaught Error: A <Select.Item /> must have a value prop that is not an empty string. This is because the Select value can be set to an empty string to clear the selection and show the placeholder.
+    at @radix-ui_react-select.js?v=959926da:871:13
+    at renderWithHooks (chunk-RPCDYKBN.js?v=959926da:11548:26)
+    at updateForwardRef (chunk-RPCDYKBN.js?v=959926da:14325:28)
+    at beginWork (chunk-RPCDYKBN.js?v=959926da:15946:22)
+    at HTMLUnknownElement.callCallback2 (chunk-RPCDYKBN.js?v=959926da:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-RPCDYKBN.js?v=959926da:3699:24)
+    at invokeGuardedCallback (chunk-RPCDYKBN.js?v=959926da:3733:39)
+    at beginWork$1 (chunk-RPCDYKBN.js?v=959926da:19765:15)
+    at performUnitOfWork (chunk-RPCDYKBN.js?v=959926da:19198:20)
+    at workLoopSync (chunk-RPCDYKBN.js?v=959926da:19137:13)
+chunk-RPCDYKBN.js?v=959926da:14032 The above error occurred in the <SelectItem> component:
+
+    at https://6f40f7d7-47b6-4b3c-9119-bfc49e516658-00-1h83zp0oh71s1.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-select.js?v=959926da:844:7
+    at _c1 (https://6f40f7d7-47b6-4b3c-9119-bfc49e516658-00-1h83zp0oh71s1.riker.replit.dev/src/components/ui/select.tsx:208:12)
+    at div
+    at https://6f40f7d7-47b6-4b3c-9119-bfc49e516658-00-1h83zp0oh71s1.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-AXMZZQ2X.js?v=959926da:42:13
+    at https://6f40f7d7-47b6-4b3c-9119-bfc49e516658-00-1h83zp0oh71s1.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-2K77HOHX.js?v=959926da:79:13
+    at https://6f40f7d7-47b6-4b3c-9119-bfc49e516658-00-1h83zp0oh71s1.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-2K77HOHX.js?v=959926da:56:13
+    at https://6f40f7d7-47b6-4b3c-9119-bfc49e516658-00-1h83zp0oh71s1.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-I6MJRFJY.js?v=959926da:39:15
+    at https://6f40f7d7-47b6-4b3c-9119-bfc49e516658-00-1h83zp0oh71s1.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-select.js?v=959926da:755:13
+    at div
+    at https://6f40f7d7-47b6-4b3c-9119-bfc49e516658-00-1h83zp0oh71s1.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-2K77HOHX.js?v=959926da:79:13
+    at https://6f40f7d7-47b6-4b3c-9119-bfc49e516658-00-1h83zp0oh71s1.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-2K77HOHX.js?v=959926da:56:13
+    at https://6f40f7d7-47b6-4b3c-9119-bfc49e516658-00-1h83zp0oh71s1.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-I6MJRFJY.js?v=959926da:39:15
+    at Provider (https://6f40f7d7-47b6-4b3c-9119-bfc49e516658-00-1h83zp0oh71s1.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-5AJU3CG7.js?v=959926da:38:15)
+    at https://6f40f7d7-47b6-4b3c-9119-bfc49e516658-00-1h83zp0oh71s1.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-select.js?v=959926da:298:58
+    at https://6f40f7d7-47b6-4b3c-9119-bfc49e516658-00-1h83zp0oh71s1.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-2K77HOHX.js?v=959926da:79:13
+    at https://6f40f7d7-47b6-4b3c-9119-bfc49e516658-00-1h83zp0oh71s1.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-2K77HOHX.js?v=959926da:56:13
+    at https://6f40f7d7-47b6-4b3c-9119-bfc49e516658-00-1h83zp0oh71s1.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-AXMZZQ2X.js?v=959926da:42:13
+    at https://6f40f7d7-47b6-4b3c-9119-bfc49e516658-00-1h83zp0oh71s1.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-S2ZUYA2N.js?v=959926da:260:22
+    at SelectPortal
+    at _c7 (https://6f40f7d7-47b6-4b3c-9119-bfc49e516658-00-1h83zp0oh71s1.riker.replit.dev/src/components/ui/select.tsx:123:12)
+    at Provider (https://6f40f7d7-47b6-4b3c-9119-bfc49e516658-00-1h83zp0oh71s1.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-5AJU3CG7.js?v=959926da:38:15)
+    at Provider (https://6f40f7d7-47b6-4b3c-9119-bfc49e516658-00-1h83zp0oh71s1.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-5AJU3CG7.js?v=959926da:38:15)
+    at CollectionProvider (https://6f40f7d7-47b6-4b3c-9119-bfc49e516658-00-1h83zp0oh71s1.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-I6MJRFJY.js?v=959926da:29:13)
+    at Provider (https://6f40f7d7-47b6-4b3c-9119-bfc49e516658-00-1h83zp0oh71s1.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-5AJU3CG7.js?v=959926da:38:15)
+    at Provider (https://6f40f7d7-47b6-4b3c-9119-bfc49e516658-00-1h83zp0oh71s1.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-5AJU3CG7.js?v=959926da:38:15)
+    at Popper (https://6f40f7d7-47b6-4b3c-9119-bfc49e516658-00-1h83zp0oh71s1.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-ZL4O2VWE.js?v=959926da:1919:11)
+    at Select (https://6f40f7d7-47b6-4b3c-9119-bfc49e516658-00-1h83zp0oh71s1.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-select.js?v=959926da:86:5)
+    at div
+    at form
+    at div
+    at https://6f40f7d7-47b6-4b3c-9119-bfc49e516658-00-1h83zp0oh71s1.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-AXMZZQ2X.js?v=959926da:42:13
+    at https://6f40f7d7-47b6-4b3c-9119-bfc49e516658-00-1h83zp0oh71s1.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-S2ZUYA2N.js?v=959926da:61:7
+    at https://6f40f7d7-47b6-4b3c-9119-bfc49e516658-00-1h83zp0oh71s1.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-2K77HOHX.js?v=959926da:79:13
+    at https://6f40f7d7-47b6-4b3c-9119-bfc49e516658-00-1h83zp0oh71s1.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-2K77HOHX.js?v=959926da:56:13
+    at https://6f40f7d7-47b6-4b3c-91
+logCapturedError @ chunk-RPCDYKBN.js?v=959926da:14032
+chunk-RPCDYKBN.js?v=959926da:9129 Uncaught Error: A <Select.Item /> must have a value prop that is not an empty string. This is because the Select value can be set to an empty string to clear the selection and show the placeholder.
+    at @radix-ui_react-select.js?v=959926da:871:13
+    at renderWithHooks (chunk-RPCDYKBN.js?v=959926da:11548:26)
+    at updateForwardRef (chunk-RPCDYKBN.js?v=959926da:14325:28)
+    at beginWork (chunk-RPCDYKBN.js?v=959926da:15946:22)
+    at beginWork$1 (chunk-RPCDYKBN.js?v=959926da:19753:22)
+    at performUnitOfWork (chunk-RPCDYKBN.js?v=959926da:19198:20)
+    at workLoopSync (chunk-RPCDYKBN.js?v=959926da:19137:13)
+    at renderRootSync (chunk-RPCDYKBN.js?v=959926da:19116:15)
+    at recoverFromConcurrentError (chunk-RPCDYKBN.js?v=959926da:18736:28)
+    at performSyncWorkOnRoot (chunk-RPCDYKBN.js?v=959926da:18879:28)

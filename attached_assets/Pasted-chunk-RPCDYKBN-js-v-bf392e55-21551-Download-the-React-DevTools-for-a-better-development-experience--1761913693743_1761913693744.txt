@@ -1,0 +1,49 @@
+chunk-RPCDYKBN.js?v=bf392e55:21551 Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+api/auth/me:1  Failed to load resource: the server responded with a status of 401 (Unauthorized)
+55d39cde-ea41-4a9a-a…riker.replit.dev/:1 Uncaught (in promise) Error: Could not establish connection. Receiving end does not exist.
+api/purchase-orders:1  Failed to load resource: the server responded with a status of 404 (Not Found)
+api/suppliers:1  Failed to load resource: the server responded with a status of 404 (Not Found)
+api/purchase-orders:1  Failed to load resource: the server responded with a status of 404 (Not Found)
+api/suppliers:1  Failed to load resource: the server responded with a status of 404 (Not Found)
+react_jsx-dev-runtime.js?v=bba764e7:64 Warning: Each child in a list should have a unique "key" prop.
+
+Check the render method of `Orders`. See https://reactjs.org/link/warning-keys for more information.
+    at _c1 (https://55d39cde-ea41-4a9a-a75b-af5c88037e19-00-3h225ir42r2ee.riker.replit.dev/src/components/ui/select.tsx:208:12)
+    at Orders (https://55d39cde-ea41-4a9a-a75b-af5c88037e19-00-3h225ir42r2ee.riker.replit.dev/src/pages/Orders.tsx:40:39)
+    at ProtectedRoute (https://55d39cde-ea41-4a9a-a75b-af5c88037e19-00-3h225ir42r2ee.riker.replit.dev/src/App.tsx?v=Dfss9IeZ3MKThQqH-FR-Z:81:38)
+    at Route (https://55d39cde-ea41-4a9a-a75b-af5c88037e19-00-3h225ir42r2ee.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=4e4c0ba8:323:16)
+    at Switch (https://55d39cde-ea41-4a9a-a75b-af5c88037e19-00-3h225ir42r2ee.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=4e4c0ba8:379:17)
+    at Router
+    at main
+    at div
+    at div
+    at div
+    at Provider (https://55d39cde-ea41-4a9a-a75b-af5c88037e19-00-3h225ir42r2ee.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-5AJU3CG7.js?v=bf392e55:38:15)
+    at TooltipProvider (https://55d39cde-ea41-4a9a-a75b-af5c88037e19-00-3h225ir42r2ee.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=da0e6d0c:63:5)
+    at SidebarProvider (https://55d39cde-ea41-4a9a-a75b-af5c88037e19-00-3h225ir42r2ee.riker.replit.dev/src/components/ui/sidebar.tsx:59:3)
+    at AppLayout (https://55d39cde-ea41-4a9a-a75b-af5c88037e19-00-3h225ir42r2ee.riker.replit.dev/src/App.tsx?v=Dfss9IeZ3MKThQqH-FR-Z:327:31)
+    at AuthProvider (https://55d39cde-ea41-4a9a-a75b-af5c88037e19-00-3h225ir42r2ee.riker.replit.dev/src/lib/auth.tsx:22:32)
+    at ThemeProvider (https://55d39cde-ea41-4a9a-a75b-af5c88037e19-00-3h225ir42r2ee.riker.replit.dev/src/components/ThemeProvider.tsx:20:33)
+    at Provider (https://55d39cde-ea41-4a9a-a75b-af5c88037e19-00-3h225ir42r2ee.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-5AJU3CG7.js?v=bf392e55:38:15)
+    at TooltipProvider (https://55d39cde-ea41-4a9a-a75b-af5c88037e19-00-3h225ir42r2ee.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=da0e6d0c:63:5)
+    at QueryClientProvider (https://55d39cde-ea41-4a9a-a75b-af5c88037e19-00-3h225ir42r2ee.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=48931d43:2805:3)
+    at App
+printWarning @ react_jsx-dev-runtime.js?v=bba764e7:64
+api/suppliers:1  Failed to load resource: the server responded with a status of 404 (Not Found)
+api/purchase-orders:1  Failed to load resource: the server responded with a status of 404 (Not Found)
+api/purchase-orders:1  Failed to load resource: the server responded with a status of 404 (Not Found)
+api/suppliers:1  Failed to load resource: the server responded with a status of 404 (Not Found)
+api/purchase-orders:1  Failed to load resource: the server responded with a status of 404 (Not Found)
+api/suppliers:1  Failed to load resource: the server responded with a status of 404 (Not Found)
+api/suppliers:1  Failed to load resource: the server responded with a status of 404 (Not Found)
+api/purchase-orders:1  Failed to load resource: the server responded with a status of 404 (Not Found)
+api/purchase-orders:1  Failed to load resource: the server responded with a status of 404 (Not Found)
+api/suppliers:1  Failed to load resource: the server responded with a status of 404 (Not Found)
+api/purchase-orders:1  Failed to load resource: the server responded with a status of 404 (Not Found)
+api/suppliers:1  Failed to load resource: the server responded with a status of 404 (Not Found)
+api/purchase-orders:1  Failed to load resource: the server responded with a status of 404 (Not Found)
+api/suppliers:1  Failed to load resource: the server responded with a status of 404 (Not Found)
+api/purchase-orders:1  Failed to load resource: the server responded with a status of 404 (Not Found)
+api/suppliers:1  Failed to load resource: the server responded with a status of 404 (Not Found)
+api/suppliers:1  Failed to load resource: the server responded with a status of 404 (Not Found)
+api/purchase-orders:1  Failed to load resource: the server responded with a status of 404 (Not Found)

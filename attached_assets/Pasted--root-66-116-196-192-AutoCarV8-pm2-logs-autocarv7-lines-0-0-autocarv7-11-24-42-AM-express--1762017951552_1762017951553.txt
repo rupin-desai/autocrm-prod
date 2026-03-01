@@ -1,0 +1,176 @@
+[root@66-116-196-192 AutoCarV8]# pm2 logs autocarv7 --lines 0
+0|autocarv7  | 11:24:42 AM [express] GET /api/notifications 304 in 10ms :: [{"_id":"690639772ae9f51b0c78fbae","messa…
+0|autocarv7  | 11:24:42 AM [express] GET /api/invoices 304 in 18ms :: [{"_id":"6906423d5640e2e0fa134bed","serviceVis…
+0|autocarv7  | ================================================================================
+0|autocarv7  | 🔄 STARTING INVOICE APPROVAL PROCESS
+0|autocarv7  | ================================================================================
+0|autocarv7  | 📋 Request Details:
+0|autocarv7  |    Invoice ID: 6906423d5640e2e0fa134bed
+0|autocarv7  |    User ID: 68fb45e570480971a020cccf
+0|autocarv7  |    User Name: Aniket Rane
+0|autocarv7  |    User Role: Admin
+0|autocarv7  |    Request IP: 127.0.0.1
+0|autocarv7  | ✅ Invoice found:
+0|autocarv7  |    Invoice Number: INV/2025/0002
+0|autocarv7  |    Current Status: pending_approval
+0|autocarv7  |    Customer: ANIKET
+0|autocarv7  |    Customer Phone: 7507219775
+0|autocarv7  |    Total Amount: ₹ 4500
+0|autocarv7  | 📝 Updating invoice status to "approved"...
+0|autocarv7  | 🔐 Generating secure PDF access token...
+0|autocarv7  |    Token generated: 8e8e946f1204...
+0|autocarv7  |    Token expires: 2025-11-08T18:24:45.763Z
+0|autocarv7  | 💾 Saving invoice to database...
+0|autocarv7  | ✅ Invoice saved successfully
+0|autocarv7  | 📄 Starting PDF generation...
+0|autocarv7  |    PDF Data prepared, generating file...
+0|autocarv7  | ✅ PDF generated and saved to: /var/www/AutoCarV8/invoices/invoice_INV_2025_0002.pdf
+0|autocarv7  | 🛡️ Creating warranties for items with warranty...
+0|autocarv7  | ❌ Warranty creation error: MongoServerError: E11000 duplicate key error collection: test.warranties index: warrantyNumber_1 dup key: { warrantyNumber: "WRT/2025/0055" }
+0|autocarv7  |     at InsertOneOperation.handleOk (/var/www/AutoCarV8/node_modules/mongodb/lib/operations/insert.js:51:19)
+0|autocarv7  |     at tryOperation (/var/www/AutoCarV8/node_modules/mongodb/lib/operations/execute_operation.js:214:34)
+0|autocarv7  |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|autocarv7  |     at async executeOperation (/var/www/AutoCarV8/node_modules/mongodb/lib/operations/execute_operation.js:78:16)
+0|autocarv7  |     at async Collection.insertOne (/var/www/AutoCarV8/node_modules/mongodb/lib/collection.js:154:16) {
+0|autocarv7  |   errorLabelSet: Set(0) {},
+0|autocarv7  |   errorResponse: {
+0|autocarv7  |     index: 0,
+0|autocarv7  |     code: 11000,
+0|autocarv7  |     errmsg: 'E11000 duplicate key error collection: test.warranties index: warrantyNumber_1 dup key: { warrantyNumber: "WRT/2025/0055" }',
+0|autocarv7  |     keyPattern: { warrantyNumber: 1 },
+0|autocarv7  |     keyValue: { warrantyNumber: 'WRT/2025/0055' }
+0|autocarv7  |   },
+0|autocarv7  |   index: 0,
+0|autocarv7  |   code: 11000,
+0|autocarv7  |   keyPattern: { warrantyNumber: 1 },
+0|autocarv7  |   keyValue: { warrantyNumber: 'WRT/2025/0055' }
+0|autocarv7  | }
+0|autocarv7  | 📤 Sending WhatsApp and Email notifications...
+0|autocarv7  |    Environment check:
+0|autocarv7  |    - APP_URL: https://crm.maulicardecor.com
+0|autocarv7  |    - REPLIT_DEV_DOMAIN: NOT SET
+0|autocarv7  |    - NODE_ENV: production
+0|autocarv7  | 📄 Generating invoice PDF...
+0|autocarv7  |    Invoice: INV/2025/0002
+0|autocarv7  |    Invoice ID: new ObjectId('6906423d5640e2e0fa134bed')
+0|autocarv7  |    Using APP_URL: https://crm.maulicardecor.com
+0|autocarv7  | ✅ PDF generated successfully
+0|autocarv7  |    Local path: /var/www/AutoCarV8/invoices/invoice_INV_2025_0002.pdf
+0|autocarv7  |    Public URL: https://crm.maulicardecor.com/api/public/invoices/6906423d5640e2e0fa134bed/pdf?token=8e8e946f12048ad59751b36cf48638b3a648a65c630f89dab96990849f6189f5
+0|autocarv7  |    Access Token: 8e8e946f1204...
+0|autocarv7  |    Token expires: 2025-11-08T18:24:45.763Z
+0|autocarv7  |    Current time: 2025-11-01T17:24:45.825Z
+0|autocarv7  |    Token valid: ✅ Yes
+0|autocarv7  | 📧 [STUB] Sending invoice email...
+0|autocarv7  |    To: raneaniket23@gmail.com
+0|autocarv7  |    Invoice: INV/2025/0002
+0|autocarv7  |    Amount: ₹ 4500
+0|autocarv7  |    PDF URL: https://crm.maulicardecor.com/api/public/invoices/6906423d5640e2e0fa134bed/pdf?token=8e8e946f12048ad59751b36cf48638b3a648a65c630f89dab96990849f6189f5
+0|autocarv7  | ✅ [STUB] Email sent successfully
+0|autocarv7  | 🔒 WhatsApp send flag set to true and persisted (prevents duplicates)
+0|autocarv7  | 📱 Sending invoice via WhatsApp...
+0|autocarv7  |    To: 7507219775
+0|autocarv7  |    Customer: ANIKET
+0|autocarv7  |    Invoice: INV/2025/0002
+0|autocarv7  |    Service: Service +1 more
+0|autocarv7  |    Amount: ₹ 4,500
+0|autocarv7  |    PDF URL: https://crm.maulicardecor.com/api/public/invoices/6906423d5640e2e0fa134bed/pdf?token=8e8e946f12048ad59751b36cf48638b3a648a65c630f89dab96990849f6189f5
+0|autocarv7  | 📱 Sending WhatsApp Invoice Template with PDF
+0|autocarv7  | ================================
+0|autocarv7  | API URL: https://cloudapi.akst.in/api/v1.0/messages/send-template/919970127778
+0|autocarv7  | API Key: 7RlFwj57...
+0|autocarv7  | Channel Number: 919970127778
+0|autocarv7  | Template Name: invoicetest1
+0|autocarv7  | To (Original): 7507219775
+0|autocarv7  | To (Formatted): 917507219775
+0|autocarv7  | Customer Name: ANIKET
+0|autocarv7  | Invoice Number: INV/2025/0002
+0|autocarv7  | Service: Service +1 more
+0|autocarv7  | Total Amount: ₹4,500
+0|autocarv7  | PDF URL: https://crm.maulicardecor.com/api/public/invoices/6906423d5640e2e0fa134bed/pdf?token=8e8e946f12048ad59751b36cf48638b3a648a65c630f89dab96990849f6189f5
+0|autocarv7  | ================================
+0|autocarv7  | Request Payload: {
+0|autocarv7  |   "messaging_product": "whatsapp",
+0|autocarv7  |   "recipient_type": "individual",
+0|autocarv7  |   "to": "917507219775",
+0|autocarv7  |   "type": "template",
+0|autocarv7  |   "template": {
+0|autocarv7  |     "name": "invoicetest1",
+0|autocarv7  |     "language": {
+0|autocarv7  |       "code": "en"
+0|autocarv7  |     },
+0|autocarv7  |     "components": [
+0|autocarv7  |       {
+0|autocarv7  |         "type": "header",
+0|autocarv7  |         "parameters": [
+0|autocarv7  |           {
+0|autocarv7  |             "type": "document",
+0|autocarv7  |             "document": {
+0|autocarv7  |               "link": "https://crm.maulicardecor.com/api/public/invoices/6906423d5640e2e0fa134bed/pdf?token=8e8e946f12048ad59751b36cf48638b3a648a65c630f89dab96990849f6189f5",
+0|autocarv7  |               "caption": "",
+0|autocarv7  |               "filename": "Invoice_INV_2025_0002.pdf"
+0|autocarv7  |             }
+0|autocarv7  |           }
+0|autocarv7  |         ]
+0|autocarv7  |       }
+0|autocarv7  |     ]
+0|autocarv7  |   }
+0|autocarv7  | }
+0|autocarv7  | 📥 WhatsApp Invoice API Response (115ms)
+0|autocarv7  | ================================
+0|autocarv7  | HTTP Status: 200
+0|autocarv7  | Response Data: {
+0|autocarv7  |   "success": true,
+0|autocarv7  |   "statusDesc": "Message Sent Successfully.",
+0|autocarv7  |   "statusCode": 0,
+0|autocarv7  |   "data": [
+0|autocarv7  |     {
+0|autocarv7  |       "Number": "917507219775",
+0|autocarv7  |       "MaskId": "lOqpdy9Vs0ObYqsNgrN0XQ"
+0|autocarv7  |     }
+0|autocarv7  |   ]
+0|autocarv7  | }
+0|autocarv7  | ================================
+0|autocarv7  | ✅ WhatsApp API reported SUCCESS
+0|autocarv7  |    Status Description: Message Sent Successfully.
+0|autocarv7  |    Message ID: Not provided
+0|autocarv7  | ✅ WhatsApp invoice sent successfully
+0|autocarv7  | 📨 Notifications summary:
+0|autocarv7  |    Email: ✅
+0|autocarv7  |    WhatsApp: ✅
+0|autocarv7  | ✅ Notifications sent successfully
+0|autocarv7  | 📊 Logging activity...
+0|autocarv7  | ✅ Activity logged successfully
+0|autocarv7  | ================================================================================
+0|autocarv7  | ✅ INVOICE APPROVAL PROCESS COMPLETED SUCCESSFULLY
+0|autocarv7  |    Invoice Number: INV/2025/0002
+0|autocarv7  |    Status: approved
+0|autocarv7  |    Total Amount: ₹ 4500
+0|autocarv7  | ================================================================================
+0|autocarv7  | 11:24:46 AM [express] POST /api/invoices/6906423d5640e2e0fa134bed/approve 200 in 314ms :: {"approvalS…
+0|autocarv7  | 11:24:46 AM [express] GET /api/invoices 200 in 13ms :: [{"_id":"6906423d5640e2e0fa134bed","serviceVis…
+0|autocarv7  | 11:24:53 AM [express] GET /api/notifications 304 in 12ms :: [{"_id":"690639772ae9f51b0c78fbae","messa…
+0|autocarv7  | 11:24:53 AM [express] GET /api/invoices 304 in 20ms :: [{"_id":"6906423d5640e2e0fa134bed","serviceVis…
+0|autocarv7  | ================================================================================
+0|autocarv7  | 📥 PUBLIC PDF ACCESS REQUEST
+0|autocarv7  | ================================================================================
+0|autocarv7  |    Invoice ID: 6906423d5640e2e0fa134bed
+0|autocarv7  |    Token provided: 8e8e946f1204...
+0|autocarv7  |    User-Agent: facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)
+0|autocarv7  |    IP Address: 127.0.0.1
+0|autocarv7  |    Timestamp: 2025-11-01T17:25:33.274Z
+0|autocarv7  | ✅ Invoice found: INV/2025/0002
+0|autocarv7  |    Status: approved
+0|autocarv7  | 🔐 Token Verification:
+0|autocarv7  |    Expected token: 8e8e946f1204...
+0|autocarv7  |    Token expiry: 2025-11-08T18:24:45.763Z
+0|autocarv7  |    Current time: 2025-11-01T17:25:33.282Z
+0|autocarv7  |    Token valid: ✅
+0|autocarv7  | ✅ Token verification passed
+0|autocarv7  | 📄 Streaming PDF file...
+0|autocarv7  |    File path: /var/www/AutoCarV8/invoices/invoice_INV_2025_0002.pdf
+0|autocarv7  |    File exists: true
+0|autocarv7  | ✅ PDF successfully streamed to client
+0|autocarv7  | ================================================================================
+0|autocarv7  | 11:25:33 AM [express] GET /api/public/invoices/6906423d5640e2e0fa134bed/pdf 200 in 11ms
+

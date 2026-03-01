@@ -1,0 +1,93 @@
+CustomerRegistration.tsx:251 📱 CUSTOMER REGISTRATION - STARTING
+CustomerRegistration.tsx:252 ================================
+CustomerRegistration.tsx:253 Customer Data: {fullName: 'ANIKET', mobileNumber: '07507219775', alternativeNumber: '', email: '', address: 'mumbai', …}
+CustomerRegistration.tsx:254 ================================
+
+queryClient.ts:43  POST https://8a05586d-5c51-4e06-9c14-d889504b66d3-00-huh1xldgtagk.worf.replit.dev/api/registration/customers 400 (Bad Request)
+apiRequest @ queryClient.ts:43
+mutationFn @ CustomerRegistration.tsx:256
+fn @ @tanstack_react-query.js?v=953e0487:1189
+run @ @tanstack_react-query.js?v=953e0487:494
+start @ @tanstack_react-query.js?v=953e0487:536
+execute @ @tanstack_react-query.js?v=953e0487:1225
+await in execute
+mutate @ @tanstack_react-query.js?v=953e0487:2630
+(anonymous) @ @tanstack_react-query.js?v=953e0487:3295
+onCustomerSubmit @ CustomerRegistration.tsx:498
+(anonymous) @ chunk-4BFJKWC4.js?v=953e0487:1465
+await in (anonymous)
+callCallback2 @ chunk-RPCDYKBN.js?v=953e0487:3674
+invokeGuardedCallbackDev @ chunk-RPCDYKBN.js?v=953e0487:3699
+invokeGuardedCallback @ chunk-RPCDYKBN.js?v=953e0487:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-RPCDYKBN.js?v=953e0487:3736
+executeDispatch @ chunk-RPCDYKBN.js?v=953e0487:7014
+processDispatchQueueItemsInOrder @ chunk-RPCDYKBN.js?v=953e0487:7034
+processDispatchQueue @ chunk-RPCDYKBN.js?v=953e0487:7043
+dispatchEventsForPlugins @ chunk-RPCDYKBN.js?v=953e0487:7051
+(anonymous) @ chunk-RPCDYKBN.js?v=953e0487:7174
+batchedUpdates$1 @ chunk-RPCDYKBN.js?v=953e0487:18913
+batchedUpdates @ chunk-RPCDYKBN.js?v=953e0487:3579
+dispatchEventForPluginEventSystem @ chunk-RPCDYKBN.js?v=953e0487:7173
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-RPCDYKBN.js?v=953e0487:5478
+dispatchEvent @ chunk-RPCDYKBN.js?v=953e0487:5472
+dispatchDiscreteEvent @ chunk-RPCDYKBN.js?v=953e0487:5449
+CustomerRegistration.tsx:290 ❌ CUSTOMER REGISTRATION FAILED
+onError @ CustomerRegistration.tsx:290
+execute @ @tanstack_react-query.js?v=953e0487:1254
+await in execute
+mutate @ @tanstack_react-query.js?v=953e0487:2630
+(anonymous) @ @tanstack_react-query.js?v=953e0487:3295
+onCustomerSubmit @ CustomerRegistration.tsx:498
+(anonymous) @ chunk-4BFJKWC4.js?v=953e0487:1465
+await in (anonymous)
+callCallback2 @ chunk-RPCDYKBN.js?v=953e0487:3674
+invokeGuardedCallbackDev @ chunk-RPCDYKBN.js?v=953e0487:3699
+invokeGuardedCallback @ chunk-RPCDYKBN.js?v=953e0487:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-RPCDYKBN.js?v=953e0487:3736
+executeDispatch @ chunk-RPCDYKBN.js?v=953e0487:7014
+processDispatchQueueItemsInOrder @ chunk-RPCDYKBN.js?v=953e0487:7034
+processDispatchQueue @ chunk-RPCDYKBN.js?v=953e0487:7043
+dispatchEventsForPlugins @ chunk-RPCDYKBN.js?v=953e0487:7051
+(anonymous) @ chunk-RPCDYKBN.js?v=953e0487:7174
+batchedUpdates$1 @ chunk-RPCDYKBN.js?v=953e0487:18913
+batchedUpdates @ chunk-RPCDYKBN.js?v=953e0487:3579
+dispatchEventForPluginEventSystem @ chunk-RPCDYKBN.js?v=953e0487:7173
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-RPCDYKBN.js?v=953e0487:5478
+dispatchEvent @ chunk-RPCDYKBN.js?v=953e0487:5472
+dispatchDiscreteEvent @ chunk-RPCDYKBN.js?v=953e0487:5449
+CustomerRegistration.tsx:291 Error: Error: [
+  {
+    "validation": "email",
+    "code": "invalid_string",
+    "message": "Invalid email address",
+    "path": [
+      "email"
+    ]
+  }
+]
+    at throwIfResNotOk (queryClient.ts:34:11)
+    at async apiRequest (queryClient.ts:50:3)
+    at async Object.mutationFn (CustomerRegistration.tsx:256:24)
+onError @ CustomerRegistration.tsx:291
+execute @ @tanstack_react-query.js?v=953e0487:1254
+await in execute
+mutate @ @tanstack_react-query.js?v=953e0487:2630
+(anonymous) @ @tanstack_react-query.js?v=953e0487:3295
+onCustomerSubmit @ CustomerRegistration.tsx:498
+(anonymous) @ chunk-4BFJKWC4.js?v=953e0487:1465
+await in (anonymous)
+callCallback2 @ chunk-RPCDYKBN.js?v=953e0487:3674
+invokeGuardedCallbackDev @ chunk-RPCDYKBN.js?v=953e0487:3699
+invokeGuardedCallback @ chunk-RPCDYKBN.js?v=953e0487:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-RPCDYKBN.js?v=953e0487:3736
+executeDispatch @ chunk-RPCDYKBN.js?v=953e0487:7014
+processDispatchQueueItemsInOrder @ chunk-RPCDYKBN.js?v=953e0487:7034
+processDispatchQueue @ chunk-RPCDYKBN.js?v=953e0487:7043
+dispatchEventsForPlugins @ chunk-RPCDYKBN.js?v=953e0487:7051
+(anonymous) @ chunk-RPCDYKBN.js?v=953e0487:7174
+batchedUpdates$1 @ chunk-RPCDYKBN.js?v=953e0487:18913
+batchedUpdates @ chunk-RPCDYKBN.js?v=953e0487:3579
+dispatchEventForPluginEventSystem @ chunk-RPCDYKBN.js?v=953e0487:7173
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-RPCDYKBN.js?v=953e0487:5478
+dispatchEvent @ chunk-RPCDYKBN.js?v=953e0487:5472
+dispatchDiscreteEvent @ chunk-RPCDYKBN.js?v=953e0487:5449

@@ -1,0 +1,61 @@
+chunk-RPCDYKBN.js?v=c26a585b:21551 Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+api/auth/me:1  Failed to load resource: the server responded with a status of 401 (Unauthorized)
+api/service-visits/completed:1  Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+Invoices.tsx:836 Uncaught TypeError: completedServices.map is not a function
+    at Invoices (Invoices.tsx:836:36)
+    at renderWithHooks (chunk-RPCDYKBN.js?v=c26a585b:11548:26)
+    at updateFunctionComponent (chunk-RPCDYKBN.js?v=c26a585b:14582:28)
+    at beginWork (chunk-RPCDYKBN.js?v=c26a585b:15924:22)
+    at HTMLUnknownElement.callCallback2 (chunk-RPCDYKBN.js?v=c26a585b:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-RPCDYKBN.js?v=c26a585b:3699:24)
+    at invokeGuardedCallback (chunk-RPCDYKBN.js?v=c26a585b:3733:39)
+    at beginWork$1 (chunk-RPCDYKBN.js?v=c26a585b:19765:15)
+    at performUnitOfWork (chunk-RPCDYKBN.js?v=c26a585b:19198:20)
+    at workLoopSync (chunk-RPCDYKBN.js?v=c26a585b:19137:13)
+Invoices.tsx:836 Uncaught TypeError: completedServices.map is not a function
+    at Invoices (Invoices.tsx:836:36)
+    at renderWithHooks (chunk-RPCDYKBN.js?v=c26a585b:11548:26)
+    at updateFunctionComponent (chunk-RPCDYKBN.js?v=c26a585b:14582:28)
+    at beginWork (chunk-RPCDYKBN.js?v=c26a585b:15924:22)
+    at HTMLUnknownElement.callCallback2 (chunk-RPCDYKBN.js?v=c26a585b:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-RPCDYKBN.js?v=c26a585b:3699:24)
+    at invokeGuardedCallback (chunk-RPCDYKBN.js?v=c26a585b:3733:39)
+    at beginWork$1 (chunk-RPCDYKBN.js?v=c26a585b:19765:15)
+    at performUnitOfWork (chunk-RPCDYKBN.js?v=c26a585b:19198:20)
+    at workLoopSync (chunk-RPCDYKBN.js?v=c26a585b:19137:13)
+chunk-RPCDYKBN.js?v=c26a585b:14032 The above error occurred in the <Invoices> component:
+
+    at Invoices (https://4084e634-dbfd-464d-93f2-a1243501e14b-00-h5zfpqkymig9.spock.replit.dev/src/pages/Invoices.tsx:36:20)
+    at ProtectedRoute (https://4084e634-dbfd-464d-93f2-a1243501e14b-00-h5zfpqkymig9.spock.replit.dev/src/App.tsx?v=bU-1_Y8ULBakdezsculEL:81:38)
+    at Route (https://4084e634-dbfd-464d-93f2-a1243501e14b-00-h5zfpqkymig9.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=c26a585b:323:16)
+    at Switch (https://4084e634-dbfd-464d-93f2-a1243501e14b-00-h5zfpqkymig9.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=c26a585b:379:17)
+    at Router
+    at main
+    at div
+    at div
+    at div
+    at Provider (https://4084e634-dbfd-464d-93f2-a1243501e14b-00-h5zfpqkymig9.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-E7IAXTU4.js?v=c26a585b:38:15)
+    at TooltipProvider (https://4084e634-dbfd-464d-93f2-a1243501e14b-00-h5zfpqkymig9.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=c26a585b:63:5)
+    at SidebarProvider (https://4084e634-dbfd-464d-93f2-a1243501e14b-00-h5zfpqkymig9.spock.replit.dev/src/components/ui/sidebar.tsx:59:3)
+    at AppLayout (https://4084e634-dbfd-464d-93f2-a1243501e14b-00-h5zfpqkymig9.spock.replit.dev/src/App.tsx?v=bU-1_Y8ULBakdezsculEL:327:31)
+    at AuthProvider (https://4084e634-dbfd-464d-93f2-a1243501e14b-00-h5zfpqkymig9.spock.replit.dev/src/lib/auth.tsx:22:32)
+    at ThemeProvider (https://4084e634-dbfd-464d-93f2-a1243501e14b-00-h5zfpqkymig9.spock.replit.dev/src/components/ThemeProvider.tsx:20:33)
+    at Provider (https://4084e634-dbfd-464d-93f2-a1243501e14b-00-h5zfpqkymig9.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-E7IAXTU4.js?v=c26a585b:38:15)
+    at TooltipProvider (https://4084e634-dbfd-464d-93f2-a1243501e14b-00-h5zfpqkymig9.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=c26a585b:63:5)
+    at QueryClientProvider (https://4084e634-dbfd-464d-93f2-a1243501e14b-00-h5zfpqkymig9.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=c26a585b:2805:3)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+logCapturedError @ chunk-RPCDYKBN.js?v=c26a585b:14032
+chunk-RPCDYKBN.js?v=c26a585b:9129 Uncaught TypeError: completedServices.map is not a function
+    at Invoices (Invoices.tsx:836:36)
+    at renderWithHooks (chunk-RPCDYKBN.js?v=c26a585b:11548:26)
+    at updateFunctionComponent (chunk-RPCDYKBN.js?v=c26a585b:14582:28)
+    at beginWork (chunk-RPCDYKBN.js?v=c26a585b:15924:22)
+    at beginWork$1 (chunk-RPCDYKBN.js?v=c26a585b:19753:22)
+    at performUnitOfWork (chunk-RPCDYKBN.js?v=c26a585b:19198:20)
+    at workLoopSync (chunk-RPCDYKBN.js?v=c26a585b:19137:13)
+    at renderRootSync (chunk-RPCDYKBN.js?v=c26a585b:19116:15)
+    at recoverFromConcurrentError (chunk-RPCDYKBN.js?v=c26a585b:18736:28)
+    at performSyncWorkOnRoot (chunk-RPCDYKBN.js?v=c26a585b:18879:28)

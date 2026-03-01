@@ -1,0 +1,67 @@
+chunk-RPCDYKBN.js?v=36226278:21551 Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+/api/auth/me:1  Failed to load resource: the server responded with a status of 401 (Unauthorized)
+ServiceWorkflowCard.tsx:59 Uncaught TypeError: Cannot read properties of undefined (reading 'length')
+    at ServiceWorkflowCard (ServiceWorkflowCard.tsx:59:23)
+    at renderWithHooks (chunk-RPCDYKBN.js?v=36226278:11548:26)
+    at mountIndeterminateComponent (chunk-RPCDYKBN.js?v=36226278:14926:21)
+    at beginWork (chunk-RPCDYKBN.js?v=36226278:15914:22)
+    at HTMLUnknownElement.callCallback2 (chunk-RPCDYKBN.js?v=36226278:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-RPCDYKBN.js?v=36226278:3699:24)
+    at invokeGuardedCallback (chunk-RPCDYKBN.js?v=36226278:3733:39)
+    at beginWork$1 (chunk-RPCDYKBN.js?v=36226278:19765:15)
+    at performUnitOfWork (chunk-RPCDYKBN.js?v=36226278:19198:20)
+    at workLoopSync (chunk-RPCDYKBN.js?v=36226278:19137:13)
+ServiceWorkflowCard.tsx:59 Uncaught TypeError: Cannot read properties of undefined (reading 'length')
+    at ServiceWorkflowCard (ServiceWorkflowCard.tsx:59:23)
+    at renderWithHooks (chunk-RPCDYKBN.js?v=36226278:11548:26)
+    at mountIndeterminateComponent (chunk-RPCDYKBN.js?v=36226278:14926:21)
+    at beginWork (chunk-RPCDYKBN.js?v=36226278:15914:22)
+    at HTMLUnknownElement.callCallback2 (chunk-RPCDYKBN.js?v=36226278:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-RPCDYKBN.js?v=36226278:3699:24)
+    at invokeGuardedCallback (chunk-RPCDYKBN.js?v=36226278:3733:39)
+    at beginWork$1 (chunk-RPCDYKBN.js?v=36226278:19765:15)
+    at performUnitOfWork (chunk-RPCDYKBN.js?v=36226278:19198:20)
+    at workLoopSync (chunk-RPCDYKBN.js?v=36226278:19137:13)
+chunk-RPCDYKBN.js?v=36226278:14032 The above error occurred in the <ServiceWorkflowCard> component:
+
+    at ServiceWorkflowCard (https://4e6c5d0b-1496-4f80-a30c-9907e3bc0d59-00-1x9upcyoslgjk.worf.replit.dev/src/components/ServiceWorkflowCard.tsx:22:3)
+    at div
+    at _c9 (https://4e6c5d0b-1496-4f80-a30c-9907e3bc0d59-00-1x9upcyoslgjk.worf.replit.dev/src/components/ui/card.tsx:114:12)
+    at div
+    at _c (https://4e6c5d0b-1496-4f80-a30c-9907e3bc0d59-00-1x9upcyoslgjk.worf.replit.dev/src/components/ui/card.tsx:20:11)
+    at div
+    at div
+    at Dashboard (https://4e6c5d0b-1496-4f80-a30c-9907e3bc0d59-00-1x9upcyoslgjk.worf.replit.dev/src/pages/Dashboard.tsx:51:20)
+    at ProtectedRoute (https://4e6c5d0b-1496-4f80-a30c-9907e3bc0d59-00-1x9upcyoslgjk.worf.replit.dev/src/App.tsx?v=lDbyaSRgm7bpnPWCTg8V2:79:38)
+    at Route (https://4e6c5d0b-1496-4f80-a30c-9907e3bc0d59-00-1x9upcyoslgjk.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=36226278:323:16)
+    at Switch (https://4e6c5d0b-1496-4f80-a30c-9907e3bc0d59-00-1x9upcyoslgjk.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=36226278:379:17)
+    at Router
+    at main
+    at div
+    at div
+    at div
+    at Provider (https://4e6c5d0b-1496-4f80-a30c-9907e3bc0d59-00-1x9upcyoslgjk.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-E7IAXTU4.js?v=36226278:38:15)
+    at TooltipProvider (https://4e6c5d0b-1496-4f80-a30c-9907e3bc0d59-00-1x9upcyoslgjk.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=36226278:63:5)
+    at SidebarProvider (https://4e6c5d0b-1496-4f80-a30c-9907e3bc0d59-00-1x9upcyoslgjk.worf.replit.dev/src/components/ui/sidebar.tsx:59:3)
+    at AppLayout (https://4e6c5d0b-1496-4f80-a30c-9907e3bc0d59-00-1x9upcyoslgjk.worf.replit.dev/src/App.tsx?v=lDbyaSRgm7bpnPWCTg8V2:306:20)
+    at AuthProvider (https://4e6c5d0b-1496-4f80-a30c-9907e3bc0d59-00-1x9upcyoslgjk.worf.replit.dev/src/lib/auth.tsx:22:32)
+    at ThemeProvider (https://4e6c5d0b-1496-4f80-a30c-9907e3bc0d59-00-1x9upcyoslgjk.worf.replit.dev/src/components/ThemeProvider.tsx:20:33)
+    at Provider (https://4e6c5d0b-1496-4f80-a30c-9907e3bc0d59-00-1x9upcyoslgjk.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-E7IAXTU4.js?v=36226278:38:15)
+    at TooltipProvider (https://4e6c5d0b-1496-4f80-a30c-9907e3bc0d59-00-1x9upcyoslgjk.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=36226278:63:5)
+    at QueryClientProvider (https://4e6c5d0b-1496-4f80-a30c-9907e3bc0d59-00-1x9upcyoslgjk.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=36226278:2805:3)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+logCapturedError @ chunk-RPCDYKBN.js?v=36226278:14032
+chunk-RPCDYKBN.js?v=36226278:9129 Uncaught TypeError: Cannot read properties of undefined (reading 'length')
+    at ServiceWorkflowCard (ServiceWorkflowCard.tsx:59:23)
+    at renderWithHooks (chunk-RPCDYKBN.js?v=36226278:11548:26)
+    at mountIndeterminateComponent (chunk-RPCDYKBN.js?v=36226278:14926:21)
+    at beginWork (chunk-RPCDYKBN.js?v=36226278:15914:22)
+    at beginWork$1 (chunk-RPCDYKBN.js?v=36226278:19753:22)
+    at performUnitOfWork (chunk-RPCDYKBN.js?v=36226278:19198:20)
+    at workLoopSync (chunk-RPCDYKBN.js?v=36226278:19137:13)
+    at renderRootSync (chunk-RPCDYKBN.js?v=36226278:19116:15)
+    at recoverFromConcurrentError (chunk-RPCDYKBN.js?v=36226278:18736:28)
+    at performSyncWorkOnRoot (chunk-RPCDYKBN.js?v=36226278:18879:28)

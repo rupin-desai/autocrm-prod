@@ -1,0 +1,39 @@
+// add and option to add multiple warranty card for each product repectively. When i select a part to be serviced on give an option to upload a warranty card for it in front of its name when it is selected above and comes down in the warranty list section below automatically.
+
+// fix the inverting color image when uploading any image in the whole project. I mean it changes the backgroud color.
+
+// Remove Vehicle Registration entry Field in create new service section while creating service.
+
+The approve Invoice is not Working so Fix that.
+api/invoices/68f8740dcfebd355d2599f60/approve:1  Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+api/invoices/68f8740dcfebd355d2599f60/approve:1  Failed to load resource: the server responded with a status of 400 (Bad Request)
+queryClient.ts:43  POST https://9df29016-92f0-48ec-abf3-0911f9e8da1a-00-15wrwcpcslql2.picard.replit.dev/api/invoices/68f8740dcfebd355d2599f60/approve 400 (Bad Request)
+apiRequest @ queryClient.ts:43
+mutationFn @ Invoices.tsx:64
+fn @ @tanstack_react-query.js?v=6e2c3ef3:1189
+run @ @tanstack_react-query.js?v=6e2c3ef3:494
+start @ @tanstack_react-query.js?v=6e2c3ef3:536
+execute @ @tanstack_react-query.js?v=6e2c3ef3:1225
+await in execute
+mutate @ @tanstack_react-query.js?v=6e2c3ef3:2630
+(anonymous) @ @tanstack_react-query.js?v=6e2c3ef3:3295
+onClick @ Invoices.tsx:344
+callCallback2 @ chunk-RPCDYKBN.js?v=6e2c3ef3:3674
+invokeGuardedCallbackDev @ chunk-RPCDYKBN.js?v=6e2c3ef3:3699
+invokeGuardedCallback @ chunk-RPCDYKBN.js?v=6e2c3ef3:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-RPCDYKBN.js?v=6e2c3ef3:3736
+executeDispatch @ chunk-RPCDYKBN.js?v=6e2c3ef3:7014
+processDispatchQueueItemsInOrder @ chunk-RPCDYKBN.js?v=6e2c3ef3:7034
+processDispatchQueue @ chunk-RPCDYKBN.js?v=6e2c3ef3:7043
+dispatchEventsForPlugins @ chunk-RPCDYKBN.js?v=6e2c3ef3:7051
+(anonymous) @ chunk-RPCDYKBN.js?v=6e2c3ef3:7174
+batchedUpdates$1 @ chunk-RPCDYKBN.js?v=6e2c3ef3:18913
+batchedUpdates @ chunk-RPCDYKBN.js?v=6e2c3ef3:3579
+dispatchEventForPluginEventSystem @ chunk-RPCDYKBN.js?v=6e2c3ef3:7173
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-RPCDYKBN.js?v=6e2c3ef3:5478
+dispatchEvent @ chunk-RPCDYKBN.js?v=6e2c3ef3:5472
+dispatchDiscreteEvent @ chunk-RPCDYKBN.js?v=6e2c3ef3:5449
+
+
+
+// In the settings section Profile in the Information not all the information is showing up. Also make that settings section atually work.

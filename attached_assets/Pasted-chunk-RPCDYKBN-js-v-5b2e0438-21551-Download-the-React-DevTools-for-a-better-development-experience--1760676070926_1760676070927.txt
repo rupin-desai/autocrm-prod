@@ -1,0 +1,27 @@
+chunk-RPCDYKBN.js?v=5b2e0438:21551 Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+api/auth/me:1  Failed to load resource: the server responded with a status of 401 (Unauthorized)
+react_jsx-dev-runtime.js?v=ed59aab4:64 Warning: Each child in a list should have a unique "key" prop.
+
+Check the render method of `Orders`. See https://reactjs.org/link/warning-keys for more information.
+    at _c1 (https://b51c6ea8-d605-4aa3-8246-a0486a394941-00-1xifnm7h9m4cd.picard.replit.dev/src/components/ui/select.tsx:208:12)
+    at Orders (https://b51c6ea8-d605-4aa3-8246-a0486a394941-00-1xifnm7h9m4cd.picard.replit.dev/src/pages/Orders.tsx:40:39)
+    at ProtectedRoute (https://b51c6ea8-d605-4aa3-8246-a0486a394941-00-1xifnm7h9m4cd.picard.replit.dev/src/App.tsx?t=1760675311771&v=s0K0vTkLOoMP_CZqbeFq1:81:38)
+    at Route (https://b51c6ea8-d605-4aa3-8246-a0486a394941-00-1xifnm7h9m4cd.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=f19f2647:323:16)
+    at Switch (https://b51c6ea8-d605-4aa3-8246-a0486a394941-00-1xifnm7h9m4cd.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=f19f2647:379:17)
+    at Router
+    at main
+    at div
+    at div
+    at div
+    at Provider (https://b51c6ea8-d605-4aa3-8246-a0486a394941-00-1xifnm7h9m4cd.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-5AJU3CG7.js?v=5b2e0438:38:15)
+    at TooltipProvider (https://b51c6ea8-d605-4aa3-8246-a0486a394941-00-1xifnm7h9m4cd.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=a2eb4a19:63:5)
+    at SidebarProvider (https://b51c6ea8-d605-4aa3-8246-a0486a394941-00-1xifnm7h9m4cd.picard.replit.dev/src/components/ui/sidebar.tsx:59:3)
+    at AppLayout (https://b51c6ea8-d605-4aa3-8246-a0486a394941-00-1xifnm7h9m4cd.picard.replit.dev/src/App.tsx?t=1760675311771&v=s0K0vTkLOoMP_CZqbeFq1:317:20)
+    at AuthProvider (https://b51c6ea8-d605-4aa3-8246-a0486a394941-00-1xifnm7h9m4cd.picard.replit.dev/src/lib/auth.tsx:22:32)
+    at ThemeProvider (https://b51c6ea8-d605-4aa3-8246-a0486a394941-00-1xifnm7h9m4cd.picard.replit.dev/src/components/ThemeProvider.tsx:20:33)
+    at Provider (https://b51c6ea8-d605-4aa3-8246-a0486a394941-00-1xifnm7h9m4cd.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-5AJU3CG7.js?v=5b2e0438:38:15)
+    at TooltipProvider (https://b51c6ea8-d605-4aa3-8246-a0486a394941-00-1xifnm7h9m4cd.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=a2eb4a19:63:5)
+    at QueryClientProvider (https://b51c6ea8-d605-4aa3-8246-a0486a394941-00-1xifnm7h9m4cd.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=d3580b02:2805:3)
+    at App
+printWarning @ react_jsx-dev-runtime.js?v=ed59aab4:64
+api/service-visits/68f111ea5dc5ecc9934a043b:1  Failed to load resource: the server responded with a status of 400 (Bad Request)

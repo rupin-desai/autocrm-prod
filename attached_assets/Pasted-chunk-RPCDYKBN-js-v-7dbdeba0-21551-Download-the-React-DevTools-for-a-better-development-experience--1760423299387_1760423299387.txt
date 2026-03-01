@@ -1,0 +1,27 @@
+chunk-RPCDYKBN.js?v=7dbdeba0:21551 Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+/api/auth/me:1  Failed to load resource: the server responded with a status of 401 (Unauthorized)
+/api/service-visits:1  Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+react_jsx-dev-runtime.js?v=7dbdeba0:64 Warning: Each child in a list should have a unique "key" prop.
+
+Check the render method of `Dashboard`. See https://reactjs.org/link/warning-keys for more information.
+    at _c1 (https://4878953f-9aaf-4570-968a-574fcc86cbe2-00-1mq56q0gd6uxx.spock.replit.dev/src/components/ui/select.tsx:208:12)
+    at Dashboard (https://4878953f-9aaf-4570-968a-574fcc86cbe2-00-1mq56q0gd6uxx.spock.replit.dev/src/pages/Dashboard.tsx:50:20)
+    at ProtectedRoute (https://4878953f-9aaf-4570-968a-574fcc86cbe2-00-1mq56q0gd6uxx.spock.replit.dev/src/App.tsx?v=7mixoHiON9vPIbRdtwu-v:79:38)
+    at Route (https://4878953f-9aaf-4570-968a-574fcc86cbe2-00-1mq56q0gd6uxx.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=7dbdeba0:323:16)
+    at Switch (https://4878953f-9aaf-4570-968a-574fcc86cbe2-00-1mq56q0gd6uxx.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=7dbdeba0:379:17)
+    at Router
+    at main
+    at div
+    at div
+    at div
+    at Provider (https://4878953f-9aaf-4570-968a-574fcc86cbe2-00-1mq56q0gd6uxx.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-E7IAXTU4.js?v=7dbdeba0:38:15)
+    at TooltipProvider (https://4878953f-9aaf-4570-968a-574fcc86cbe2-00-1mq56q0gd6uxx.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=7dbdeba0:63:5)
+    at SidebarProvider (https://4878953f-9aaf-4570-968a-574fcc86cbe2-00-1mq56q0gd6uxx.spock.replit.dev/src/components/ui/sidebar.tsx:59:3)
+    at AppLayout (https://4878953f-9aaf-4570-968a-574fcc86cbe2-00-1mq56q0gd6uxx.spock.replit.dev/src/App.tsx?v=7mixoHiON9vPIbRdtwu-v:306:20)
+    at AuthProvider (https://4878953f-9aaf-4570-968a-574fcc86cbe2-00-1mq56q0gd6uxx.spock.replit.dev/src/lib/auth.tsx:22:32)
+    at ThemeProvider (https://4878953f-9aaf-4570-968a-574fcc86cbe2-00-1mq56q0gd6uxx.spock.replit.dev/src/components/ThemeProvider.tsx:20:33)
+    at Provider (https://4878953f-9aaf-4570-968a-574fcc86cbe2-00-1mq56q0gd6uxx.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-E7IAXTU4.js?v=7dbdeba0:38:15)
+    at TooltipProvider (https://4878953f-9aaf-4570-968a-574fcc86cbe2-00-1mq56q0gd6uxx.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=7dbdeba0:63:5)
+    at QueryClientProvider (https://4878953f-9aaf-4570-968a-574fcc86cbe2-00-1mq56q0gd6uxx.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=7dbdeba0:2805:3)
+    at App
+printWarning @ react_jsx-dev-runtime.js?v=7dbdeba0:64

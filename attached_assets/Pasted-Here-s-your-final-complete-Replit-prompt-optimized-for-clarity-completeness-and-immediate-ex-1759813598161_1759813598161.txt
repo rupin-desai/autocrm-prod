@@ -1,0 +1,239 @@
+Here’s your **final complete Replit prompt** — optimized for clarity, completeness, and immediate execution with MongoDB setup from the very start 👇
+
+---
+
+### 🚀 **Prompt for Replit AI**
+
+Build a **full-stack Car Parts & Service Shop Management Web Application** using **Next.js + Tailwind CSS + MongoDB (Mongoose)** that is **Vercel deployment compatible from the start**.
+This application will help auto shops manage customers, services, products, and inventory — with role-based access and live service workflow tracking.
+
+---
+
+### ⚙️ **Core Requirements**
+
+#### 🧠 Tech Stack
+
+* **Frontend:** Next.js (App Router preferred) + React + Tailwind CSS
+* **Backend:** Next.js API Routes (serverless compatible)
+* **Database:** MongoDB (Mongoose ODM)
+* **Auth:** JWT-based authentication
+* **Deployment:** Vercel-ready structure from the beginning
+* **Testing:** Jest or Vitest (basic coverage)
+* **Docs:** Include `README.md` + `.env.example` + Postman collection
+
+---
+
+### 🏗️ **Development Instructions**
+
+1. **Ask for MongoDB Connection URI first** before running anything.
+
+   * Prompt me like this:
+
+     > “Please provide your MongoDB URI (MONGODB_URI) to continue connecting the database.”
+   * Once I provide it, connect immediately and confirm the connection using Mongoose.
+   * Example: `mongoose.connect(process.env.MONGODB_URI)` in a dedicated `lib/db.js` file.
+   * Fail gracefully if not connected (show a clear error message in console and UI).
+
+2. Structure the project so it **runs perfectly on Replit** (using `npm run dev`)
+   and **deploys easily on Vercel** (no local file dependencies, only environment variables).
+
+3. Include an `.env.example` with:
+
+   ```
+   MONGODB_URI=
+   JWT_SECRET=
+   NEXTAUTH_SECRET=
+   SMTP_USER=
+   SMTP_PASS=
+   SMTP_HOST=
+   SMTP_PORT=
+   ```
+
+---
+
+### 🧩 **Main Modules**
+
+#### 1️⃣ Car Products Management
+
+* Manage Product Categories (Engine parts, Tyres, Accessories, etc.)
+* CRUD for Products:
+
+  * Name, Brand, Model Compatibility, Warranty
+  * Price (MRP, Selling, Discount)
+  * Status (In Stock / Out of Stock / Discontinued)
+  * Product Variants (Size, Color)
+  * Product Images (upload and display)
+* Product list view with search, filters, and pagination.
+
+---
+
+#### 2️⃣ Inventory Management
+
+* Track Stock In / Stock Out
+* Minimum Stock Alert system
+* Supplier details
+* Purchase Order management
+* Warehouse / Storage info per item
+* Return Management
+* Inventory Movement Logs
+* (Optional placeholder for Barcode/QR code generation)
+* Real-time stock update when linked with orders or services.
+
+---
+
+#### 3️⃣ Employee Management
+
+* Employee profiles (name, role, contact, joining date, permissions)
+* Roles: **Admin, Inventory Manager, Sales Executive, HR Manager, Service Staff**
+* **Attendance System:**
+
+  * Show a section “Coming Soon” with a brief description of what it will include later (manual & biometric attendance tracking).
+  * Include navigation entry for “Attendance” but disable interactions for now.
+
+---
+
+#### 4️⃣ Customer Management
+
+* Customer profiles (Name, Phone, Email, Vehicle Details: Reg No, Make, Model, Year)
+* View and edit customers easily.
+* Search customer by phone or reg number.
+
+---
+
+#### 5️⃣ Digital Customer Card (auto-generated)
+
+* For every customer, auto-create a **Digital Card** that tracks:
+
+  * Total Visits
+  * Service History
+  * Last Serviced By (handler)
+  * Current Handler
+  * All parts/services used
+* Digital Card should be printable and shareable.
+* Include QR code placeholder for future enhancement.
+
+---
+
+#### 6️⃣ Service Workflow / Visit Tracking
+
+* Define workflow stages:
+
+  * **Inquired → Working → Waiting for Parts → Completed**
+* When a customer walks in:
+
+  * Handler logs the visit
+  * Assign handler/service person
+  * Add notes and service items
+  * Change stage as the service progresses
+* Store timestamps for each stage and track service history per customer.
+* Display “who serviced last” and “who is servicing now”.
+
+---
+
+#### 7️⃣ Orders / Sales Management
+
+* Create and track orders
+* Attach invoices and billing info
+* Payment status (Paid, Due, Partial)
+* Assign salesperson
+* Maintain order history
+* Generate and print invoices (PDF friendly)
+
+---
+
+#### 8️⃣ Reports & Analytics
+
+Include reports for:
+
+* Daily / Monthly Sales
+* Inventory Movement
+* Employee Performance (basic placeholder)
+* Top Selling Products
+* Stock Ageing Report
+* Profit/Loss Summary
+* Export to CSV/PDF.
+
+---
+
+#### 9️⃣ User Roles & Access Control
+
+* Roles: Admin, Inventory Manager, Sales Executive, HR Manager, Service Staff
+* Define role-based access control (RBAC)
+* Restrict/Hide modules based on user role.
+
+---
+
+#### 🔔 Notifications / Alerts
+
+* Notify (in-app or via email):
+
+  * Low Stock Alerts
+  * New Order Received
+  * Payment Due Alerts
+  * Product Discontinued Alerts
+* Notification Center in dashboard UI (in-app feed)
+
+---
+
+### 💾 **Database Models (Mongoose)**
+
+* **User:** `{ _id, name, email, passwordHash, role }`
+* **Employee:** `{ _id, name, contact, joiningDate, role, isActive }`
+* **Customer:** `{ _id, name, phone, email, vehicles: [{ regNo, make, model, year }] }`
+* **DigitalCard:** `{ _id, customerId, visits: [{ date, handlerId, stage, partsUsed: [], invoiceId }] }`
+* **Product:** `{ _id, name, category, brand, price, stockQty, status, variants, images }`
+* **InventoryTxn:** `{ _id, productId, qty, type: 'IN'|'OUT', reason, date, userId }`
+* **Order:** `{ _id, customerId, items: [{ productId, qty, price }], total, status, createdBy }`
+* **Notification:** `{ _id, message, type, createdAt, read, targetRole }`
+
+---
+
+### 💻 **Frontend Pages**
+
+* `/login` – JWT-based login
+* `/dashboard` – KPIs: sales today, open jobs, low stock, quick links
+* `/products` – manage products
+* `/inventory` – manage stock and view movement history
+* `/customers` – customer list + Digital Card details
+* `/visits` – manage service workflow by stage
+* `/orders` – manage and print invoices
+* `/employees` – manage staff
+* `/attendance` – “Coming Soon” (disabled section placeholder)
+* `/reports` – analytics and exports
+* `/settings` – user roles, SMTP, app info
+
+---
+
+### 🧾 **Other Requirements**
+
+* Include sample seed data for products, customers, and one admin user.
+* Include a Postman collection for all core APIs.
+* Include a README with:
+
+  * Setup guide for Replit and Vercel
+  * MongoDB Atlas setup steps
+  * Environment variable list
+  * Seeding and testing instructions
+
+---
+
+### ✅ **Acceptance Criteria**
+
+* Connects to MongoDB **from the very start** (asks URI before initializing)
+* Fully functional CRUD for all main entities
+* Walk-in → Service → Invoice → Inventory update flow works
+* Digital Customer Card works with last-served tracking
+* Attendance module shown as “Coming Soon”
+* Works perfectly on Replit (`npm run dev`)
+* Deployable on Vercel without any code change
+* Includes seed data + clear README
+
+---
+
+### 🧠 **Summary Instruction for Replit**
+
+> “Create this complete web app structure now. Start by asking me for my MongoDB URI, then connect using Mongoose. Once connected, scaffold the entire Next.js + Tailwind + Mongoose project according to all the above requirements.”
+
+---
+
+Would you like me to slightly **reformat this into a copy-paste-friendly single-line prompt** (for Replit AI’s input box)? It’ll be compact but retain all details.

@@ -1,0 +1,333 @@
+chunk-RPCDYKBN.js?v=449a8bd0:21551 Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+api/auth/me:1  Failed to load resource: the server responded with a status of 401 (Unauthorized)
+@radix-ui_react-select.js?v=146c4075:871 Uncaught Error: A <Select.Item /> must have a value prop that is not an empty string. This is because the Select value can be set to an empty string to clear the selection and show the placeholder.
+    at @radix-ui_react-select.js?v=146c4075:871:13
+    at renderWithHooks (chunk-RPCDYKBN.js?v=449a8bd0:11548:26)
+    at updateForwardRef (chunk-RPCDYKBN.js?v=449a8bd0:14325:28)
+    at beginWork (chunk-RPCDYKBN.js?v=449a8bd0:15946:22)
+    at HTMLUnknownElement.callCallback2 (chunk-RPCDYKBN.js?v=449a8bd0:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-RPCDYKBN.js?v=449a8bd0:3699:24)
+    at invokeGuardedCallback (chunk-RPCDYKBN.js?v=449a8bd0:3733:39)
+    at beginWork$1 (chunk-RPCDYKBN.js?v=449a8bd0:19765:15)
+    at performUnitOfWork (chunk-RPCDYKBN.js?v=449a8bd0:19198:20)
+    at workLoopSync (chunk-RPCDYKBN.js?v=449a8bd0:19137:13)
+@radix-ui_react-select.js?v=146c4075:871 Uncaught Error: A <Select.Item /> must have a value prop that is not an empty string. This is because the Select value can be set to an empty string to clear the selection and show the placeholder.
+    at @radix-ui_react-select.js?v=146c4075:871:13
+    at renderWithHooks (chunk-RPCDYKBN.js?v=449a8bd0:11548:26)
+    at updateForwardRef (chunk-RPCDYKBN.js?v=449a8bd0:14325:28)
+    at beginWork (chunk-RPCDYKBN.js?v=449a8bd0:15946:22)
+    at HTMLUnknownElement.callCallback2 (chunk-RPCDYKBN.js?v=449a8bd0:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-RPCDYKBN.js?v=449a8bd0:3699:24)
+    at invokeGuardedCallback (chunk-RPCDYKBN.js?v=449a8bd0:3733:39)
+    at beginWork$1 (chunk-RPCDYKBN.js?v=449a8bd0:19765:15)
+    at performUnitOfWork (chunk-RPCDYKBN.js?v=449a8bd0:19198:20)
+    at workLoopSync (chunk-RPCDYKBN.js?v=449a8bd0:19137:13)
+@radix-ui_react-select.js?v=146c4075:871 Uncaught Error: A <Select.Item /> must have a value prop that is not an empty string. This is because the Select value can be set to an empty string to clear the selection and show the placeholder.
+    at @radix-ui_react-select.js?v=146c4075:871:13
+    at renderWithHooks (chunk-RPCDYKBN.js?v=449a8bd0:11548:26)
+    at updateForwardRef (chunk-RPCDYKBN.js?v=449a8bd0:14325:28)
+    at beginWork (chunk-RPCDYKBN.js?v=449a8bd0:15946:22)
+    at HTMLUnknownElement.callCallback2 (chunk-RPCDYKBN.js?v=449a8bd0:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-RPCDYKBN.js?v=449a8bd0:3699:24)
+    at invokeGuardedCallback (chunk-RPCDYKBN.js?v=449a8bd0:3733:39)
+    at beginWork$1 (chunk-RPCDYKBN.js?v=449a8bd0:19765:15)
+    at performUnitOfWork (chunk-RPCDYKBN.js?v=449a8bd0:19198:20)
+    at workLoopSync (chunk-RPCDYKBN.js?v=449a8bd0:19137:13)
+@radix-ui_react-select.js?v=146c4075:871 Uncaught Error: A <Select.Item /> must have a value prop that is not an empty string. This is because the Select value can be set to an empty string to clear the selection and show the placeholder.
+    at @radix-ui_react-select.js?v=146c4075:871:13
+    at renderWithHooks (chunk-RPCDYKBN.js?v=449a8bd0:11548:26)
+    at updateForwardRef (chunk-RPCDYKBN.js?v=449a8bd0:14325:28)
+    at beginWork (chunk-RPCDYKBN.js?v=449a8bd0:15946:22)
+    at HTMLUnknownElement.callCallback2 (chunk-RPCDYKBN.js?v=449a8bd0:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-RPCDYKBN.js?v=449a8bd0:3699:24)
+    at invokeGuardedCallback (chunk-RPCDYKBN.js?v=449a8bd0:3733:39)
+    at beginWork$1 (chunk-RPCDYKBN.js?v=449a8bd0:19765:15)
+    at performUnitOfWork (chunk-RPCDYKBN.js?v=449a8bd0:19198:20)
+    at workLoopSync (chunk-RPCDYKBN.js?v=449a8bd0:19137:13)
+@radix-ui_react-select.js?v=146c4075:871 Uncaught Error: A <Select.Item /> must have a value prop that is not an empty string. This is because the Select value can be set to an empty string to clear the selection and show the placeholder.
+    at @radix-ui_react-select.js?v=146c4075:871:13
+    at renderWithHooks (chunk-RPCDYKBN.js?v=449a8bd0:11548:26)
+    at updateForwardRef (chunk-RPCDYKBN.js?v=449a8bd0:14325:28)
+    at beginWork (chunk-RPCDYKBN.js?v=449a8bd0:15946:22)
+    at HTMLUnknownElement.callCallback2 (chunk-RPCDYKBN.js?v=449a8bd0:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-RPCDYKBN.js?v=449a8bd0:3699:24)
+    at invokeGuardedCallback (chunk-RPCDYKBN.js?v=449a8bd0:3733:39)
+    at beginWork$1 (chunk-RPCDYKBN.js?v=449a8bd0:19765:15)
+    at performUnitOfWork (chunk-RPCDYKBN.js?v=449a8bd0:19198:20)
+    at workLoopSync (chunk-RPCDYKBN.js?v=449a8bd0:19137:13)
+@radix-ui_react-select.js?v=146c4075:871 Uncaught Error: A <Select.Item /> must have a value prop that is not an empty string. This is because the Select value can be set to an empty string to clear the selection and show the placeholder.
+    at @radix-ui_react-select.js?v=146c4075:871:13
+    at renderWithHooks (chunk-RPCDYKBN.js?v=449a8bd0:11548:26)
+    at updateForwardRef (chunk-RPCDYKBN.js?v=449a8bd0:14325:28)
+    at beginWork (chunk-RPCDYKBN.js?v=449a8bd0:15946:22)
+    at HTMLUnknownElement.callCallback2 (chunk-RPCDYKBN.js?v=449a8bd0:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-RPCDYKBN.js?v=449a8bd0:3699:24)
+    at invokeGuardedCallback (chunk-RPCDYKBN.js?v=449a8bd0:3733:39)
+    at beginWork$1 (chunk-RPCDYKBN.js?v=449a8bd0:19765:15)
+    at performUnitOfWork (chunk-RPCDYKBN.js?v=449a8bd0:19198:20)
+    at workLoopSync (chunk-RPCDYKBN.js?v=449a8bd0:19137:13)
+@radix-ui_react-select.js?v=146c4075:871 Uncaught Error: A <Select.Item /> must have a value prop that is not an empty string. This is because the Select value can be set to an empty string to clear the selection and show the placeholder.
+    at @radix-ui_react-select.js?v=146c4075:871:13
+    at renderWithHooks (chunk-RPCDYKBN.js?v=449a8bd0:11548:26)
+    at updateForwardRef (chunk-RPCDYKBN.js?v=449a8bd0:14325:28)
+    at beginWork (chunk-RPCDYKBN.js?v=449a8bd0:15946:22)
+    at HTMLUnknownElement.callCallback2 (chunk-RPCDYKBN.js?v=449a8bd0:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-RPCDYKBN.js?v=449a8bd0:3699:24)
+    at invokeGuardedCallback (chunk-RPCDYKBN.js?v=449a8bd0:3733:39)
+    at beginWork$1 (chunk-RPCDYKBN.js?v=449a8bd0:19765:15)
+    at performUnitOfWork (chunk-RPCDYKBN.js?v=449a8bd0:19198:20)
+    at workLoopSync (chunk-RPCDYKBN.js?v=449a8bd0:19137:13)
+@radix-ui_react-select.js?v=146c4075:871 Uncaught Error: A <Select.Item /> must have a value prop that is not an empty string. This is because the Select value can be set to an empty string to clear the selection and show the placeholder.
+    at @radix-ui_react-select.js?v=146c4075:871:13
+    at renderWithHooks (chunk-RPCDYKBN.js?v=449a8bd0:11548:26)
+    at updateForwardRef (chunk-RPCDYKBN.js?v=449a8bd0:14325:28)
+    at beginWork (chunk-RPCDYKBN.js?v=449a8bd0:15946:22)
+    at HTMLUnknownElement.callCallback2 (chunk-RPCDYKBN.js?v=449a8bd0:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-RPCDYKBN.js?v=449a8bd0:3699:24)
+    at invokeGuardedCallback (chunk-RPCDYKBN.js?v=449a8bd0:3733:39)
+    at beginWork$1 (chunk-RPCDYKBN.js?v=449a8bd0:19765:15)
+    at performUnitOfWork (chunk-RPCDYKBN.js?v=449a8bd0:19198:20)
+    at workLoopSync (chunk-RPCDYKBN.js?v=449a8bd0:19137:13)
+chunk-RPCDYKBN.js?v=449a8bd0:14032 The above error occurred in the <SelectItem> component:
+
+    at https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-select.js?v=146c4075:844:7
+    at _c1 (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/src/components/ui/select.tsx:208:12)
+    at div
+    at https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-AXMZZQ2X.js?v=449a8bd0:42:13
+    at https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-2K77HOHX.js?v=449a8bd0:79:13
+    at https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-2K77HOHX.js?v=449a8bd0:56:13
+    at https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-OKRBDNY4.js?v=449a8bd0:39:15
+    at https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-select.js?v=146c4075:755:13
+    at div
+    at https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-2K77HOHX.js?v=449a8bd0:79:13
+    at https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-2K77HOHX.js?v=449a8bd0:56:13
+    at https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-OKRBDNY4.js?v=449a8bd0:39:15
+    at Provider (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-E7IAXTU4.js?v=449a8bd0:38:15)
+    at https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-select.js?v=146c4075:298:58
+    at https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-2K77HOHX.js?v=449a8bd0:79:13
+    at https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-2K77HOHX.js?v=449a8bd0:56:13
+    at https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-AXMZZQ2X.js?v=449a8bd0:42:13
+    at https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-7SWSU5HC.js?v=449a8bd0:260:22
+    at SelectPortal
+    at _c7 (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/src/components/ui/select.tsx:123:12)
+    at Provider (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-E7IAXTU4.js?v=449a8bd0:38:15)
+    at Provider (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-E7IAXTU4.js?v=449a8bd0:38:15)
+    at CollectionProvider (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-OKRBDNY4.js?v=449a8bd0:29:13)
+    at Provider (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-E7IAXTU4.js?v=449a8bd0:38:15)
+    at Provider (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-E7IAXTU4.js?v=449a8bd0:38:15)
+    at Popper (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-NVURRC7D.js?v=449a8bd0:1919:11)
+    at Select (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-select.js?v=146c4075:86:5)
+    at div
+    at div
+    at _c9 (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/src/components/ui/card.tsx:114:12)
+    at div
+    at _c (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/src/components/ui/card.tsx:20:11)
+    at div
+    at CustomerRegistrationDashboard (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/src/pages/CustomerRegistrationDashboard.tsx:30:39)
+    at ProtectedRoute (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/src/App.tsx?v=5AwxDt4bNOD4D4jEAwnaa:81:38)
+    at Route (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=4f675d51:323:16)
+    at Switch (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=4f675d51:379:17)
+    at Router
+    at main
+    at div
+    at div
+    at div
+    at Provider (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-E7IAXTU4.js?v=449a8bd0:38:15)
+    at TooltipProvider (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=8feda983:63:5)
+    at SidebarProvider (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/src/components/ui/sidebar.tsx:59:3)
+    at AppLayout (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/src/App.tsx?v=5AwxDt4bNOD4D4jEAwnaa:317:20)
+    at AuthProvider (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/src/lib/auth.tsx:22:32)
+    at ThemeProvider (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/src/components/ThemeProvider.tsx:20:33)
+    at Provider (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-E7IAXTU4.js?v=449a8bd0:38:15)
+    at TooltipProvider (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=8feda983:63:5)
+    at QueryClientProvider (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=6a5779af:2805:3)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+logCapturedError @ chunk-RPCDYKBN.js?v=449a8bd0:14032
+chunk-RPCDYKBN.js?v=449a8bd0:14032 The above error occurred in the <SelectItem> component:
+
+    at https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-select.js?v=146c4075:844:7
+    at _c1 (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/src/components/ui/select.tsx:208:12)
+    at div
+    at https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-AXMZZQ2X.js?v=449a8bd0:42:13
+    at https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-2K77HOHX.js?v=449a8bd0:79:13
+    at https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-2K77HOHX.js?v=449a8bd0:56:13
+    at https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-OKRBDNY4.js?v=449a8bd0:39:15
+    at https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-select.js?v=146c4075:755:13
+    at div
+    at https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-2K77HOHX.js?v=449a8bd0:79:13
+    at https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-2K77HOHX.js?v=449a8bd0:56:13
+    at https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-OKRBDNY4.js?v=449a8bd0:39:15
+    at Provider (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-E7IAXTU4.js?v=449a8bd0:38:15)
+    at https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-select.js?v=146c4075:298:58
+    at https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-2K77HOHX.js?v=449a8bd0:79:13
+    at https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-2K77HOHX.js?v=449a8bd0:56:13
+    at https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-AXMZZQ2X.js?v=449a8bd0:42:13
+    at https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-7SWSU5HC.js?v=449a8bd0:260:22
+    at SelectPortal
+    at _c7 (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/src/components/ui/select.tsx:123:12)
+    at Provider (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-E7IAXTU4.js?v=449a8bd0:38:15)
+    at Provider (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-E7IAXTU4.js?v=449a8bd0:38:15)
+    at CollectionProvider (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-OKRBDNY4.js?v=449a8bd0:29:13)
+    at Provider (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-E7IAXTU4.js?v=449a8bd0:38:15)
+    at Provider (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-E7IAXTU4.js?v=449a8bd0:38:15)
+    at Popper (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-NVURRC7D.js?v=449a8bd0:1919:11)
+    at Select (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-select.js?v=146c4075:86:5)
+    at div
+    at div
+    at _c9 (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/src/components/ui/card.tsx:114:12)
+    at div
+    at _c (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/src/components/ui/card.tsx:20:11)
+    at div
+    at CustomerRegistrationDashboard (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/src/pages/CustomerRegistrationDashboard.tsx:30:39)
+    at ProtectedRoute (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/src/App.tsx?v=5AwxDt4bNOD4D4jEAwnaa:81:38)
+    at Route (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=4f675d51:323:16)
+    at Switch (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=4f675d51:379:17)
+    at Router
+    at main
+    at div
+    at div
+    at div
+    at Provider (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-E7IAXTU4.js?v=449a8bd0:38:15)
+    at TooltipProvider (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=8feda983:63:5)
+    at SidebarProvider (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/src/components/ui/sidebar.tsx:59:3)
+    at AppLayout (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/src/App.tsx?v=5AwxDt4bNOD4D4jEAwnaa:317:20)
+    at AuthProvider (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/src/lib/auth.tsx:22:32)
+    at ThemeProvider (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/src/components/ThemeProvider.tsx:20:33)
+    at Provider (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-E7IAXTU4.js?v=449a8bd0:38:15)
+    at TooltipProvider (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=8feda983:63:5)
+    at QueryClientProvider (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=6a5779af:2805:3)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+logCapturedError @ chunk-RPCDYKBN.js?v=449a8bd0:14032
+chunk-RPCDYKBN.js?v=449a8bd0:14032 The above error occurred in the <SelectItem> component:
+
+    at https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-select.js?v=146c4075:844:7
+    at _c1 (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/src/components/ui/select.tsx:208:12)
+    at div
+    at https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-AXMZZQ2X.js?v=449a8bd0:42:13
+    at https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-2K77HOHX.js?v=449a8bd0:79:13
+    at https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-2K77HOHX.js?v=449a8bd0:56:13
+    at https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-OKRBDNY4.js?v=449a8bd0:39:15
+    at https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-select.js?v=146c4075:755:13
+    at div
+    at https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-2K77HOHX.js?v=449a8bd0:79:13
+    at https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-2K77HOHX.js?v=449a8bd0:56:13
+    at https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-OKRBDNY4.js?v=449a8bd0:39:15
+    at Provider (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-E7IAXTU4.js?v=449a8bd0:38:15)
+    at https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-select.js?v=146c4075:298:58
+    at https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-2K77HOHX.js?v=449a8bd0:79:13
+    at https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-2K77HOHX.js?v=449a8bd0:56:13
+    at https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-AXMZZQ2X.js?v=449a8bd0:42:13
+    at https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-7SWSU5HC.js?v=449a8bd0:260:22
+    at SelectPortal
+    at _c7 (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/src/components/ui/select.tsx:123:12)
+    at Provider (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-E7IAXTU4.js?v=449a8bd0:38:15)
+    at Provider (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-E7IAXTU4.js?v=449a8bd0:38:15)
+    at CollectionProvider (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-OKRBDNY4.js?v=449a8bd0:29:13)
+    at Provider (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-E7IAXTU4.js?v=449a8bd0:38:15)
+    at Provider (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-E7IAXTU4.js?v=449a8bd0:38:15)
+    at Popper (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-NVURRC7D.js?v=449a8bd0:1919:11)
+    at Select (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-select.js?v=146c4075:86:5)
+    at div
+    at div
+    at _c9 (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/src/components/ui/card.tsx:114:12)
+    at div
+    at _c (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/src/components/ui/card.tsx:20:11)
+    at div
+    at CustomerRegistrationDashboard (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/src/pages/CustomerRegistrationDashboard.tsx:30:39)
+    at ProtectedRoute (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/src/App.tsx?v=5AwxDt4bNOD4D4jEAwnaa:81:38)
+    at Route (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=4f675d51:323:16)
+    at Switch (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=4f675d51:379:17)
+    at Router
+    at main
+    at div
+    at div
+    at div
+    at Provider (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-E7IAXTU4.js?v=449a8bd0:38:15)
+    at TooltipProvider (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=8feda983:63:5)
+    at SidebarProvider (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/src/components/ui/sidebar.tsx:59:3)
+    at AppLayout (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/src/App.tsx?v=5AwxDt4bNOD4D4jEAwnaa:317:20)
+    at AuthProvider (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/src/lib/auth.tsx:22:32)
+    at ThemeProvider (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/src/components/ThemeProvider.tsx:20:33)
+    at Provider (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-E7IAXTU4.js?v=449a8bd0:38:15)
+    at TooltipProvider (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=8feda983:63:5)
+    at QueryClientProvider (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=6a5779af:2805:3)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+logCapturedError @ chunk-RPCDYKBN.js?v=449a8bd0:14032
+chunk-RPCDYKBN.js?v=449a8bd0:14032 The above error occurred in the <SelectItem> component:
+
+    at https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-select.js?v=146c4075:844:7
+    at _c1 (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/src/components/ui/select.tsx:208:12)
+    at div
+    at https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-AXMZZQ2X.js?v=449a8bd0:42:13
+    at https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-2K77HOHX.js?v=449a8bd0:79:13
+    at https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-2K77HOHX.js?v=449a8bd0:56:13
+    at https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-OKRBDNY4.js?v=449a8bd0:39:15
+    at https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-select.js?v=146c4075:755:13
+    at div
+    at https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-2K77HOHX.js?v=449a8bd0:79:13
+    at https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-2K77HOHX.js?v=449a8bd0:56:13
+    at https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-OKRBDNY4.js?v=449a8bd0:39:15
+    at Provider (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-E7IAXTU4.js?v=449a8bd0:38:15)
+    at https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-select.js?v=146c4075:298:58
+    at https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-2K77HOHX.js?v=449a8bd0:79:13
+    at https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-2K77HOHX.js?v=449a8bd0:56:13
+    at https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-AXMZZQ2X.js?v=449a8bd0:42:13
+    at https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-7SWSU5HC.js?v=449a8bd0:260:22
+    at SelectPortal
+    at _c7 (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/src/components/ui/select.tsx:123:12)
+    at Provider (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-E7IAXTU4.js?v=449a8bd0:38:15)
+    at Provider (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-E7IAXTU4.js?v=449a8bd0:38:15)
+    at CollectionProvider (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-OKRBDNY4.js?v=449a8bd0:29:13)
+    at Provider (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-E7IAXTU4.js?v=449a8bd0:38:15)
+    at Provider (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-E7IAXTU4.js?v=449a8bd0:38:15)
+    at Popper (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-NVURRC7D.js?v=449a8bd0:1919:11)
+    at Select (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-select.js?v=146c4075:86:5)
+    at div
+    at div
+    at _c9 (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/src/components/ui/card.tsx:114:12)
+    at div
+    at _c (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/src/components/ui/card.tsx:20:11)
+    at div
+    at CustomerRegistrationDashboard (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/src/pages/CustomerRegistrationDashboard.tsx:30:39)
+    at ProtectedRoute (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/src/App.tsx?v=5AwxDt4bNOD4D4jEAwnaa:81:38)
+    at Route (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=4f675d51:323:16)
+    at Switch (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=4f675d51:379:17)
+    at Router
+    at main
+    at div
+    at div
+    at div
+    at Provider (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-E7IAXTU4.js?v=449a8bd0:38:15)
+    at TooltipProvider (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=8feda983:63:5)
+    at SidebarProvider (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/src/components/ui/sidebar.tsx:59:3)
+    at AppLayout (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/src/App.tsx?v=5AwxDt4bNOD4D4jEAwnaa:317:20)
+    at AuthProvider (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/src/lib/auth.tsx:22:32)
+    at ThemeProvider (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/src/components/ThemeProvider.tsx:20:33)
+    at Provider (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-E7IAXTU4.js?v=449a8bd0:38:15)
+    at TooltipProvider (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=8feda983:63:5)
+    at QueryClientProvider (https://d27c1844-865d-4953-a6be-6768b11fca15-00-1c5dk67khhp9p.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=6a5779af:2805:3)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+logCapturedError @ chunk-RPCDYKBN.js?v=449a8bd0:14032
+chunk-RPCDYKBN.js?v=449a8bd0:9129 Uncaught Error: A <Select.Item /> must have a value prop that is not an empty string. This is because the Select value can be set to an empty string to clear the selection and show the placeholder.
+    at @radix-ui_react-select.js?v=146c4075:871:13
+    at renderWithHooks (chunk-RPCDYKBN.js?v=449a8bd0:11548:26)
+    at updateForwardRef (chunk-RPCDYKBN.js?v=449a8bd0:14325:28)
+    at beginWork (chunk-RPCDYKBN.js?v=449a8bd0:15946:22)
+    at beginWork$1 (chunk-RPCDYKBN.js?v=449a8bd0:19753:22)
+    at performUnitOfWork (chunk-RPCDYKBN.js?v=449a8bd0:19198:20)
+    at workLoopSync (chunk-RPCDYKBN.js?v=449a8bd0:19137:13)
+    at renderRootSync (chunk-RPCDYKBN.js?v=449a8bd0:19116:15)
+    at recoverFromConcurrentError (chunk-RPCDYKBN.js?v=449a8bd0:18736:28)
+    at performSyncWorkOnRoot (chunk-RPCDYKBN.js?v=449a8bd0:18879:28)

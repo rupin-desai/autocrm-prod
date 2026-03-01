@@ -1,0 +1,818 @@
+================================================================================
+                    AUTOSHOP MANAGER - PROJECT DOCUMENTATION
+         Comprehensive Car Parts & Service Management System Guide
+================================================================================
+
+TABLE OF CONTENTS
+1. Project Overview
+2. System Architecture & Technology Stack
+3. User Roles & Permissions
+4. Application Flow & How It Works
+5. Module-by-Module Breakdown
+6. Database Structure
+7. Authentication & Security
+8. API Endpoints Reference
+
+================================================================================
+1. PROJECT OVERVIEW
+================================================================================
+
+AutoShop Manager is a full-stack web application designed specifically for 
+automotive repair shops and car parts businesses. The system helps manage:
+
+- Car parts inventory and stock levels
+- Customer relationships and vehicle records
+- Service workflow from inquiry to completion
+- Employee management and HR operations
+- Sales orders and payment tracking
+- Purchase orders and supplier management
+- Task assignments and leave management
+- Customer communications and feedback
+
+The application provides a professional dashboard interface with role-based
+access control, ensuring each user only sees and manages what's relevant to
+their responsibilities.
+
+================================================================================
+2. SYSTEM ARCHITECTURE & TECHNOLOGY STACK
+================================================================================
+
+FRONTEND (Client-Side):
+- Framework: React 18+ with TypeScript for type safety
+- Build Tool: Vite for fast development and optimized production builds
+- Routing: Wouter for lightweight client-side routing
+- State Management: TanStack Query (React Query) for server state
+- UI Components: Shadcn/ui with Radix UI primitives
+- Styling: Tailwind CSS with custom dark/light theme support
+- Icons: Lucide React for consistent iconography
+- Forms: React Hook Form with Zod validation
+
+BACKEND (Server-Side):
+- Framework: Express.js with TypeScript
+- Database: MongoDB with Mongoose ODM
+- Authentication: Session-based with bcryptjs password hashing
+- Session Store: MemoryStore for development
+- API Design: RESTful endpoints with middleware protection
+
+DEPLOYMENT:
+- Development: Runs on port 5000 with HMR (Hot Module Replacement)
+- Production: Optimized builds with static file serving
+- Compatible with serverless platforms like Vercel
+
+================================================================================
+3. USER ROLES & PERMISSIONS
+================================================================================
+
+The system supports five distinct user roles, each with specific permissions:
+
+1. ADMIN (Full System Access)
+   - Complete access to all modules and features
+   - User management and system configuration
+   - All CRUD operations on every resource
+   - Dashboard shows: Sales, services, stock, customers, employees, products
+
+2. INVENTORY MANAGER
+   - Products: Create, Read, Update, Delete
+   - Inventory: Track stock movements, manage warehouse locations
+   - Dashboard shows: Product count, inventory value, low stock alerts
+
+3. SALES EXECUTIVE
+   - Customers: Manage customer information and vehicle records
+   - Orders: Create and manage sales orders, track payments
+   - Dashboard shows: Sales totals, customer count, order statistics
+
+4. HR MANAGER
+   - Employees: Manage employee records and information
+   - Attendance: Track employee attendance (coming soon)
+   - Leaves: Approve/reject leave requests
+   - Tasks: Assign and track employee tasks
+   - Dashboard shows: Employee count, attendance, pending leaves, tasks
+
+5. SERVICE STAFF
+   - Customers: View-only access to customer information
+   - Orders: View and update service job status
+   - Dashboard shows: Personal active orders, completed tasks, customers
+
+Permission System:
+- Each resource (products, customers, orders, etc.) has four actions:
+  * read - View information
+  * create - Add new records
+  * update - Modify existing records
+  * delete - Remove records
+- Frontend UI automatically hides features users cannot access
+- Backend API enforces permissions on every request
+
+================================================================================
+4. APPLICATION FLOW & HOW IT WORKS
+================================================================================
+
+INITIAL SETUP & LOGIN FLOW:
+1. User visits the application
+2. Redirected to Role Selection page
+3. User selects their role (Admin, Inventory Manager, etc.)
+4. Redirected to Login page
+5. User enters email and password
+6. System validates credentials
+7. Session created and user redirected to Dashboard
+8. Dashboard shows role-specific metrics and shortcuts
+
+TYPICAL WORKFLOW FOR ADMIN:
+
+Day-to-Day Operations:
+1. Login → View Dashboard with key metrics
+2. Check notifications (low stock, new orders, payment due)
+3. Review active service jobs in progress
+4. Manage incoming customer requests
+5. Monitor sales and inventory levels
+6. Handle employee tasks and leave requests
+
+Service Job Workflow:
+1. Customer calls/visits → Create Service Visit
+2. Service Status: "Inquired" (initial request)
+3. Assign to Service Staff → Status: "Working" (job in progress)
+4. Waiting for parts → Status: "Waiting" (on hold)
+5. Work completed → Status: "Completed" (finished)
+6. Generate invoice and process payment
+
+Inventory Management:
+1. Check Products page for stock levels
+2. Low stock items highlighted in red
+3. Create Purchase Order for restocking
+4. Receive stock → Record "Stock IN" transaction
+5. Sale/Service → Record "Stock OUT" transaction
+6. Inventory automatically updates in real-time
+
+TYPICAL WORKFLOW FOR INVENTORY MANAGER:
+1. Login → View Inventory Dashboard
+2. Monitor product stock levels
+3. Add new products with pricing and variants
+4. Set minimum stock levels for alerts
+5. Track stock movements (IN/OUT transactions)
+6. Generate purchase orders when stock is low
+
+TYPICAL WORKFLOW FOR SALES EXECUTIVE:
+1. Login → View Sales Dashboard
+2. Manage customer database
+3. Add new customers with vehicle details
+4. Create sales orders for parts
+5. Track payment status (Paid/Due/Partial)
+6. Monitor delivery status
+
+TYPICAL WORKFLOW FOR SERVICE STAFF:
+1. Login → View assigned service jobs
+2. Update service status as work progresses
+3. View customer vehicle history
+4. Mark jobs as completed
+5. Update task status assigned by manager
+
+DATA FLOW:
+1. User performs action (create order, update status, etc.)
+2. Frontend validates input using Zod schemas
+3. Request sent to backend API endpoint
+4. Backend checks user authentication and permissions
+5. Database operation performed (Create/Read/Update/Delete)
+6. Response sent back to frontend
+7. UI updates automatically with new data
+8. Cache invalidated to ensure fresh data on next fetch
+
+================================================================================
+5. MODULE-BY-MODULE BREAKDOWN
+================================================================================
+
+-----------------------------------------
+DASHBOARD (Home Page - Route: /)
+-----------------------------------------
+PURPOSE: Central command center showing key business metrics
+
+FEATURES:
+- Role-specific KPIs (Key Performance Indicators)
+- Today's sales revenue with trend indicators
+- Active service jobs count and quick access
+- Low stock alerts with product details
+- Quick action buttons (New Service, New Order, etc.)
+- Recent activity feed
+- Active services list with status
+
+ADMIN VIEW:
+- Total sales, service jobs, stock alerts
+- Customer count, employee count, product count
+- Quick create buttons for all resources
+
+OTHER ROLES VIEW:
+- Only shows metrics relevant to their permissions
+- Filtered data based on role access rights
+
+-----------------------------------------
+PRODUCTS (Route: /products)
+-----------------------------------------
+PURPOSE: Car parts catalog and pricing management
+
+FEATURES:
+- Complete product listing with search and filters
+- Product categories (Engine Parts, Brake System, etc.)
+- Brand and variant tracking
+- Pricing: Unit Price, MRP, Selling Price
+- Stock quantity and warehouse location
+- Minimum stock level alerts
+- Create/Edit/Delete products
+- Stock adjustment (IN/OUT) directly from product
+
+WORKFLOW:
+1. Add Product → Enter details (name, brand, category, variant)
+2. Set Pricing → Unit price, MRP, selling price
+3. Initial Stock → Set quantity and warehouse location
+4. Monitor → System alerts when stock below minimum level
+5. Adjust Stock → Add or remove stock with reason tracking
+
+DATA TRACKED:
+- Product ID, Name, Brand, Category, Variant
+- Unit Price, MRP, Selling Price
+- Current Stock Quantity
+- Minimum Stock Level (for alerts)
+- Warehouse Location
+- Supplier Information
+
+-----------------------------------------
+INVENTORY (Route: /inventory)
+-----------------------------------------
+PURPOSE: Stock movement tracking and audit trail
+
+FEATURES:
+- All stock transactions history
+- Stock IN: Purchases, returns, adjustments
+- Stock OUT: Sales, service usage, wastage
+- Transaction reasons and user tracking
+- Date-wise filtering
+- Search functionality
+
+TRANSACTION TYPES:
+- IN: Purchase Order, Stock Replenishment, Return
+- OUT: Service Order, Customer Purchase, Wastage
+
+DATA TRACKED:
+- Transaction ID, Type (IN/OUT)
+- Product details
+- Quantity, Reason, Date
+- User who performed transaction
+
+-----------------------------------------
+CUSTOMERS (Route: /customers)
+-----------------------------------------
+PURPOSE: Customer relationship and vehicle management
+
+FEATURES:
+- Customer database with contact information
+- Multiple vehicle registration per customer
+- Vehicle details (Make, Model, Year)
+- Service history per customer
+- Digital customer card view
+- Create/Edit/Delete customers
+- Search by name, phone, or vehicle
+
+CUSTOMER RECORD INCLUDES:
+- Name, Phone, Email, Address
+- Registered vehicles (Reg No, Make, Model, Year)
+- Service visit history
+- Total services and spending
+
+WORKFLOW:
+1. Walk-in customer → Create customer profile
+2. Add vehicle details
+3. Link all future services to customer
+4. View complete service history
+5. Track customer loyalty and repeat business
+
+-----------------------------------------
+SERVICE VISITS (Route: /visits)
+-----------------------------------------
+PURPOSE: Service workflow management from inquiry to completion
+
+FEATURES:
+- Visual workflow board (Kanban-style)
+- Four service stages: Inquired, Working, Waiting, Completed
+- Drag-and-drop status updates
+- Customer and vehicle information
+- Assigned service staff tracking
+- Time tracking for each stage
+- Service notes and history
+
+SERVICE STAGES:
+1. INQUIRED: Initial customer request, inquiry logged
+2. WORKING: Service in progress, staff actively working
+3. WAITING: On hold for parts or customer approval
+4. COMPLETED: Service finished, ready for delivery
+
+WORKFLOW:
+1. Customer inquiry → Create service visit
+2. Select customer and vehicle
+3. Assign to service staff
+4. Staff updates status as work progresses
+5. Move to "Waiting" if parts needed
+6. Mark "Completed" when finished
+7. Generate invoice from order
+
+DATA TRACKED:
+- Customer and vehicle information
+- Service handler (employee)
+- Status with timestamps
+- Parts used
+- Service notes
+- Duration in each stage
+
+-----------------------------------------
+ORDERS (Route: /orders)
+-----------------------------------------
+PURPOSE: Sales order management and invoice generation
+
+FEATURES:
+- Create multi-item orders
+- Customer selection (registered or walk-in)
+- Product selection with quantity
+- Automatic total calculation
+- Payment tracking (Paid/Due/Partial)
+- Delivery status (Pending/Shipped/Delivered)
+- Invoice number generation
+- Edit/Delete orders
+
+ORDER CREATION WORKFLOW:
+1. Select customer (or walk-in)
+2. Add products to order (multiple items)
+3. Set quantity and price per item
+4. System calculates total automatically
+5. Set payment status (Paid/Due/Partial)
+6. Set delivery status
+7. Generate invoice number
+8. Stock automatically deducted
+
+DATA TRACKED:
+- Invoice number (auto-generated)
+- Customer information
+- Order items (product, quantity, price)
+- Total amount
+- Payment status, Delivery status
+- Order date
+
+-----------------------------------------
+SUPPLIERS (Route: /suppliers)
+-----------------------------------------
+PURPOSE: Vendor and supplier management
+
+FEATURES:
+- Supplier database with contact details
+- Product catalog per supplier
+- Payment terms tracking
+- Create/Edit/Delete suppliers
+- Search and filter suppliers
+
+SUPPLIER RECORD:
+- Name, Contact Person
+- Phone, Email, Address
+- Products supplied
+- Payment terms
+- Active/Inactive status
+
+-----------------------------------------
+PURCHASE ORDERS (Route: /purchase-orders)
+-----------------------------------------
+PURPOSE: Procurement and restocking management
+
+FEATURES:
+- Create purchase orders for suppliers
+- Auto-generated PO numbers (PO-2024-XXX)
+- Multi-item purchase orders
+- Quantity and price per item
+- Total amount calculation
+- Expected delivery date
+- PO status tracking (Pending/Received/Cancelled)
+
+WORKFLOW:
+1. Identify low stock items
+2. Create purchase order
+3. Select supplier
+4. Add items with quantities
+5. Set expected delivery date
+6. Submit PO (status: Pending)
+7. On delivery → Update status to Received
+8. Stock automatically updated (IN transaction)
+
+-----------------------------------------
+EMPLOYEES (Route: /employees)
+-----------------------------------------
+PURPOSE: Staff management and HR operations
+
+FEATURES:
+- Employee database
+- Role and department tracking
+- Salary information
+- Joining date and tenure
+- Active/Inactive status
+- Contact information
+- Create/Edit/View employee details
+
+EMPLOYEE RECORD:
+- Name, Email, Phone
+- Role (Mechanic, Manager, Sales, etc.)
+- Department
+- Salary
+- Joining Date
+- Active status
+
+-----------------------------------------
+ATTENDANCE (Route: /attendance)
+-----------------------------------------
+STATUS: Coming Soon (Placeholder)
+
+PLANNED FEATURES:
+- Manual check-in/check-out
+- Daily attendance tracking
+- Leave integration
+- Monthly attendance reports
+- Biometric device integration
+- Overtime tracking
+
+-----------------------------------------
+TASKS (Route: /tasks)
+-----------------------------------------
+PURPOSE: Task assignment and tracking system
+
+FEATURES:
+- Create tasks for employees
+- Priority levels (Low/Medium/High)
+- Status tracking (Pending/In Progress/Completed)
+- Due date management
+- Task description and notes
+- Assigned employee tracking
+
+TASK WORKFLOW:
+1. Admin/Manager creates task
+2. Assign to employee
+3. Set priority and due date
+4. Employee works on task
+5. Update status to In Progress
+6. Mark Completed when done
+
+-----------------------------------------
+LEAVES (Route: /leaves)
+-----------------------------------------
+PURPOSE: Employee leave management and approval
+
+FEATURES:
+- Leave request submission
+- Leave type (Sick/Casual/Vacation)
+- Date range selection
+- Approval workflow (Pending/Approved/Rejected)
+- Leave balance tracking
+- Manager approval interface
+
+LEAVE WORKFLOW:
+1. Employee submits leave request
+2. Specify leave type and dates
+3. Add reason/notes
+4. Manager reviews request
+5. Approve or reject with comments
+6. System updates leave balance
+
+-----------------------------------------
+COMMUNICATIONS (Route: /communications)
+-----------------------------------------
+PURPOSE: Customer interaction history and feedback tracking
+
+FEATURES:
+- Communication logs (Call/Email/Meeting/Message)
+- Subject and description
+- Customer linkage
+- Date and time tracking
+- Feedback and complaints
+- Response tracking
+
+LOG TYPES:
+- Customer calls
+- Email correspondence
+- In-person meetings
+- SMS/WhatsApp messages
+
+FEEDBACK FEATURES:
+- Customer feedback collection
+- Complaint management
+- Resolution tracking
+- Satisfaction ratings
+
+-----------------------------------------
+REPORTS (Route: /reports)
+-----------------------------------------
+PURPOSE: Business analytics and insights
+
+AVAILABLE REPORTS:
+1. Sales Report
+   - Daily and monthly sales analysis
+   - Revenue trends
+   - Payment collection status
+
+2. Inventory Movement
+   - Stock IN/OUT transactions
+   - Turnover rate
+   - Wastage tracking
+
+3. Top Products
+   - Best selling products
+   - Category performance
+   - Profit margins
+
+4. Employee Performance
+   - Sales by employee
+   - Service completion rate
+   - Task completion metrics
+
+FEATURES:
+- Date range filters (Today/Week/Month/Year)
+- Export functionality (PDF/Excel)
+- Visual charts and graphs
+- Printable reports
+
+-----------------------------------------
+USER MANAGEMENT (Route: /users)
+-----------------------------------------
+PURPOSE: System user administration (Admin only)
+
+FEATURES:
+- Create new system users
+- Assign roles and permissions
+- Active/Inactive user management
+- Password reset
+- Email verification
+- User activity logs
+
+USER CREATION:
+1. Admin creates user account
+2. Enter name, email, password
+3. Assign role (Admin, Inventory Manager, etc.)
+4. System automatically assigns permissions
+5. User can login with credentials
+
+-----------------------------------------
+SETTINGS (Route: /settings)
+-----------------------------------------
+PURPOSE: Personal preferences and configuration
+
+TABS:
+1. Profile: Name, email, contact information
+2. Notifications: Email alerts, push notifications, order/stock alerts
+3. Security: Password change, two-factor auth
+4. Appearance: Light/Dark theme toggle
+
+-----------------------------------------
+PROFILE (Route: /profile)
+-----------------------------------------
+PURPOSE: View user information and permissions
+
+DISPLAYS:
+- User name and email
+- Assigned role with badge
+- Complete list of permissions
+- Resources accessible with actions allowed
+
+================================================================================
+6. DATABASE STRUCTURE
+================================================================================
+
+The system uses MongoDB as the primary database with the following models:
+
+USERS:
+- _id (auto-generated)
+- name, email, password (hashed)
+- role (Admin, Inventory Manager, etc.)
+- permissions (auto-assigned based on role)
+- active status
+
+PRODUCTS:
+- _id, name, brand, category, variant
+- unitPrice, mrp, sellingPrice
+- stockQty, minStockLevel
+- warehouseLocation
+- supplierId (reference)
+- timestamps (createdAt, updatedAt)
+
+CUSTOMERS:
+- _id, name, phone, email, address
+- vehicles: [{ regNo, make, model, year }]
+- totalServices (calculated)
+- timestamps
+
+EMPLOYEES:
+- _id, name, email, contact
+- role, department, salary
+- joiningDate, isActive
+- timestamps
+
+SERVICE VISITS:
+- _id, customerId (reference)
+- customerName, vehicleReg
+- handlerId (employee reference)
+- status (inquired/working/waiting/completed)
+- notes, partsUsed
+- timestamps for each stage
+- completedAt
+
+ORDERS:
+- _id, invoiceNo (auto-generated)
+- customerId (reference) or "walk-in"
+- items: [{ productId, productName, quantity, price }]
+- totalAmount (calculated)
+- paymentStatus (paid/due/partial)
+- deliveryStatus (pending/shipped/delivered)
+- orderDate
+
+SUPPLIERS:
+- _id, name, contactPerson
+- phone, email, address
+- productsSupplied, paymentTerms
+- isActive
+
+PURCHASE ORDERS:
+- _id, poNumber (auto-generated PO-YYYY-XXX)
+- supplierId (reference)
+- items: [{ productId, quantity, price }]
+- totalAmount, expectedDeliveryDate
+- status (pending/received/cancelled)
+- orderDate
+
+INVENTORY TRANSACTIONS:
+- _id, productId (reference)
+- type (IN/OUT)
+- quantity, reason
+- userId (who performed)
+- transactionDate
+
+TASKS:
+- _id, title, description
+- assignedTo (employee reference)
+- priority (low/medium/high)
+- status (pending/in-progress/completed)
+- dueDate, completedAt
+
+LEAVES:
+- _id, employeeId (reference)
+- leaveType (sick/casual/vacation)
+- startDate, endDate, reason
+- status (pending/approved/rejected)
+- approvedBy (manager reference)
+- approvalDate, comments
+
+COMMUNICATION LOGS:
+- _id, customerId (reference)
+- type (call/email/meeting/message)
+- subject, description
+- date, followUpDate
+
+FEEDBACKS:
+- _id, customerId (reference)
+- subject, feedback, rating
+- status (pending/resolved)
+- responseDate, response
+
+NOTIFICATIONS:
+- _id, userId (reference)
+- type, title, message
+- isRead, link
+- createdAt
+
+================================================================================
+7. AUTHENTICATION & SECURITY
+================================================================================
+
+AUTHENTICATION METHOD:
+- Session-based authentication
+- Secure HTTP-only cookies
+- Password hashing with bcryptjs (10 salt rounds)
+- Session timeout for security
+
+LOGIN PROCESS:
+1. User enters email and password
+2. Backend verifies credentials against database
+3. Password compared using bcrypt
+4. On success: Session created, user object stored
+5. Session ID sent as HTTP-only cookie
+6. Frontend receives user data with permissions
+7. All subsequent requests include session cookie
+
+ROLE-BASED ACCESS CONTROL (RBAC):
+1. Each user assigned a role on account creation
+2. Role determines permission set automatically
+3. Permissions stored in user object
+4. Frontend checks permissions before showing UI elements
+5. Backend validates permissions on every API request
+6. Unauthorized access returns 403 Forbidden
+
+MIDDLEWARE PROTECTION:
+- requireAuth: Ensures user is logged in
+- requireRole: Checks if user has specific role
+- requirePermission: Validates resource and action permission
+
+SECURITY FEATURES:
+- Passwords never stored in plain text
+- Session data encrypted
+- CORS protection enabled
+- SQL injection prevented (using Mongoose ODM)
+- XSS protection via React's built-in escaping
+- Input validation using Zod schemas
+- Protected routes on frontend and backend
+
+================================================================================
+8. API ENDPOINTS REFERENCE
+================================================================================
+
+AUTHENTICATION:
+POST   /api/auth/login           - Login user
+POST   /api/auth/logout          - Logout user
+GET    /api/auth/me              - Get current user info
+
+USER MANAGEMENT:
+GET    /api/users                - List all users (Admin only)
+POST   /api/users                - Create new user (Admin only)
+PATCH  /api/users/:id            - Update user (Admin only)
+DELETE /api/users/:id            - Delete user (Admin only)
+
+PRODUCTS:
+GET    /api/products             - List all products
+POST   /api/products             - Create product
+PATCH  /api/products/:id         - Update product
+DELETE /api/products/:id         - Delete product
+
+CUSTOMERS:
+GET    /api/customers            - List all customers
+POST   /api/customers            - Create customer
+PATCH  /api/customers/:id        - Update customer
+DELETE /api/customers/:id        - Delete customer
+
+EMPLOYEES:
+GET    /api/employees            - List all employees
+POST   /api/employees            - Create employee
+PATCH  /api/employees/:id        - Update employee
+DELETE /api/employees/:id        - Delete employee
+
+SERVICE VISITS:
+GET    /api/service-visits       - List all service visits
+POST   /api/service-visits       - Create service visit
+PATCH  /api/service-visits/:id   - Update service visit status
+
+ORDERS:
+GET    /api/orders               - List all orders
+POST   /api/orders               - Create order
+PATCH  /api/orders/:id           - Update order
+DELETE /api/orders/:id           - Delete order
+
+SUPPLIERS:
+GET    /api/suppliers            - List all suppliers
+POST   /api/suppliers            - Create supplier
+PATCH  /api/suppliers/:id        - Update supplier
+DELETE /api/suppliers/:id        - Delete supplier
+
+PURCHASE ORDERS:
+GET    /api/purchase-orders      - List all purchase orders
+POST   /api/purchase-orders      - Create purchase order
+PATCH  /api/purchase-orders/:id  - Update purchase order status
+
+INVENTORY:
+GET    /api/inventory-transactions  - List all stock movements
+POST   /api/inventory-transactions  - Record stock IN/OUT
+
+TASKS:
+GET    /api/tasks                - List all tasks
+POST   /api/tasks                - Create task
+PATCH  /api/tasks/:id            - Update task status
+
+LEAVES:
+GET    /api/leaves               - List all leave requests
+POST   /api/leaves               - Submit leave request
+PATCH  /api/leaves/:id           - Approve/reject leave
+
+COMMUNICATIONS:
+GET    /api/communication-logs   - List all communications
+POST   /api/communication-logs   - Log communication
+
+FEEDBACKS:
+GET    /api/feedbacks            - List all feedbacks
+POST   /api/feedbacks            - Submit feedback
+PATCH  /api/feedbacks/:id        - Update feedback status
+
+NOTIFICATIONS:
+GET    /api/notifications        - Get user notifications
+PATCH  /api/notifications/:id/read  - Mark notification as read
+
+DASHBOARD:
+GET    /api/dashboard-stats      - Get role-specific dashboard metrics
+
+REPORTS:
+GET    /api/reports/sales            - Sales report data
+GET    /api/reports/inventory        - Inventory report data
+GET    /api/reports/top-products     - Top products report
+GET    /api/reports/employee-performance  - Employee performance metrics
+
+================================================================================
+                              END OF DOCUMENTATION
+================================================================================
+
+For support or questions about this system, please contact your system administrator.
+
+Last Updated: October 2025
+Version: 1.0
