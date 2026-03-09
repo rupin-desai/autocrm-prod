@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 const productReturnSchema = new mongoose.Schema({
   productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
   orderId: { type: mongoose.Schema.Types.ObjectId, ref: 'Order' },
-  customerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Customer' },
+  customerId: { type: mongoose.Schema.Types.ObjectId, ref: 'RegistrationCustomer' },
   quantity: { type: Number, required: true },
   reason: { type: String, required: true },
   condition: { 

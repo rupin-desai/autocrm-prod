@@ -1978,8 +1978,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const transactions = await InventoryTransaction.find()
         .populate('productId')
         .populate('userId')
-        .populate('supplierId')
-        .populate('purchaseOrderId')
         .sort({ date: -1 });
       res.json(transactions);
     } catch (error) {
@@ -2029,7 +2027,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         await checkAndNotifyLowStock(updatedProduct);
       }
       
-      await transaction.populate(['productId', 'userId', 'supplierId', 'purchaseOrderId']);
+      await transaction.populate(['productId', 'userId']);
       res.json(transaction);
     } catch (error) {
       res.status(400).json({ error: "Failed to create transaction" });
