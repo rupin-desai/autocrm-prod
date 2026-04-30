@@ -12,7 +12,7 @@ if (!MONGODB_URI) {
 async function assignTicketsToServiceStaff() {
   try {
     console.log('🔌 Connecting to MongoDB...');
-    await mongoose.connect(MONGODB_URI);
+    await mongoose.connect(MONGODB_URI as string);
     console.log('✅ Connected to MongoDB');
 
     // Find all Service Staff users

@@ -10,7 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { Search, CheckCircle, XCircle, Car, User, MapPin, Phone, Mail, Edit, Trash2, CalendarIcon, SortAsc, Store } from "lucide-react";
+import { Search, CheckCircle, XCircle, Car, User, MapPin, Phone, Mail, Edit, Trash2, CalendarIcon, SortAsc, Store, PlusCircle, UploadCloud, FileText } from "lucide-react";
 import { format } from "date-fns";
 import { useAuth } from "@/lib/auth";
 import { useToast } from "@/hooks/use-toast";
@@ -30,14 +30,11 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { getPartById } from "@shared/vehicleData";
+import { getAllBrandNames, getModelsByBrand } from "@shared/vehicleData";
 
 // Vehicle Brands
-const VEHICLE_BRANDS = [
-  "Maruti Suzuki", "Hyundai", "Tata", "Mahindra", "Kia",
-  "Honda", "Toyota", "Ford", "Renault", "Nissan",
-  "Volkswagen", "Skoda", "MG", "Jeep", "Citroen"
-];
+const VEHICLE_BRANDS = getAllBrandNames();
+const VEHICLE_COLORS = ["White", "Black", "Silver", "Grey", "Red", "Blue", "Brown", "Orange", "Green", "Yellow", "Others"];
 
 // Referral sources
 const REFERRAL_SOURCES = [
@@ -117,6 +114,75 @@ const editCustomerSchema = z.object({
   vehiclePhoto: z.string().optional(),
   warrantyCard: z.string().optional(),
 });
+
+const warrantyCardSchema = z.object({
+  partId: z.string(),
+  partName: z.string(),
+  fileData: z.string(),
+});
+
+const selectedPartSchema = z.object({
+  partId: z.string(),
+  quantity: z.number().min(1, "Quantity must be at least 1"),
+});
+
+const vehicleManageSchema = z.object({
+  vehicleNumber: z.string().optional(),
+  vehicleBrand: z.string().min(1, "Vehicle brand is required"),
+  vehicleModel: z.string().min(1, "Vehicle model is required"),
+  customModel: z.string().optional(),
+  variant: z.enum(['Top', 'Base']).optional(),
+  color: z.string().optional(),
+  customColor: z.string().optional(),
+  yearOfPurchase: z.string().optional(),
+  vehiclePhoto: z.string().min(1, "Vehicle photo is required"),
+  isNewVehicle: z.string().min(1, "Please select vehicle condition"),
+  chassisNumber: z.string().optional(),
+  selectedParts: z.array(selectedPartSchema).default([]),
+  warrantyCards: z.array(warrantyCardSchema).default([]),
+}).refine((data) => {
+  if (data.isNewVehicle === "true" && !data.chassisNumber) return false;
+  return true;
+}, {
+  message: "Chassis number is required for new vehicles",
+  path: ["chassisNumber"],
+}).refine((data) => {
+  if (data.isNewVehicle === "false" && !data.vehicleNumber) return false;
+  return true;
+}, {
+  message: "Vehicle number is required for used vehicles",
+  path: ["vehicleNumber"],
+}).refine((data) => {
+  if (data.vehicleModel === "Other" && !data.customModel) return false;
+  return true;
+}, {
+  message: "Please specify the model name",
+  path: ["customModel"],
+}).refine((data) => {
+  if (data.color === "Others" && !data.customColor) return false;
+  return true;
+}, {
+  message: "Please specify the color",
+  path: ["customColor"],
+});
+
+type VehicleManageFormData = z.infer<typeof vehicleManageSchema>;
+
+const emptyVehicleValues: VehicleManageFormData = {
+  vehicleNumber: "",
+  vehicleBrand: "",
+  vehicleModel: "",
+  customModel: "",
+  variant: undefined,
+  color: "",
+  customColor: "",
+  yearOfPurchase: "",
+  vehiclePhoto: "",
+  isNewVehicle: "",
+  chassisNumber: "",
+  selectedParts: [],
+  warrantyCards: [],
+};
 
 // Customer-Vehicle Card Component (shows one card per vehicle)
 function CustomerVehicleCard({ 
@@ -333,6 +399,14 @@ export default function CustomerRegistrationDashboard() {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
+  const [vehicleDialogOpen, setVehicleDialogOpen] = useState(false);
+  const [vehicleDialogMode, setVehicleDialogMode] = useState<"add" | "edit">("add");
+  const [vehicleSelectedBrand, setVehicleSelectedBrand] = useState("");
+  const [vehicleSelectedModel, setVehicleSelectedModel] = useState("");
+  const [vehicleAvailableModels, setVehicleAvailableModels] = useState<string[]>([]);
+  const [vehicleAvailableParts, setVehicleAvailableParts] = useState<any[]>([]);
+  const [vehiclePartSearchTerm, setVehiclePartSearchTerm] = useState("");
+  const [vehicleProductListExpanded, setVehicleProductListExpanded] = useState(false);
   
   const isAdmin = user?.role === 'Admin' || user?.role === 'Manager';
   
@@ -384,6 +458,36 @@ export default function CustomerRegistrationDashboard() {
     enabled: !!selectedCustomer?.id,
   });
 
+  // Edit form
+  const editForm = useForm<z.infer<typeof editCustomerSchema>>({
+    resolver: zodResolver(editCustomerSchema),
+    defaultValues: {
+      fullName: "",
+      mobileNumber: "",
+      alternativeNumber: "",
+      email: "",
+      address: "",
+      city: "",
+      taluka: "",
+      district: "",
+      state: "",
+      pinCode: "",
+      referralSource: "",
+      isVerified: false,
+      vehicleNumber: "",
+      vehicleBrand: "",
+      vehicleModel: "",
+      yearOfPurchase: "",
+      vehiclePhoto: "",
+      warrantyCard: "",
+    },
+  });
+
+  const vehicleForm = useForm<VehicleManageFormData>({
+    resolver: zodResolver(vehicleManageSchema),
+    defaultValues: emptyVehicleValues,
+  });
+
   // Fetch products for customer vehicles
   const allCustomerVehiclePartIds = customerVehicles.flatMap(v => 
     (v.selectedParts || []).map(part => part.partId)
@@ -410,6 +514,83 @@ export default function CustomerRegistrationDashboard() {
   const productMap = new Map(
     customerVehicleProductsData?.products.map((p: any) => [p.id, p]) || []
   );
+
+  const normalizeText = (value: string = "") =>
+    value.toString().trim().toLowerCase().replace(/\s+/g, " ");
+
+  const vehicleCustomModelValue = vehicleForm.watch("customModel");
+  const watchedVehicleParts = vehicleForm.watch("selectedParts") || [];
+  const watchedWarrantyCards = vehicleForm.watch("warrantyCards") || [];
+
+  const { data: vehicleCompatibleProducts = [] } = useQuery<any[]>({
+    queryKey: ['/api/products', vehicleSelectedBrand, vehicleSelectedModel, vehicleCustomModelValue, vehicleDialogOpen],
+    queryFn: async () => {
+      if (!vehicleSelectedBrand || !vehicleSelectedModel) return [];
+
+      const selectedModelLabel = vehicleSelectedModel === "Other" ? (vehicleCustomModelValue || "") : vehicleSelectedModel;
+      const normalizedBrand = normalizeText(vehicleSelectedBrand);
+      const normalizedModel = normalizeText(selectedModelLabel);
+      const normalizedVehicleKey = normalizeText(`${vehicleSelectedBrand} - ${selectedModelLabel}`);
+
+      const response = await fetch('/api/products', { credentials: 'include' });
+      if (!response.ok) throw new Error("Failed to fetch inventory products");
+      const allProducts = await response.json();
+      const inStockProducts = allProducts.filter((product: any) => Number(product.stockQty ?? 0) > 0);
+
+      const strictCompatibleProducts = inStockProducts.filter((product: any) => {
+        const compatibilityList = Array.isArray(product.modelCompatibility) ? product.modelCompatibility : [];
+        const compatibilityMatch = compatibilityList.some((compatRaw: string) => {
+          const normalizedCompat = normalizeText(compatRaw || "");
+          if (!normalizedCompat) return false;
+          const isUniversal =
+            normalizedCompat === "other" ||
+            normalizedCompat === "all models" ||
+            normalizedCompat === "all model" ||
+            normalizedCompat === "all vehicles" ||
+            normalizedCompat === "all cars";
+          if (isUniversal) return true;
+          if (normalizedCompat === `${normalizedBrand} - other` || normalizedCompat.endsWith(" - other")) return true;
+          if (normalizedCompat === normalizedVehicleKey) return true;
+          return normalizedCompat.includes(normalizedBrand) && (normalizedModel ? normalizedCompat.includes(normalizedModel) : true);
+        });
+
+        const productBrand = normalizeText(product.brand || "");
+        const productModel = normalizeText(product.model || "");
+        const productCategory = normalizeText(product.category || "");
+        const directBrandModelMatch =
+          productBrand === normalizedBrand &&
+          (!productModel || productModel === normalizedModel || productModel.includes(normalizedModel) || normalizedModel.includes(productModel));
+        const categoryMatch = productCategory.includes(normalizedBrand) && (normalizedModel ? productCategory.includes(normalizedModel) : true);
+
+        return compatibilityMatch || directBrandModelMatch || categoryMatch;
+      });
+
+      if (strictCompatibleProducts.length > 0) return strictCompatibleProducts;
+
+      const brandFallbackProducts = inStockProducts.filter((product: any) => {
+        const productBrand = normalizeText(product.brand || "");
+        const productCategory = normalizeText(product.category || "");
+        return productBrand === normalizedBrand || productCategory.includes(normalizedBrand);
+      });
+
+      return brandFallbackProducts.length > 0 ? brandFallbackProducts : inStockProducts;
+    },
+    enabled: vehicleDialogOpen && !!vehicleSelectedBrand && !!vehicleSelectedModel && (vehicleSelectedModel !== "Other" || !!vehicleCustomModelValue),
+  });
+
+  useEffect(() => {
+    if (vehicleSelectedModel && (vehicleSelectedModel !== "Other" || !!vehicleCustomModelValue)) {
+      setVehicleAvailableParts(vehicleCompatibleProducts.map((product: any) => ({
+        id: `product-${product._id}`,
+        name: product.productName || product.name || 'Unknown Product',
+        category: product.category || product.brand || 'Custom',
+        price: product.sellingPrice,
+        stockQty: product.stockQty,
+      })));
+    } else {
+      setVehicleAvailableParts([]);
+    }
+  }, [vehicleSelectedBrand, vehicleSelectedModel, vehicleCustomModelValue, vehicleCompatibleProducts]);
   
   // Fetch editing customer vehicles
   const { data: editingVehicles = [] } = useQuery<Vehicle[]>({
@@ -425,35 +606,166 @@ export default function CustomerRegistrationDashboard() {
     enabled: !!editingCustomer?.id,
   });
 
-  // Edit form
-  const editForm = useForm<z.infer<typeof editCustomerSchema>>({
-    resolver: zodResolver(editCustomerSchema),
-    defaultValues: {
-      fullName: "",
-      mobileNumber: "",
-      alternativeNumber: "",
-      email: "",
-      address: "",
-      city: "",
-      taluka: "",
-      district: "",
-      state: "",
-      pinCode: "",
-      referralSource: "",
-      isVerified: false,
-      vehicleNumber: "",
-      vehicleBrand: "",
-      vehicleModel: "",
-      yearOfPurchase: "",
-      vehiclePhoto: "",
-      warrantyCard: "",
-    },
-  });
+  const resetVehicleFormState = () => {
+    vehicleForm.reset(emptyVehicleValues);
+    setEditingVehicle(null);
+    setVehicleSelectedBrand("");
+    setVehicleSelectedModel("");
+    setVehicleAvailableModels([]);
+    setVehicleAvailableParts([]);
+    setVehiclePartSearchTerm("");
+    setVehicleProductListExpanded(false);
+  };
+
+  const openVehicleDialog = (mode: "add" | "edit", vehicle?: Vehicle) => {
+    setVehicleDialogMode(mode);
+    setEditingVehicle(vehicle || null);
+
+    if (mode === "edit" && vehicle) {
+      const colorValue = vehicle.color && VEHICLE_COLORS.includes(vehicle.color) ? vehicle.color : (vehicle.color ? "Others" : "");
+      const models = getModelsByBrand(vehicle.vehicleBrand).map(m => m.name);
+      setVehicleSelectedBrand(vehicle.vehicleBrand);
+      setVehicleSelectedModel(vehicle.vehicleModel);
+      setVehicleAvailableModels(models.includes(vehicle.vehicleModel) ? models : [...models, vehicle.vehicleModel]);
+      vehicleForm.reset({
+        vehicleNumber: vehicle.vehicleNumber || "",
+        vehicleBrand: vehicle.vehicleBrand || "",
+        vehicleModel: vehicle.vehicleModel || "",
+        customModel: vehicle.customModel || "",
+        variant: vehicle.variant || undefined,
+        color: colorValue,
+        customColor: colorValue === "Others" ? (vehicle.color || "") : "",
+        yearOfPurchase: vehicle.yearOfPurchase?.toString() || "",
+        vehiclePhoto: vehicle.vehiclePhoto || "",
+        isNewVehicle: vehicle.isNewVehicle ? "true" : "false",
+        chassisNumber: vehicle.chassisNumber || "",
+        selectedParts: vehicle.selectedParts || [],
+        warrantyCards: vehicle.warrantyCards || [],
+      });
+    } else {
+      resetVehicleFormState();
+    }
+
+    setVehicleDialogOpen(true);
+  };
+
+  const compressImage = (file: File, maxSizeMB: number = 5): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          const maxDimension = 1920;
+          if (width > maxDimension || height > maxDimension) {
+            if (width > height) {
+              height = (height / width) * maxDimension;
+              width = maxDimension;
+            } else {
+              width = (width / height) * maxDimension;
+              height = maxDimension;
+            }
+          }
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            reject(new Error('Canvas context not available'));
+            return;
+          }
+          ctx.drawImage(img, 0, 0, width, height);
+          let quality = 0.9;
+          let dataUrl = canvas.toDataURL('image/jpeg', quality);
+          while (dataUrl.length > maxSizeMB * 1024 * 1024 * 1.37 && quality > 0.1) {
+            quality -= 0.1;
+            dataUrl = canvas.toDataURL('image/jpeg', quality);
+          }
+          resolve(dataUrl);
+        };
+        img.onerror = () => reject(new Error('Failed to load image'));
+        img.src = event.target?.result as string;
+      };
+      reader.onerror = () => reject(new Error('Failed to read file'));
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const readCardFile = async (file: File) => {
+    if (file.type.startsWith('image/')) return compressImage(file, 5);
+    if (file.type === 'application/pdf') {
+      const reader = new FileReader();
+      return new Promise<string>((resolve, reject) => {
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = () => reject(new Error('Failed to read PDF'));
+        reader.readAsDataURL(file);
+      });
+    }
+    throw new Error("Please upload an image or PDF file");
+  };
+
+  const getVehiclePartQuantity = (partId: string) => {
+    const part = vehicleForm.getValues("selectedParts").find(p => p.partId === partId);
+    return part?.quantity || 0;
+  };
+
+  const updateVehiclePartQuantity = (partId: string, quantity: number) => {
+    const currentParts = vehicleForm.getValues("selectedParts") || [];
+    if (quantity <= 0) {
+      vehicleForm.setValue("selectedParts", currentParts.filter(p => p.partId !== partId));
+      vehicleForm.setValue("warrantyCards", (vehicleForm.getValues("warrantyCards") || []).filter(wc => wc.partId !== partId));
+      return;
+    }
+    const existingIndex = currentParts.findIndex(p => p.partId === partId);
+    if (existingIndex >= 0) {
+      const updatedParts = [...currentParts];
+      updatedParts[existingIndex] = { partId, quantity };
+      vehicleForm.setValue("selectedParts", updatedParts);
+    } else {
+      vehicleForm.setValue("selectedParts", [...currentParts, { partId, quantity }]);
+    }
+  };
+
+  const uploadVehicleWarrantyCard = async (partId: string, partName: string, file?: File) => {
+    if (!file) return;
+    try {
+      const fileData = await readCardFile(file);
+      const currentCards = vehicleForm.getValues("warrantyCards") || [];
+      const existingIndex = currentCards.findIndex(wc => wc.partId === partId);
+      const nextCard = { partId, partName, fileData };
+      if (existingIndex >= 0) {
+        const updatedCards = [...currentCards];
+        updatedCards[existingIndex] = nextCard;
+        vehicleForm.setValue("warrantyCards", updatedCards);
+      } else {
+        vehicleForm.setValue("warrantyCards", [...currentCards, nextCard]);
+      }
+      toast({ title: "Warranty Card Uploaded", description: `${partName} card saved in form.` });
+    } catch (error: any) {
+      toast({ title: "Upload Failed", description: error.message || "Failed to process warranty card", variant: "destructive" });
+    }
+  };
+
+  const removeVehicleWarrantyCard = (partId: string) => {
+    vehicleForm.setValue("warrantyCards", (vehicleForm.getValues("warrantyCards") || []).filter(wc => wc.partId !== partId));
+  };
+
+  const openDataFile = (fileData: string) => {
+    const byteString = atob(fileData.split(',')[1]);
+    const mimeString = fileData.split(',')[0].split(':')[1].split(';')[0];
+    const ab = new ArrayBuffer(byteString.length);
+    const ia = new Uint8Array(ab);
+    for (let i = 0; i < byteString.length; i++) ia[i] = byteString.charCodeAt(i);
+    const blob = new Blob([ab], { type: mimeString });
+    const blobUrl = URL.createObjectURL(blob);
+    window.open(blobUrl, '_blank');
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
+  };
 
   // Update form when editing customer or vehicles change
   useEffect(() => {
     if (editingCustomer) {
-      const primaryVehicle = editingVehicles[0];
       editForm.reset({
         fullName: editingCustomer.fullName,
         mobileNumber: editingCustomer.mobileNumber,
@@ -467,16 +779,16 @@ export default function CustomerRegistrationDashboard() {
         pinCode: editingCustomer.pinCode,
         referralSource: editingCustomer.referralSource || "",
         isVerified: editingCustomer.isVerified,
-        vehicleNumber: primaryVehicle?.vehicleNumber || "",
-        vehicleBrand: primaryVehicle?.vehicleBrand || "",
-        vehicleModel: primaryVehicle?.vehicleModel || "",
-        yearOfPurchase: primaryVehicle?.yearOfPurchase?.toString() || "",
-        vehiclePhoto: primaryVehicle?.vehiclePhoto || "",
-        warrantyCard: primaryVehicle?.warrantyCard || "",
+        vehicleNumber: "",
+        vehicleBrand: "",
+        vehicleModel: "",
+        yearOfPurchase: "",
+        vehiclePhoto: "",
+        warrantyCard: "",
       });
-      setEditingVehicle(primaryVehicle || null);
+      setEditingVehicle(null);
     }
-  }, [editingCustomer, editingVehicles, editForm]);
+  }, [editingCustomer, editForm]);
 
   // Edit customer mutation
   const editMutation = useMutation({
@@ -500,19 +812,6 @@ export default function CustomerRegistrationDashboard() {
       
       await apiRequest("PATCH", `/api/registration/customers/${editingCustomer.id}`, customerData);
       
-      if (editingVehicle && data.vehicleNumber) {
-        const vehicleData = {
-          vehicleNumber: data.vehicleNumber,
-          vehicleBrand: data.vehicleBrand,
-          vehicleModel: data.vehicleModel,
-          yearOfPurchase: data.yearOfPurchase ? parseInt(data.yearOfPurchase) : null,
-          vehiclePhoto: data.vehiclePhoto,
-          warrantyCard: data.warrantyCard,
-        };
-        
-        await apiRequest("PATCH", `/api/registration/vehicles/${editingVehicle.id}`, vehicleData);
-      }
-      
       return true;
     },
     onSuccess: () => {
@@ -531,6 +830,55 @@ export default function CustomerRegistrationDashboard() {
       toast({
         title: "Error",
         description: error.message || "Failed to update customer",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const saveVehicleMutation = useMutation({
+    mutationFn: async (data: VehicleManageFormData) => {
+      if (!editingCustomer) throw new Error("No customer selected");
+
+      const vehiclePayload = {
+        vehicleNumber: data.isNewVehicle === "false" ? data.vehicleNumber : undefined,
+        vehicleBrand: data.vehicleBrand,
+        vehicleModel: data.vehicleModel,
+        customModel: data.vehicleModel === "Other" ? data.customModel : undefined,
+        variant: data.variant,
+        color: data.color === "Others" ? data.customColor : data.color,
+        yearOfPurchase: data.yearOfPurchase ? parseInt(data.yearOfPurchase) : undefined,
+        vehiclePhoto: data.vehiclePhoto,
+        isNewVehicle: data.isNewVehicle === "true",
+        chassisNumber: data.isNewVehicle === "true" ? data.chassisNumber : undefined,
+        selectedParts: data.selectedParts || [],
+        warrantyCards: data.warrantyCards || [],
+      };
+
+      if (vehicleDialogMode === "edit" && editingVehicle) {
+        const response = await apiRequest("PATCH", `/api/registration/vehicles/${editingVehicle.id}`, vehiclePayload);
+        return response.json();
+      }
+
+      const response = await apiRequest("POST", `/api/registration/customers/${editingCustomer.id}/vehicles`, vehiclePayload);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/registration/customers"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/registration/vehicles"] });
+      if (editingCustomer?.id) {
+        queryClient.invalidateQueries({ queryKey: ["/api/registration/customers", editingCustomer.id, "vehicles"] });
+      }
+      setVehicleDialogOpen(false);
+      resetVehicleFormState();
+      toast({
+        title: "Success",
+        description: vehicleDialogMode === "edit" ? "Vehicle updated successfully" : "Vehicle added successfully",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to save vehicle",
         variant: "destructive",
       });
     },
@@ -929,6 +1277,20 @@ export default function CustomerRegistrationDashboard() {
                       </div>
                       {isAdmin && (
                         <div className="flex gap-2 mt-4">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setEditingCustomer(customer);
+                              setEditDialogOpen(true);
+                              setTimeout(() => openVehicleDialog("add"), 0);
+                            }}
+                            className="flex-1"
+                            data-testid={`button-add-vehicle-empty-${customer.id}`}
+                          >
+                            <PlusCircle className="w-4 h-4 mr-1" />
+                            Add Vehicle
+                          </Button>
                           <Button
                             variant="outline"
                             size="sm"
@@ -1434,187 +1796,89 @@ export default function CustomerRegistrationDashboard() {
                 )}
               />
 
-              {editingVehicle && (
-                <>
-                  <div className="border-t pt-4">
-                    <h3 className="flex items-center gap-2 font-semibold mb-4">
-                      <Car className="w-4 h-4" />
-                      Vehicle Information
-                    </h3>
+              <div className="border-t pt-4 space-y-3">
+                <div className="flex items-center justify-between gap-3">
+                  <h3 className="flex items-center gap-2 font-semibold">
+                    <Car className="w-4 h-4" />
+                    Vehicles ({editingVehicles.length})
+                  </h3>
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() => openVehicleDialog("add")}
+                    data-testid="button-add-vehicle-after-registration"
+                  >
+                    <PlusCircle className="w-4 h-4 mr-2" />
+                    Add Vehicle
+                  </Button>
+                </div>
+
+                {editingVehicles.length === 0 ? (
+                  <div className="rounded-lg border border-dashed p-4 text-sm text-muted-foreground">
+                    No vehicles registered for this customer.
                   </div>
-
-                  <FormField
-                    control={editForm.control}
-                    name="vehicleNumber"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Vehicle Number</FormLabel>
-                        <FormControl>
-                          <Input {...field} placeholder="MH12AB1234" className="uppercase" data-testid="input-edit-vehicleNumber" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <FormField
-                      control={editForm.control}
-                      name="vehicleBrand"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Vehicle Brand</FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value}>
-                            <FormControl>
-                              <SelectTrigger data-testid="select-edit-vehicleBrand">
-                                <SelectValue placeholder="Select brand" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {VEHICLE_BRANDS.map((brand) => (
-                                <SelectItem key={brand} value={brand}>
-                                  {brand}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={editForm.control}
-                      name="vehicleModel"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Vehicle Model</FormLabel>
-                          <FormControl>
-                            <Input {...field} data-testid="input-edit-vehicleModel" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                ) : (
+                  <div className="space-y-2">
+                    {editingVehicles.map((vehicle) => (
+                      <div
+                        key={vehicle.id}
+                        className="flex items-center justify-between gap-3 rounded-lg border p-3"
+                        data-testid={`edit-vehicle-row-${vehicle.id}`}
+                      >
+                        <div className="min-w-0">
+                          <p className="font-medium truncate">
+                            {vehicle.vehicleBrand} {vehicle.vehicleModel}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {vehicle.vehicleNumber || vehicle.vehicleId} • {vehicle.selectedParts?.length || 0} parts • {vehicle.warrantyCards?.length || 0} cards
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => openVehicleDialog("edit", vehicle)}
+                            data-testid={`button-edit-vehicle-${vehicle.id}`}
+                          >
+                            <Edit className="w-4 h-4 mr-1" />
+                            Edit
+                          </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                data-testid={`button-delete-edit-vehicle-${vehicle.id}`}
+                              >
+                                <Trash2 className="w-4 h-4 text-destructive" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Delete Vehicle?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Delete {vehicle.vehicleBrand} {vehicle.vehicleModel} ({vehicle.vehicleNumber || vehicle.vehicleId})? Related service visits will also be deleted.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => deleteVehicleMutation.mutate(vehicle.id)}
+                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                >
+                                  Delete Vehicle
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-
-                  <FormField
-                    control={editForm.control}
-                    name="yearOfPurchase"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Year of Purchase</FormLabel>
-                        <FormControl>
-                          <Input {...field} type="number" placeholder="2024" data-testid="input-edit-yearOfPurchase" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={editForm.control}
-                    name="vehiclePhoto"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Vehicle Photo</FormLabel>
-                        <div className="space-y-3">
-                          <div className="flex gap-2">
-                            <FormControl>
-                              <Input {...field} placeholder="https://... or upload below" data-testid="input-edit-vehiclePhoto" />
-                            </FormControl>
-                            <Button
-                              type="button"
-                              variant="outline"
-                              onClick={() => document.getElementById('vehicle-photo-upload-edit')?.click()}
-                              data-testid="button-upload-vehicle-photo"
-                            >
-                              Upload
-                            </Button>
-                          </div>
-                          <input
-                            id="vehicle-photo-upload-edit"
-                            type="file"
-                            accept="image/*"
-                            className="hidden"
-                            onChange={(e) => {
-                              const file = e.target.files?.[0];
-                              if (file) {
-                                const reader = new FileReader();
-                                reader.onloadend = () => {
-                                  field.onChange(reader.result as string);
-                                };
-                                reader.readAsDataURL(file);
-                              }
-                            }}
-                          />
-                          {field.value && (
-                            <div className="relative w-full h-32 border-2 border-orange-300 dark:border-orange-700 rounded-md overflow-hidden bg-gradient-to-r from-orange-50 to-yellow-50 dark:from-orange-950/30 dark:to-yellow-950/30">
-                              <img
-                                src={field.value}
-                                alt="Vehicle preview"
-                                className="w-full h-full object-contain p-2"
-                              />
-                            </div>
-                          )}
-                        </div>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={editForm.control}
-                    name="warrantyCard"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Warranty Card (Optional)</FormLabel>
-                        <div className="space-y-3">
-                          <div className="flex gap-2">
-                            <FormControl>
-                              <Input {...field} placeholder="https://... or upload below" data-testid="input-edit-warrantyCard" />
-                            </FormControl>
-                            <Button
-                              type="button"
-                              variant="outline"
-                              onClick={() => document.getElementById('warranty-card-upload-edit')?.click()}
-                              data-testid="button-upload-warranty-card"
-                            >
-                              Upload
-                            </Button>
-                          </div>
-                          <input
-                            id="warranty-card-upload-edit"
-                            type="file"
-                            accept="image/*"
-                            className="hidden"
-                            onChange={(e) => {
-                              const file = e.target.files?.[0];
-                              if (file) {
-                                const reader = new FileReader();
-                                reader.onloadend = () => {
-                                  field.onChange(reader.result as string);
-                                };
-                                reader.readAsDataURL(file);
-                              }
-                            }}
-                          />
-                          {field.value && (
-                            <div className="relative w-full h-32 border-2 border-green-300 dark:border-green-700 rounded-md overflow-hidden bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30">
-                              <img
-                                src={field.value}
-                                alt="Warranty card preview"
-                                className="w-full h-full object-contain p-2"
-                              />
-                            </div>
-                          )}
-                        </div>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </>
-              )}
+                )}
+              </div>
 
               <FormField
                 control={editForm.control}
@@ -1657,6 +1921,407 @@ export default function CustomerRegistrationDashboard() {
                   data-testid="button-submit-edit"
                 >
                   {editMutation.isPending ? "Saving..." : "Save Changes"}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={vehicleDialogOpen} onOpenChange={(open) => {
+        setVehicleDialogOpen(open);
+        if (!open) resetVehicleFormState();
+      }}>
+        <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{vehicleDialogMode === "edit" ? "Edit Vehicle" : "Add Vehicle"}</DialogTitle>
+            <DialogDescription>
+              {editingCustomer ? `${editingCustomer.fullName} • ${editingCustomer.referenceCode}` : "Manage vehicle"}
+            </DialogDescription>
+          </DialogHeader>
+
+          <Form {...vehicleForm}>
+            <form onSubmit={vehicleForm.handleSubmit((data) => saveVehicleMutation.mutate(data))} className="space-y-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={vehicleForm.control}
+                  name="isNewVehicle"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Vehicle Condition *</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger data-testid="select-manage-vehicle-condition">
+                            <SelectValue placeholder="Select condition" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="true">New Vehicle</SelectItem>
+                          <SelectItem value="false">Used Vehicle</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {vehicleForm.watch("isNewVehicle") === "false" && (
+                  <FormField
+                    control={vehicleForm.control}
+                    name="vehicleNumber"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Vehicle Number *</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder="MH12AB1234" className="uppercase" data-testid="input-manage-vehicle-number" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
+
+                {vehicleForm.watch("isNewVehicle") === "true" && (
+                  <FormField
+                    control={vehicleForm.control}
+                    name="chassisNumber"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Chassis Number *</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder="Enter chassis number" className="uppercase" data-testid="input-manage-chassis-number" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
+
+                <FormField
+                  control={vehicleForm.control}
+                  name="vehicleBrand"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Vehicle Brand *</FormLabel>
+                      <Select
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                          setVehicleSelectedBrand(value);
+                          const models = getModelsByBrand(value).map(m => m.name);
+                          setVehicleAvailableModels(models);
+                          vehicleForm.setValue("vehicleModel", "Other");
+                          vehicleForm.setValue("selectedParts", []);
+                          vehicleForm.setValue("warrantyCards", []);
+                          setVehicleSelectedModel("Other");
+                        }}
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger data-testid="select-manage-vehicle-brand">
+                            <SelectValue placeholder="Select brand" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {VEHICLE_BRANDS.map((brand) => (
+                            <SelectItem key={brand} value={brand}>{brand}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={vehicleForm.control}
+                  name="vehicleModel"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Vehicle Model *</FormLabel>
+                      <Select
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                          setVehicleSelectedModel(value);
+                          vehicleForm.setValue("selectedParts", []);
+                          vehicleForm.setValue("warrantyCards", []);
+                        }}
+                        value={field.value}
+                        disabled={!vehicleSelectedBrand}
+                      >
+                        <FormControl>
+                          <SelectTrigger data-testid="select-manage-vehicle-model">
+                            <SelectValue placeholder={vehicleSelectedBrand ? "Select model" : "Select brand first"} />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {vehicleAvailableModels.map((model) => (
+                            <SelectItem key={model} value={model}>{model}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {vehicleForm.watch("vehicleModel") === "Other" && (
+                  <FormField
+                    control={vehicleForm.control}
+                    name="customModel"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Specify Model Name *</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder="Enter model name" data-testid="input-manage-custom-model" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
+
+                <FormField
+                  control={vehicleForm.control}
+                  name="variant"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Variant</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger data-testid="select-manage-variant">
+                            <SelectValue placeholder="Select variant" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Top">Top</SelectItem>
+                          <SelectItem value="Base">Base</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={vehicleForm.control}
+                  name="color"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Color</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger data-testid="select-manage-color">
+                            <SelectValue placeholder="Select color" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {VEHICLE_COLORS.map((color) => (
+                            <SelectItem key={color} value={color}>{color}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {vehicleForm.watch("color") === "Others" && (
+                  <FormField
+                    control={vehicleForm.control}
+                    name="customColor"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Specify Color *</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder="Enter color name" data-testid="input-manage-custom-color" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
+
+                <FormField
+                  control={vehicleForm.control}
+                  name="yearOfPurchase"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Year of Purchase</FormLabel>
+                      <FormControl>
+                        <Input {...field} type="number" placeholder="2024" data-testid="input-manage-year" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <FormField
+                control={vehicleForm.control}
+                name="vehiclePhoto"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Vehicle Photo *</FormLabel>
+                    <div className="space-y-3">
+                      <div className="flex gap-2">
+                        <FormControl>
+                          <Input {...field} placeholder="https://... or upload below" data-testid="input-manage-vehicle-photo" />
+                        </FormControl>
+                        <Button type="button" variant="outline" onClick={() => document.getElementById('vehicle-photo-upload-manage')?.click()}>
+                          <UploadCloud className="w-4 h-4 mr-2" />
+                          Upload
+                        </Button>
+                      </div>
+                      <input
+                        id="vehicle-photo-upload-manage"
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (file) field.onChange(await compressImage(file, 2));
+                        }}
+                      />
+                      {field.value && (
+                        <div className="relative w-full h-36 border rounded-md overflow-hidden bg-muted/30">
+                          <img src={field.value} alt="Vehicle preview" className="w-full h-full object-contain p-2" />
+                        </div>
+                      )}
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {vehicleSelectedModel && (vehicleSelectedModel !== "Other" || !!vehicleCustomModelValue) && (
+                <FormField
+                  control={vehicleForm.control}
+                  name="selectedParts"
+                  render={() => (
+                    <FormItem>
+                      <div>
+                        <FormLabel className="text-base">Parts Needed for Service/Replacement</FormLabel>
+                        <p className="text-sm text-muted-foreground mt-1">Select parts, quantities, and warranty cards for this vehicle.</p>
+                      </div>
+
+                      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                        <div className="lg:col-span-2 space-y-3">
+                          <Input
+                            value={vehiclePartSearchTerm}
+                            onChange={(e) => setVehiclePartSearchTerm(e.target.value)}
+                            placeholder="Search parts by name or category..."
+                            data-testid="input-manage-search-parts"
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setVehicleProductListExpanded(!vehicleProductListExpanded)}
+                            className="w-full"
+                          >
+                            {vehicleProductListExpanded ? "Hide All Products" : "Show All Products"}
+                          </Button>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[420px] overflow-y-auto border rounded-lg p-3 bg-muted/20">
+                            {vehicleAvailableParts
+                              .filter((part) => {
+                                if (vehicleProductListExpanded) return true;
+                                if (!vehiclePartSearchTerm) return false;
+                                const searchLower = vehiclePartSearchTerm.toLowerCase();
+                                return part.name.toLowerCase().includes(searchLower) || part.category.toLowerCase().includes(searchLower);
+                              })
+                              .map((part) => {
+                                const quantity = getVehiclePartQuantity(part.id);
+                                return (
+                                  <div key={part.id} className="rounded-md border bg-background p-3">
+                                    <div className="space-y-2">
+                                      <div>
+                                        <p className="text-sm font-medium line-clamp-2">{part.name}</p>
+                                        <p className="text-xs text-muted-foreground">{part.category}</p>
+                                      </div>
+                                      {quantity === 0 ? (
+                                        <Button type="button" size="sm" variant="outline" className="w-full" onClick={() => updateVehiclePartQuantity(part.id, 1)}>
+                                          Add
+                                        </Button>
+                                      ) : (
+                                        <div className="flex items-center gap-1 border rounded-md">
+                                          <Button type="button" size="icon" variant="ghost" className="h-7 w-7" onClick={() => updateVehiclePartQuantity(part.id, quantity - 1)}>-</Button>
+                                          <span className="flex-1 text-center text-sm font-semibold">{quantity}</span>
+                                          <Button type="button" size="icon" variant="ghost" className="h-7 w-7" onClick={() => updateVehiclePartQuantity(part.id, quantity + 1)}>+</Button>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <h4 className="text-sm font-semibold">Selected Parts ({watchedVehicleParts.length})</h4>
+                          <div className="max-h-[500px] overflow-y-auto space-y-2">
+                            {watchedVehicleParts.length === 0 ? (
+                              <div className="rounded-md border border-dashed p-4 text-sm text-muted-foreground">No parts selected</div>
+                            ) : watchedVehicleParts.map((selectedPart) => {
+                              const part = vehicleAvailableParts.find(p => p.id === selectedPart.partId);
+                              const warrantyCard = watchedWarrantyCards.find(wc => wc.partId === selectedPart.partId);
+                              const partName = warrantyCard?.partName || part?.name || selectedPart.partId;
+                              return (
+                                <div key={selectedPart.partId} className="rounded-md border bg-background p-3 space-y-2">
+                                  <div className="flex items-start justify-between gap-2">
+                                    <div className="min-w-0">
+                                      <p className="text-sm font-medium truncate">{partName}</p>
+                                      <p className="text-xs text-muted-foreground">Qty: {selectedPart.quantity}</p>
+                                    </div>
+                                    <Button type="button" size="sm" variant="ghost" onClick={() => updateVehiclePartQuantity(selectedPart.partId, 0)}>
+                                      <Trash2 className="w-4 h-4 text-destructive" />
+                                    </Button>
+                                  </div>
+                                  <div className="flex flex-wrap gap-2">
+                                    <Button
+                                      type="button"
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() => document.getElementById(`warranty-upload-${selectedPart.partId}`)?.click()}
+                                    >
+                                      <FileText className="w-4 h-4 mr-1" />
+                                      {warrantyCard ? "Replace Card" : "Upload Card"}
+                                    </Button>
+                                    {warrantyCard && (
+                                      <>
+                                        <Button type="button" size="sm" variant="outline" onClick={() => openDataFile(warrantyCard.fileData)}>
+                                          View
+                                        </Button>
+                                        <Button type="button" size="sm" variant="outline" onClick={() => removeVehicleWarrantyCard(selectedPart.partId)}>
+                                          Remove
+                                        </Button>
+                                      </>
+                                    )}
+                                  </div>
+                                  <input
+                                    id={`warranty-upload-${selectedPart.partId}`}
+                                    type="file"
+                                    accept="image/*,application/pdf"
+                                    className="hidden"
+                                    onChange={(e) => uploadVehicleWarrantyCard(selectedPart.partId, partName, e.target.files?.[0])}
+                                  />
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+
+              <div className="flex justify-end gap-2 pt-2">
+                <Button type="button" variant="outline" onClick={() => setVehicleDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={saveVehicleMutation.isPending} data-testid="button-save-managed-vehicle">
+                  {saveVehicleMutation.isPending ? "Saving..." : vehicleDialogMode === "edit" ? "Save Vehicle" : "Add Vehicle"}
                 </Button>
               </div>
             </form>

@@ -4089,6 +4089,86 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(400).json({ error: error instanceof Error ? error.message : "Failed to register vehicle" });
     }
   });
+
+  // Add vehicle to an already registered customer from dashboard
+  app.post("/api/registration/customers/:id/vehicles", requireAuth, requirePermission("customers", "update"), async (req, res) => {
+    try {
+      const customer = await RegistrationCustomer.findById(req.params.id);
+      if (!customer) {
+        return res.status(404).json({ error: "Customer not found" });
+      }
+
+      if (req.body.selectedParts) {
+        req.body.selectedParts = normalizeSelectedParts(req.body.selectedParts);
+      }
+
+      const validatedData = insertVehicleSchema.parse({
+        ...req.body,
+        customerId: req.params.id,
+      });
+
+      if (validatedData.isNewVehicle && !validatedData.chassisNumber) {
+        return res.status(400).json({ error: "Chassis number is required for new vehicles" });
+      }
+
+      if (!validatedData.isNewVehicle && !validatedData.vehicleNumber) {
+        return res.status(400).json({ error: "Vehicle number is required for used vehicles" });
+      }
+
+      if (validatedData.vehicleNumber) {
+        const existing = await RegistrationVehicle.findOne({ vehicleNumber: validatedData.vehicleNumber });
+        if (existing) {
+          return res.status(400).json({ error: "Vehicle number already registered" });
+        }
+      }
+
+      const vehicleSeq = await getNextSequence('vehicle');
+      const vehicleId = `VEH${String(vehicleSeq).padStart(3, '0')}`;
+
+      const vehicle = await RegistrationVehicle.create({
+        ...validatedData,
+        vehicleId
+      });
+
+      const vehicleReg = vehicle.vehicleNumber || vehicle.vehicleId;
+      const existingVisit = await ServiceVisit.findOne({
+        customerId: customer._id,
+        vehicleReg,
+        status: 'inquired'
+      });
+
+      if (!existingVisit) {
+        await ServiceVisit.create({
+          customerId: customer._id,
+          vehicleReg,
+          status: 'inquired',
+          handlerIds: [],
+          notes: 'Auto-created from post-registration vehicle add'
+        });
+      }
+
+      res.json({
+        id: vehicle._id.toString(),
+        vehicleId: vehicle.vehicleId,
+        customerId: vehicle.customerId,
+        vehicleNumber: vehicle.vehicleNumber,
+        vehicleBrand: vehicle.vehicleBrand,
+        vehicleModel: vehicle.vehicleModel,
+        customModel: vehicle.customModel,
+        variant: vehicle.variant,
+        color: vehicle.color,
+        yearOfPurchase: vehicle.yearOfPurchase,
+        vehiclePhoto: vehicle.vehiclePhoto,
+        isNewVehicle: vehicle.isNewVehicle,
+        chassisNumber: vehicle.chassisNumber,
+        selectedParts: vehicle.selectedParts,
+        warrantyCards: vehicle.warrantyCards,
+        createdAt: vehicle.createdAt,
+      });
+    } catch (error) {
+      res.status(400).json({ error: error instanceof Error ? error.message : "Failed to add vehicle" });
+    }
+  });
   
   // Complete registration - Send welcome message
   app.post("/api/registration/complete", async (req, res) => {
@@ -4293,7 +4373,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Update vehicle
   app.patch("/api/registration/vehicles/:id", async (req, res) => {
     try {
-      const vehicle = await RegistrationVehicle.findByIdAndUpdate(req.params.id, req.body, { new: true });
+      const updateData = { ...req.body };
+      if (updateData.selectedParts) {
+        updateData.selectedParts = normalizeSelectedParts(updateData.selectedParts);
+      }
+
+      const vehicle = await RegistrationVehicle.findByIdAndUpdate(req.params.id, updateData, { new: true });
       if (!vehicle) {
         return res.status(404).json({ error: "Vehicle not found" });
       }

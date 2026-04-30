@@ -437,7 +437,7 @@ export default function Inventory() {
           />
         </div>
         <Select value={sortBy} onValueChange={setSortBy}>
-          <SelectTrigger className="w-[220px]" data-testid="select-sort-inventory"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="w-full sm:w-[220px]" data-testid="select-sort-inventory"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="brand-asc">Brand (A-Z)</SelectItem>
             <SelectItem value="brand-desc">Brand (Z-A)</SelectItem>
@@ -449,7 +449,7 @@ export default function Inventory() {
           </SelectContent>
         </Select>
         <Select value={category} onValueChange={setCategory}>
-          <SelectTrigger className="w-[200px]" data-testid="select-category-filter"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="w-full sm:w-[200px]" data-testid="select-category-filter"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Categories</SelectItem>
             {categories.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
@@ -481,11 +481,16 @@ export default function Inventory() {
                     return (
                       <Card key={p._id} className="overflow-hidden">
                         <CardHeader className="pb-3">
-                          <CardTitle className="text-base line-clamp-2">{p.productName || p.name || p.model || "Unknown"}</CardTitle>
-                          <p className="text-sm text-muted-foreground">{p.brand}</p>
+                          <CardTitle className="min-w-0 text-base leading-snug break-words line-clamp-3">
+                            {p.productName || p.name || p.model || "Unknown"}
+                          </CardTitle>
+                          <p className="min-w-0 text-sm text-muted-foreground break-words">{p.brand}</p>
                         </CardHeader>
                         <CardContent className="space-y-2 text-sm">
-                          <div className="flex justify-between"><span className="text-muted-foreground">Category</span><span>{p.category || "-"}</span></div>
+                          <div className="grid grid-cols-[auto_minmax(0,1fr)] gap-3">
+                            <span className="text-muted-foreground">Category</span>
+                            <span className="min-w-0 text-right break-words">{p.category || "-"}</span>
+                          </div>
                           <div className="flex justify-between"><span className="text-muted-foreground">Stock</span><span className={stock <= min ? "text-red-600 font-semibold" : "text-green-600 font-semibold"}>{stock}</span></div>
                           <div className="flex justify-between"><span className="text-muted-foreground">Price</span><span>₹{safeN(p.sellingPrice).toLocaleString("en-IN")}</span></div>
                         </CardContent>
@@ -534,10 +539,12 @@ export default function Inventory() {
           ) : (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {lowStockProducts.map((p: any) => (
-                <Card key={p._id}>
+                <Card key={p._id} className="overflow-hidden">
                   <CardHeader>
-                    <CardTitle className="text-lg">{p.productName || p.name || p.model || "Unknown"}</CardTitle>
-                    <p className="text-sm text-muted-foreground">{p.brand}</p>
+                    <CardTitle className="min-w-0 text-lg leading-snug break-words line-clamp-3">
+                      {p.productName || p.name || p.model || "Unknown"}
+                    </CardTitle>
+                    <p className="min-w-0 text-sm text-muted-foreground break-words">{p.brand}</p>
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <div className="flex justify-between"><span className="text-muted-foreground">Current</span><Badge variant="destructive">{safeN(p.stockQty)}</Badge></div>

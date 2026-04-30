@@ -32,8 +32,8 @@ export function DataTable<T>({ columns, data, onRowClick, itemsPerPage = 10 }: D
 
   return (
     <div className="space-y-4">
-      <div className="rounded-lg border border-border overflow-hidden">
-        <Table>
+      <div className="rounded-lg border border-border overflow-x-auto">
+        <Table className="min-w-[720px] table-fixed">
           <TableHeader>
             <TableRow className="hover:bg-transparent">
               {columns.map((column, index) => (
@@ -60,9 +60,11 @@ export function DataTable<T>({ columns, data, onRowClick, itemsPerPage = 10 }: D
                 >
                   {columns.map((column, colIndex) => (
                     <TableCell key={colIndex} className={column.className}>
-                      {typeof column.accessor === "function"
-                        ? column.accessor(row)
-                        : String(row[column.accessor])}
+                      <div className="min-w-0 break-words">
+                        {typeof column.accessor === "function"
+                          ? column.accessor(row)
+                          : String(row[column.accessor])}
+                      </div>
                     </TableCell>
                   ))}
                 </TableRow>

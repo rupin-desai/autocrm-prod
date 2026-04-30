@@ -492,7 +492,7 @@ export function InvoiceGenerationDialog({ open, onOpenChange, serviceVisit }: In
                                             {field.value || 'Select product from inventory'}
                                           </SelectValue>
                                         </SelectTrigger>
-                                        <SelectContent onOpenAutoFocus={false} className="w-[300px]">
+                                        <SelectContent className="w-[300px]">
                                           <div className="p-2 border-b sticky top-0 bg-background z-50" onClick={(e) => e.stopPropagation()}>
                                             <Input
                                               autoFocus
@@ -725,7 +725,7 @@ export function InvoiceGenerationDialog({ open, onOpenChange, serviceVisit }: In
                                       {field.value || 'Select product'}
                                     </SelectValue>
                                   </SelectTrigger>
-                                  <SelectContent onOpenAutoFocus={false} className="w-[300px]">
+                                  <SelectContent className="w-[300px]">
                                     <div className="p-2 border-b sticky top-0 bg-background z-50" onClick={(e) => e.stopPropagation()}>
                                       <Input
                                         autoFocus

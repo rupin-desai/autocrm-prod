@@ -7,9 +7,9 @@ export default function ServiceWorkflowCardExample() {
         customerName="Rajesh Kumar"
         vehicleReg="MH-12-AB-1234"
         status="working"
-        handler="Amit Sharma"
+        handlers={["Amit Sharma"]}
         startTime="2h ago"
-        onClick={() => console.log("Service card clicked")}
+        onView={() => console.log("Service card viewed")}
       />
     </div>
   );
