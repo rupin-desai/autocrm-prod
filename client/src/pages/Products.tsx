@@ -124,9 +124,16 @@ export default function Products() {
   const updateStockMutation = useMutation({
     mutationFn: async (data: any) => {
       const response = await apiRequest('POST', '/api/inventory-transactions', data);
-      return response.json();
+      const result = await response.json();
+      if (!result?.success || !result?.product) {
+        throw new Error(result?.message || "Stock save was not confirmed");
+      }
+      return result;
     },
-    onSuccess: () => {
+    onSuccess: (result) => {
+      queryClient.setQueryData<any[]>(['/api/products'], (current = []) =>
+        current.map((product) => product._id === result.product._id ? result.product : product)
+      );
       queryClient.invalidateQueries({ queryKey: ['/api/products'] });
       queryClient.invalidateQueries({ queryKey: ['/api/inventory-transactions'] });
       setIsStockDialogOpen(false);
@@ -134,13 +141,13 @@ export default function Products() {
       setStockFormData({ quantity: "", type: "IN", reason: "" });
       toast({
         title: "Success",
-        description: "Stock updated successfully",
+        description: `Stock saved successfully. New stock: ${result.product.stockQty}`,
       });
     },
     onError: (error: any) => {
       toast({
-        title: "Error",
-        description: error.message || "Failed to update stock",
+        title: "Stock save failed",
+        description: error.message || "Stock was not saved. Please try again.",
         variant: "destructive",
       });
     },
@@ -678,12 +685,20 @@ export default function Products() {
     }
   });
 
-  const getStatusBadge = (status: string, stock: number) => {
-    switch (status) {
+  const getStatusBadge = (status: string, stock: number, minStockLevel: number = 0) => {
+    const numericStock = Number(stock) || 0;
+    const numericMinStock = Number(minStockLevel) || 0;
+    const derivedStatus = numericStock <= 0
+      ? "out_of_stock"
+      : numericStock <= numericMinStock
+        ? "low_stock"
+        : "in_stock";
+
+    switch (derivedStatus || status) {
       case "in_stock":
-        return <Badge variant="default" data-testid={`status-in-stock`}>In Stock ({stock})</Badge>;
+        return <Badge variant="default" data-testid={`status-in-stock`}>In Stock ({numericStock})</Badge>;
       case "low_stock":
-        return <Badge variant="secondary" data-testid={`status-low-stock`}>Low Stock ({stock})</Badge>;
+        return <Badge variant="secondary" data-testid={`status-low-stock`}>Low Stock ({numericStock})</Badge>;
       case "out_of_stock":
         return <Badge variant="destructive" data-testid={`status-out-of-stock`}>Out of Stock</Badge>;
       default:
@@ -1318,7 +1333,7 @@ export default function Products() {
                   )}
                   <div className="flex items-center gap-2 flex-wrap">
                     <Badge variant="outline" data-testid={`category-${product._id}`}>{product.category}</Badge>
-                    {getStatusBadge(product.status, product.stockQty)}
+                    {getStatusBadge(product.status, product.stockQty, product.minStockLevel)}
                     {discountPercent > 0 && (
                       <Badge variant="default" className="bg-green-600">
                         {discountPercent}% OFF

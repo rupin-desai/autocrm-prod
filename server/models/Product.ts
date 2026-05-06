@@ -31,14 +31,23 @@ const productSchema = new mongoose.Schema({
   supplierId: { type: mongoose.Schema.Types.ObjectId, ref: 'Supplier' },
 }, { timestamps: true });
 
-productSchema.pre('save', function(next) {
-  if (this.stockQty === 0) {
-    this.status = 'out_of_stock';
-  } else if (this.stockQty <= this.minStockLevel) {
-    this.status = 'low_stock';
-  } else {
-    this.status = 'in_stock';
+export function getProductStockStatus(stockQty: number, minStockLevel: number) {
+  const stock = Number(stockQty) || 0;
+  const minStock = Number(minStockLevel) || 0;
+
+  if (stock <= 0) {
+    return 'out_of_stock';
   }
+
+  if (stock <= minStock) {
+    return 'low_stock';
+  }
+
+  return 'in_stock';
+}
+
+productSchema.pre('save', function(next) {
+  this.status = getProductStockStatus(this.stockQty, this.minStockLevel);
   next();
 });
 

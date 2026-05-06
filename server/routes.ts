@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import fs from "fs";
 import { connectDB } from "./db";
-import { Product } from "./models/Product";
+import { Product, getProductStockStatus } from "./models/Product";
 import { Employee } from "./models/Employee";
 import { ServiceVisit } from "./models/ServiceVisit";
 import { Order } from "./models/Order";
@@ -758,12 +758,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      const updatePayload = {
+      const updatePayload: any = {
         ...req.body,
         productName: mergedName,
         brand: mergedBrand,
         model: mergedModel,
       };
+      updatePayload.status = getProductStockStatus(
+        updatePayload.stockQty ?? existing.stockQty,
+        updatePayload.minStockLevel ?? existing.minStockLevel
+      );
 
       const product = await Product.findByIdAndUpdate(req.params.id, updatePayload, { new: true });
       if (!product) {
@@ -1863,11 +1867,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const order = await Order.create(orderData);
       
       for (const item of req.body.items) {
-        const updatedProduct = await Product.findByIdAndUpdate(
-          item.productId,
-          { $inc: { stockQty: -item.quantity } },
-          { new: true }
-        );
+        const product = await Product.findById(item.productId);
+        const newStock = product ? (Number(product.stockQty) || 0) - (Number(item.quantity) || 0) : 0;
+        const updatedProduct = product
+          ? await Product.findByIdAndUpdate(
+              item.productId,
+              {
+                stockQty: newStock,
+                status: getProductStockStatus(newStock, product.minStockLevel),
+              },
+              { new: true }
+            )
+          : null;
         
         await InventoryTransaction.create({
           productId: item.productId,
@@ -1992,20 +2003,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: "Product not found" });
       }
 
-      const previousStock = product.stockQty;
+      const previousStock = Number(product.stockQty) || 0;
+      const quantity = Number(req.body.quantity) || 0;
+      const transactionType = req.body.type;
+
+      if (!['IN', 'OUT', 'RETURN', 'ADJUSTMENT'].includes(transactionType)) {
+        return res.status(400).json({ error: "Invalid stock transaction type" });
+      }
+
+      if (!quantity || quantity <= 0) {
+        return res.status(400).json({ error: "Quantity must be greater than 0" });
+      }
+
       let multiplier = 1;
       
-      if (req.body.type === 'IN' || req.body.type === 'RETURN') {
+      if (transactionType === 'IN' || transactionType === 'RETURN') {
         multiplier = 1;
-      } else if (req.body.type === 'OUT') {
+      } else if (transactionType === 'OUT') {
         multiplier = -1;
-      } else if (req.body.type === 'ADJUSTMENT') {
+      } else if (transactionType === 'ADJUSTMENT') {
         multiplier = 0; // For adjustments, quantity is absolute
       }
       
-      const newStock = req.body.type === 'ADJUSTMENT' 
-        ? req.body.quantity 
-        : previousStock + (multiplier * req.body.quantity);
+      const newStock = transactionType === 'ADJUSTMENT' 
+        ? quantity 
+        : previousStock + (multiplier * quantity);
       
       const transactionData = {
         ...req.body,
@@ -2018,17 +2040,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const updatedProduct = await Product.findByIdAndUpdate(
         req.body.productId,
-        { stockQty: newStock },
+        {
+          stockQty: newStock,
+          status: getProductStockStatus(newStock, product.minStockLevel),
+        },
         { new: true }
       );
+
+      if (!updatedProduct) {
+        await InventoryTransaction.findByIdAndDelete(transaction._id);
+        return res.status(500).json({ error: "Stock transaction was not saved. Please try again." });
+      }
       
       // Check for low stock and create notification
-      if (updatedProduct && (req.body.type === 'OUT' || req.body.type === 'ADJUSTMENT')) {
+      if (transactionType === 'OUT' || transactionType === 'ADJUSTMENT') {
         await checkAndNotifyLowStock(updatedProduct);
       }
       
       await transaction.populate(['productId', 'userId']);
-      res.json(transaction);
+      res.json({
+        success: true,
+        transaction,
+        product: updatedProduct,
+        message: "Stock updated successfully",
+      });
     } catch (error) {
       res.status(400).json({ error: "Failed to create transaction" });
     }
@@ -2052,7 +2087,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         await Product.findByIdAndUpdate(
           transaction.productId,
-          { stockQty: reversedStock },
+          {
+            stockQty: reversedStock,
+            status: getProductStockStatus(reversedStock, product.minStockLevel),
+          },
           { new: true }
         );
       }
@@ -2143,10 +2181,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
               date: new Date(),
             });
             
-            await Product.findByIdAndUpdate(
-              productReturn.productId,
-              { $inc: { stockQty: productReturn.quantity } }
-            );
+            const product = await Product.findById(productReturn.productId);
+            if (product) {
+              const newStock = (Number(product.stockQty) || 0) + (Number(productReturn.quantity) || 0);
+              await Product.findByIdAndUpdate(
+                productReturn.productId,
+                {
+                  stockQty: newStock,
+                  status: getProductStockStatus(newStock, product.minStockLevel),
+                }
+              );
+            }
           }
         }
       }
