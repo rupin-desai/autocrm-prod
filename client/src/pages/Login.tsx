@@ -8,6 +8,7 @@ import { useAuth } from '@/lib/auth';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft } from 'lucide-react';
 import logoImage from '@assets/image_1760164042662.png';
+import { queryClient } from '@/lib/queryClient';
 
 export default function Login() {
   const [location, setLocation] = useLocation();
@@ -56,6 +57,18 @@ export default function Login() {
           title: 'OTP Sent',
           description: `OTP sent to your registered WhatsApp number ending in ${mobile.slice(-4)}`,
         });
+      } else {
+        if (data.localAuthBypass && data.selectedShop) {
+          localStorage.setItem('selectedShop', data.selectedShop);
+        }
+        queryClient.setQueryData(['/api/auth/me'], data);
+        await queryClient.invalidateQueries({ queryKey: ['/api/auth/me'] });
+        await queryClient.refetchQueries({ queryKey: ['/api/auth/me'] });
+        toast({
+          title: 'Login successful',
+          description: 'Welcome back!',
+        });
+        setLocation('/');
       }
     } catch (error: any) {
       toast({

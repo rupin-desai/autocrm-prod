@@ -136,6 +136,10 @@ async function findExistingProductByIdentity(params: {
 
 export async function registerRoutes(app: Express): Promise<Server> {
   await connectDB();
+  const bypassWhatsappOtpForLocal =
+    process.env.NODE_ENV !== "production" &&
+    process.env.LOCAL_DISABLE_WHATSAPP_OTP === "true";
+  const localDefaultShop = process.env.LOCAL_DEFAULT_SHOP || "beed";
   
   // Auto-migrate: Add vehicleId to existing vehicles without it
   try {
@@ -243,6 +247,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (!user.mobileNumber) {
         return res.status(400).json({ error: "No mobile number registered for this account. Please contact administrator." });
+      }
+
+      if (bypassWhatsappOtpForLocal) {
+        (req as any).session.userId = user._id.toString();
+        (req as any).session.userRole = user.role;
+        (req as any).session.userName = user.name;
+        (req as any).session.userEmail = user.email;
+
+        if (user.role !== 'Admin') {
+          (req as any).session.lastActivity = Date.now();
+        }
+
+        await logActivity({
+          userId: user._id.toString(),
+          userName: user.name,
+          userRole: user.role,
+          action: 'login',
+          resource: 'user',
+          description: `${user.name} logged in (local OTP bypass)`,
+          ipAddress: req.ip,
+        });
+
+        return res.json({
+          requireOTP: false,
+          localAuthBypass: true,
+          selectedShop: localDefaultShop,
+          id: user._id,
+          email: user.email,
+          name: user.name,
+          role: user.role,
+          mobileNumber: user.mobileNumber,
+          permissions: ROLE_PERMISSIONS[user.role as keyof typeof ROLE_PERMISSIONS] || {},
+        });
       }
       
       const otpResult = await sendOTPToMobile(user.mobileNumber);
