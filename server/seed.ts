@@ -62,7 +62,7 @@ async function seed() {
 
     const products = await Product.insertMany([
       {
-        name: 'Engine Oil Filter - Mann W 712/75',
+        productName: 'Engine Oil Filter - Mann W 712/75',
         category: 'Engine Parts',
         brand: 'Mann-Filter',
         modelCompatibility: ['Maruti Swift', 'Hyundai i20', 'Honda City'],
@@ -77,7 +77,7 @@ async function seed() {
         barcode: 'MF-W712-75',
       },
       {
-        name: 'Brake Pads Set - Front',
+        productName: 'Brake Pads Set - Front',
         category: 'Brake System',
         brand: 'Brembo',
         modelCompatibility: ['Maruti Swift', 'Maruti Baleno'],
@@ -92,7 +92,7 @@ async function seed() {
         barcode: 'BRM-FBP-001',
       },
       {
-        name: 'Air Filter - K&N 33-2304',
+        productName: 'Air Filter - K&N 33-2304',
         category: 'Engine Parts',
         brand: 'K&N',
         modelCompatibility: ['Hyundai i20', 'Hyundai Creta'],
@@ -107,7 +107,7 @@ async function seed() {
         barcode: 'KN-33-2304',
       },
       {
-        name: 'Spark Plugs Set (4pc)',
+        productName: 'Spark Plugs Set (4pc)',
         category: 'Ignition System',
         brand: 'NGK',
         modelCompatibility: ['Honda City', 'Maruti Swift', 'Hyundai i20'],
@@ -122,7 +122,7 @@ async function seed() {
         barcode: 'NGK-SP-4PC',
       },
       {
-        name: 'Cabin Air Filter',
+        productName: 'Cabin Air Filter',
         category: 'HVAC',
         brand: 'Bosch',
         modelCompatibility: ['All Models'],
@@ -137,7 +137,7 @@ async function seed() {
         barcode: 'BSH-CAF-001',
       },
       {
-        name: 'Engine Oil 5W-30 - Mobil 1',
+        productName: 'Engine Oil 5W-30 - Mobil 1',
         category: 'Engine Parts',
         brand: 'Mobil',
         modelCompatibility: ['All Petrol Cars'],
@@ -152,7 +152,7 @@ async function seed() {
         barcode: 'MOB-5W30-1L',
       },
       {
-        name: 'LED Headlight Bulb H4',
+        productName: 'LED Headlight Bulb H4',
         category: 'Lighting',
         brand: 'Philips',
         modelCompatibility: ['Maruti Swift', 'Hyundai i10', 'Honda Jazz'],
@@ -167,7 +167,7 @@ async function seed() {
         barcode: 'PHL-H4-LED',
       },
       {
-        name: 'Wiper Blades Pair',
+        productName: 'Wiper Blades Pair',
         category: 'Accessories',
         brand: 'Bosch',
         modelCompatibility: ['All Models'],
@@ -182,7 +182,7 @@ async function seed() {
         barcode: 'BSH-WPR-PAIR',
       },
       {
-        name: 'Battery 12V 65Ah',
+        productName: 'Battery 12V 65Ah',
         category: 'Electrical',
         brand: 'Amaron',
         modelCompatibility: ['Maruti Swift', 'Hyundai i20', 'Honda City'],
@@ -197,7 +197,7 @@ async function seed() {
         barcode: 'AMR-BAT-65AH',
       },
       {
-        name: 'Coolant/Antifreeze 1L',
+        productName: 'Coolant/Antifreeze 1L',
         category: 'Engine Parts',
         brand: 'Shell',
         modelCompatibility: ['All Models'],
