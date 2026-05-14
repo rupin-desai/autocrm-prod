@@ -37,6 +37,7 @@ runTool(
     "--drop",
     "--gzip",
     `--archive=${archivePath}`,
+    `--nsInclude=${sourceDb}.*`,
     `--nsFrom=${sourceDb}.*`,
     `--nsTo=${targetDb}.*`,
   ],

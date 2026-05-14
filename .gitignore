@@ -8,3 +8,4 @@ vite.config.ts.*
 .env.local-mirror
 .mirror/
 LOCAL_CREDS.md
+secrets_deployment.md
