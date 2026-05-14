@@ -19,6 +19,9 @@ let WHATSAPP_API_KEY = parseEnvValue('WHATSAPP_API_KEY');
 let WHATSAPP_PHONE_NUMBER_ID = parseEnvValue('WHATSAPP_PHONE_NUMBER_ID') || '919970127778';
 
 const WHATSAPP_BASE_URL = 'https://cloudapi.akst.in/api/v1.0/messages';
+export const WHATSAPP_OTP_BRAND_NAME = process.env.WHATSAPP_OTP_BRAND_NAME?.trim() || 'MAULI CAR DECOR';
+const WHATSAPP_OTP_TEMPLATE_NAME = process.env.WHATSAPP_OTP_TEMPLATE_NAME?.trim() || 'otptest';
+const WHATSAPP_ROLE_OTP_TEMPLATE_NAME = process.env.WHATSAPP_ROLE_OTP_TEMPLATE_NAME?.trim() || 'roleotp';
 
 const MAX_RETRIES = 3;
 const INITIAL_RETRY_DELAY = 1000;
@@ -90,8 +93,8 @@ export async function sendWhatsAppOTP({
   otp: string;
 }): Promise<WhatsAppResponse> {
   if (!WHATSAPP_API_KEY) {
-    console.error('❌ WhatsApp API key not configured');
-    return { success: false, error: 'WhatsApp credentials not configured' };
+    console.error(`❌ WhatsApp API key not configured for ${WHATSAPP_OTP_BRAND_NAME}`);
+    return { success: false, error: `WhatsApp credentials not configured for ${WHATSAPP_OTP_BRAND_NAME}` };
   }
 
   const formattedPhone = formatPhoneNumber(to);
@@ -108,7 +111,8 @@ export async function sendWhatsAppOTP({
   console.log('API URL:', url);
   console.log('API Key:', WHATSAPP_API_KEY.substring(0, 8) + '...');
   console.log('Channel Number:', WHATSAPP_PHONE_NUMBER_ID);
-  console.log('Template Name: otptest');
+  console.log('Brand Name:', WHATSAPP_OTP_BRAND_NAME);
+  console.log('Template Name:', WHATSAPP_OTP_TEMPLATE_NAME);
   console.log('To (Original):', to);
   console.log('To (Formatted):', formattedPhone);
   console.log('OTP:', otp);
@@ -123,7 +127,7 @@ export async function sendWhatsAppOTP({
       to: formattedPhone,
       type: 'template',
       template: {
-        name: 'otptest',
+        name: WHATSAPP_OTP_TEMPLATE_NAME,
         language: {
           code: 'en'
         },
@@ -180,7 +184,7 @@ export async function sendWhatsAppOTP({
     } else {
       return { 
         success: false, 
-        error: data.statusDesc || 'Failed to send WhatsApp OTP template',
+        error: data.statusDesc || `Failed to send WhatsApp OTP template for ${WHATSAPP_OTP_BRAND_NAME}`,
         statusCode: data.statusCode
       };
     }
@@ -188,7 +192,7 @@ export async function sendWhatsAppOTP({
     console.error('❌ WhatsApp OTP Template API Error:', error);
     return { 
       success: false, 
-      error: error instanceof Error ? error.message : 'Failed to send WhatsApp OTP template'
+      error: error instanceof Error ? error.message : `Failed to send WhatsApp OTP template for ${WHATSAPP_OTP_BRAND_NAME}`
     };
   }
 }
@@ -201,8 +205,8 @@ export async function sendRoleOTP({
   otp: string;
 }): Promise<WhatsAppResponse> {
   if (!WHATSAPP_API_KEY) {
-    console.error('❌ WhatsApp API key not configured');
-    return { success: false, error: 'WhatsApp credentials not configured' };
+    console.error(`❌ WhatsApp API key not configured for ${WHATSAPP_OTP_BRAND_NAME}`);
+    return { success: false, error: `WhatsApp credentials not configured for ${WHATSAPP_OTP_BRAND_NAME}` };
   }
 
   const formattedPhone = formatPhoneNumber(to);
@@ -213,7 +217,8 @@ export async function sendRoleOTP({
   console.log('API URL:', url);
   console.log('API Key:', WHATSAPP_API_KEY.substring(0, 8) + '...');
   console.log('Channel Number:', WHATSAPP_PHONE_NUMBER_ID);
-  console.log('Template Name: roleotp');
+  console.log('Brand Name:', WHATSAPP_OTP_BRAND_NAME);
+  console.log('Template Name:', WHATSAPP_ROLE_OTP_TEMPLATE_NAME);
   console.log('To (Original):', to);
   console.log('To (Formatted):', formattedPhone);
   console.log('OTP:', otp);
@@ -228,7 +233,7 @@ export async function sendRoleOTP({
       to: formattedPhone,
       type: 'template',
       template: {
-        name: 'roleotp',
+        name: WHATSAPP_ROLE_OTP_TEMPLATE_NAME,
         language: {
           code: 'en'
         },
@@ -285,7 +290,7 @@ export async function sendRoleOTP({
     } else {
       return { 
         success: false, 
-        error: data.statusDesc || 'Failed to send WhatsApp Role OTP template',
+        error: data.statusDesc || `Failed to send WhatsApp Role OTP template for ${WHATSAPP_OTP_BRAND_NAME}`,
         statusCode: data.statusCode
       };
     }
@@ -293,7 +298,7 @@ export async function sendRoleOTP({
     console.error('❌ WhatsApp Role OTP Template API Error:', error);
     return { 
       success: false, 
-      error: error instanceof Error ? error.message : 'Failed to send WhatsApp Role OTP template'
+      error: error instanceof Error ? error.message : `Failed to send WhatsApp Role OTP template for ${WHATSAPP_OTP_BRAND_NAME}`
     };
   }
 }

@@ -46,6 +46,12 @@ interface Invoice {
   status: 'draft' | 'pending_approval' | 'approved' | 'rejected' | 'cancelled';
   paymentStatus: 'unpaid' | 'partial' | 'paid';
   paymentMethod?: 'UPI' | 'Cash' | 'Card' | 'Net Banking' | 'Cheque';
+  payments?: Array<{
+    amount: number;
+    paymentMode: 'UPI' | 'Cash' | 'Card' | 'Net Banking' | 'Cheque';
+    transactionId?: string;
+    transactionDate?: string;
+  }>;
   createdAt: string;
   createdBy: { name: string };
   approvalStatus?: {
@@ -287,6 +293,25 @@ export default function Invoices() {
     return <Badge variant={config.variant} data-testid={`badge-payment-${paymentStatus}`}>{config.label}</Badge>;
   };
 
+  const formatInvoiceDate = (value: string) => format(new Date(value), 'dd/MM/yyyy');
+
+  const getPaymentModeLabel = (mode?: string) => mode === 'UPI' ? 'PhonePe/UPI' : (mode || '');
+
+  const getPaymentHistoryLabel = (invoice: Invoice) => {
+    const paymentEntries = invoice.payments?.filter(payment => Number(payment.amount) > 0) || [];
+
+    if (paymentEntries.length > 0) {
+      return paymentEntries
+        .map(payment => {
+          const label = `${getPaymentModeLabel(payment.paymentMode)} ₹${Number(payment.amount).toLocaleString()}`;
+          return payment.transactionId ? `${label} (${payment.transactionId})` : label;
+        })
+        .join(' + ');
+    }
+
+    return invoice.paymentMethod ? `via ${getPaymentModeLabel(invoice.paymentMethod)}` : '';
+  };
+
   // Search is now handled by the backend, so we just use the invoices directly
   const filteredInvoices = invoices;
 
@@ -373,7 +398,7 @@ export default function Invoices() {
                           {invoice.customerId?.fullName || invoice.customerName}
                         </div>
                         <div className="text-xs text-muted-foreground mt-1">
-                          {format(new Date(invoice.createdAt), 'dd MMM yyyy')}
+                          {formatInvoiceDate(invoice.createdAt)}
                         </div>
                       </div>
                       <div className="text-right">
@@ -388,9 +413,9 @@ export default function Invoices() {
                       {getStatusBadge(invoice.status)}
                       <div className="flex flex-col gap-1">
                         {getPaymentBadge(invoice.paymentStatus)}
-                        {invoice.paymentStatus === 'paid' && invoice.paymentMethod && (
+                        {getPaymentHistoryLabel(invoice) && (
                           <span className="text-xs text-muted-foreground" data-testid={`text-payment-method-mobile-${invoice._id}`}>
-                            via {invoice.paymentMethod}
+                            {getPaymentHistoryLabel(invoice)}
                           </span>
                         )}
                       </div>
@@ -543,14 +568,14 @@ export default function Invoices() {
                       <TableCell>
                         <div className="flex flex-col gap-1">
                           {getPaymentBadge(invoice.paymentStatus)}
-                          {invoice.paymentStatus === 'paid' && invoice.paymentMethod && (
+                          {getPaymentHistoryLabel(invoice) && (
                             <span className="text-xs text-muted-foreground" data-testid={`text-payment-method-${invoice._id}`}>
-                              via {invoice.paymentMethod}
+                              {getPaymentHistoryLabel(invoice)}
                             </span>
                           )}
                         </div>
                       </TableCell>
-                      <TableCell>{format(new Date(invoice.createdAt), 'dd MMM yyyy')}</TableCell>
+                      <TableCell>{formatInvoiceDate(invoice.createdAt)}</TableCell>
                       <TableCell className="text-right space-x-2">
                         {(user?.role === 'Admin' || user?.role === 'Manager') && invoice.status === 'pending_approval' && (
                           <>
@@ -761,7 +786,7 @@ export default function Invoices() {
                   <SelectItem value="UPI">
                     <div className="flex items-center gap-2">
                       <CreditCard className="h-4 w-4 text-blue-600" />
-                      UPI
+                      PhonePe/UPI
                     </div>
                   </SelectItem>
                   <SelectItem value="Cash">

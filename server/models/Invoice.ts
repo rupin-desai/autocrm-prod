@@ -112,6 +112,10 @@ const invoiceSchema = new mongoose.Schema({
   paidAmount: { type: Number, default: 0 },
   dueAmount: { type: Number, required: true },
   payments: [paymentEntrySchema],
+  stockAdjusted: { type: Boolean, default: false },
+  stockAdjustedAt: { type: Date },
+  stockReversed: { type: Boolean, default: false },
+  stockReversedAt: { type: Date },
   
   // Approval workflow
   status: { 

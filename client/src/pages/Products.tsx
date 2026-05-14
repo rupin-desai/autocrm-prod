@@ -32,6 +32,11 @@ import { useAuth } from "@/lib/auth";
 import * as XLSX from "xlsx";
 import { VEHICLE_DATA } from "@shared/vehicleData";
 
+const normalizeMinStockLevel = (value: unknown) => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed >= 10 ? parsed : 10;
+};
+
 export default function Products() {
   const { user } = useAuth();
   const canDeleteProducts = (user?.permissions?.products || []).includes('delete');
@@ -61,7 +66,7 @@ export default function Products() {
     sellingPrice: "",
     discount: "",
     stockQty: "",
-    minStockLevel: "",
+    minStockLevel: "10",
     warranty: "",
     warrantyCustom: "",
     images: [] as string[],
@@ -231,7 +236,7 @@ export default function Products() {
       sellingPrice: "",
       discount: "",
       stockQty: "",
-      minStockLevel: "",
+      minStockLevel: "10",
       warranty: "",
       warrantyCustom: "",
       images: [],
@@ -386,7 +391,7 @@ export default function Products() {
           sellingPrice: row.sellingPrice || row.SellingPrice || row.selling_price || 0,
           discount: row.discount || row.Discount || 0,
           stockQty: row.stockQty || row.StockQty || row.stock_qty || 0,
-          minStockLevel: row.minStockLevel || row.MinStockLevel || row.min_stock_level || 10,
+          minStockLevel: normalizeMinStockLevel(row.minStockLevel || row.MinStockLevel || row.min_stock_level),
           warranty: row.warranty || row.Warranty || "",
           modelCompatibility: row.modelCompatibility 
             ? (typeof row.modelCompatibility === 'string' ? row.modelCompatibility.split(",").map((s: string) => s.trim()) : [])
@@ -413,7 +418,7 @@ export default function Products() {
     const sellingPrice = parseFloat(formData.sellingPrice);
     const discount = parseFloat(formData.discount) || 0;
     const stockQty = parseInt(formData.stockQty);
-    const minStockLevel = formData.minStockLevel ? parseInt(formData.minStockLevel) : 10;
+    const minStockLevel = normalizeMinStockLevel(formData.minStockLevel);
 
     const finalWarranty = formData.warranty === 'Other' ? formData.warrantyCustom : formData.warranty;
     const finalCategory = formData.category === 'Other' ? formData.categoryCustom : formData.category;
@@ -506,7 +511,7 @@ export default function Products() {
       sellingPrice: product.sellingPrice?.toString() || "",
       discount: product.discount?.toString() || "0",
       stockQty: product.stockQty?.toString() || "",
-      minStockLevel: product.minStockLevel?.toString() || "",
+      minStockLevel: normalizeMinStockLevel(product.minStockLevel).toString(),
       warranty: isStandardWarranty ? product.warranty : 'Other',
       warrantyCustom: isStandardWarranty ? '' : (product.warranty || ''),
       category: product.category || "",
@@ -533,7 +538,7 @@ export default function Products() {
     const sellingPrice = parseFloat(formData.sellingPrice);
     const discount = parseFloat(formData.discount) || 0;
     const stockQty = parseInt(formData.stockQty);
-    const minStockLevel = formData.minStockLevel ? parseInt(formData.minStockLevel) : 10;
+    const minStockLevel = normalizeMinStockLevel(formData.minStockLevel);
     
     if (!formData.brand) {
       toast({
@@ -892,13 +897,14 @@ export default function Products() {
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="minStockLevel">Min Stock Level (Optional)</Label>
+          <Label htmlFor="minStockLevel">Min Stock Level (Minimum 10)</Label>
           <Input
             id="minStockLevel"
             type="number"
             value={formData.minStockLevel}
             onChange={(e) => setFormData({ ...formData, minStockLevel: e.target.value })}
-            placeholder="Default: 10"
+            min={10}
+            placeholder="10"
             data-testid="input-product-minstocklevel"
           />
         </div>

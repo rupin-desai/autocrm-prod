@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -42,7 +42,7 @@ interface PaymentRecordingDialogProps {
 }
 
 const PAYMENT_MODES = [
-  { value: 'UPI', label: 'UPI', icon: Smartphone, color: 'text-blue-600' },
+  { value: 'UPI', label: 'PhonePe/UPI', icon: Smartphone, color: 'text-blue-600' },
   { value: 'Cash', label: 'Cash', icon: Banknote, color: 'text-green-600' },
   { value: 'Card', label: 'Debit/Credit Card', icon: CreditCard, color: 'text-purple-600' },
   { value: 'Net Banking', label: 'Net Banking', icon: Building, color: 'text-orange-600' },
@@ -63,6 +63,15 @@ export function PaymentRecordingDialog({ open, onOpenChange, invoice }: PaymentR
 
   const payments = form.watch('payments');
   const totalPaymentAmount = payments?.reduce((sum, p) => sum + (p.amount || 0), 0) || 0;
+
+  useEffect(() => {
+    if (!open) return;
+
+    form.reset({
+      payments: [{ amount: invoice?.dueAmount || 0, paymentMode: 'Cash', transactionId: '' }],
+      notes: '',
+    });
+  }, [open, invoice?._id, invoice?.dueAmount, form]);
 
   const recordPaymentMutation = useMutation({
     mutationFn: (data: PaymentFormValues) =>
@@ -258,7 +267,7 @@ export function PaymentRecordingDialog({ open, onOpenChange, invoice }: PaymentR
                                   <Input
                                     {...field}
                                     placeholder={
-                                      payment.paymentMode === 'UPI' ? 'UPI Transaction ID' :
+                                      payment.paymentMode === 'UPI' ? 'PhonePe/UPI Transaction ID' :
                                       payment.paymentMode === 'Card' ? 'Card Transaction ID' :
                                       payment.paymentMode === 'Cheque' ? 'Cheque Number' :
                                       'Transaction Reference'
@@ -319,7 +328,7 @@ export function PaymentRecordingDialog({ open, onOpenChange, invoice }: PaymentR
                       const half = Math.round((invoice?.dueAmount || 0) / 2);
                       form.setValue('payments', [
                         { amount: half, paymentMode: 'Cash' as const, transactionId: '' },
-                        { amount: (invoice?.dueAmount || 0) - half, paymentMode: 'Cash' as const, transactionId: '' }
+                        { amount: (invoice?.dueAmount || 0) - half, paymentMode: 'UPI' as const, transactionId: '' }
                       ]);
                     }}
                     data-testid="button-pay-half"

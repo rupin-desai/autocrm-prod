@@ -135,6 +135,162 @@ async function findExistingProductByIdentity(params: {
   return Product.findOne(query);
 }
 
+function normalizeMinStockLevel(value: any): number {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed >= 10 ? parsed : 10;
+}
+
+function getInvoiceProductQuantities(items: any[]): Array<{ productId: string; quantity: number; name: string }> {
+  const quantities = new Map<string, { productId: string; quantity: number; name: string }>();
+
+  for (const item of Array.isArray(items) ? items : []) {
+    if (item?.type !== "product" || item?.isLabourCharge) continue;
+
+    const productId = String(item.productId || "").trim();
+    const quantity = Number(item.quantity) || 0;
+
+    if (!productId || !/^[a-f\d]{24}$/i.test(productId)) {
+      const error = new Error(`Cannot adjust stock for "${item.name || "product"}" because it is not linked to an inventory product`);
+      (error as any).statusCode = 400;
+      throw error;
+    }
+
+    if (quantity <= 0) {
+      const error = new Error(`Invalid invoice quantity for "${item.name || "product"}"`);
+      (error as any).statusCode = 400;
+      throw error;
+    }
+
+    const existing = quantities.get(productId);
+    if (existing) {
+      existing.quantity += quantity;
+    } else {
+      quantities.set(productId, { productId, quantity, name: item.name || "Product" });
+    }
+  }
+
+  return Array.from(quantities.values());
+}
+
+async function validateInvoiceStock(items: any[]) {
+  const stockItems = getInvoiceProductQuantities(items);
+  const errors: Array<{ productId: string; name: string; requested: number; available: number }> = [];
+
+  for (const item of stockItems) {
+    const product = await Product.findById(item.productId);
+    const available = Number(product?.stockQty) || 0;
+
+    if (!product || available < item.quantity) {
+      errors.push({
+        productId: item.productId,
+        name: item.name,
+        requested: item.quantity,
+        available,
+      });
+    }
+  }
+
+  if (errors.length > 0) {
+    const error = new Error("Insufficient stock for invoice");
+    (error as any).statusCode = 400;
+    (error as any).details = errors;
+    throw error;
+  }
+
+  return stockItems;
+}
+
+async function applyInvoiceStockAdjustment(invoice: any, userId?: string) {
+  if (invoice.stockAdjusted) return;
+
+  const stockItems = await validateInvoiceStock(invoice.items || []);
+  const adjusted: Array<{ productId: string; quantity: number }> = [];
+
+  try {
+    for (const item of stockItems) {
+      const product = await Product.findOneAndUpdate(
+        { _id: item.productId, stockQty: { $gte: item.quantity } },
+        { $inc: { stockQty: -item.quantity } },
+        { new: true }
+      );
+
+      if (!product) {
+        const error = new Error(`Insufficient stock for "${item.name}"`);
+        (error as any).statusCode = 400;
+        throw error;
+      }
+
+      product.status = getProductStockStatus(product.stockQty, product.minStockLevel);
+      await product.save();
+
+      await InventoryTransaction.create({
+        productId: item.productId,
+        type: "OUT",
+        quantity: item.quantity,
+        reason: `Invoice ${invoice.invoiceNumber}`,
+        userId,
+        previousStock: (Number(product.stockQty) || 0) + item.quantity,
+        newStock: Number(product.stockQty) || 0,
+        date: new Date(),
+      });
+
+      await checkAndNotifyLowStock(product);
+      adjusted.push({ productId: item.productId, quantity: item.quantity });
+    }
+  } catch (error) {
+    for (const item of adjusted.reverse()) {
+      const product = await Product.findByIdAndUpdate(
+        item.productId,
+        { $inc: { stockQty: item.quantity } },
+        { new: true }
+      );
+      if (product) {
+        product.status = getProductStockStatus(product.stockQty, product.minStockLevel);
+        await product.save();
+      }
+    }
+    throw error;
+  }
+
+  invoice.stockAdjusted = stockItems.length > 0;
+  invoice.stockAdjustedAt = stockItems.length > 0 ? new Date() : undefined;
+  await invoice.save();
+}
+
+async function reverseInvoiceStockAdjustment(invoice: any, userId?: string, reason = "Invoice stock reversal") {
+  if (!invoice.stockAdjusted || invoice.stockReversed) return;
+
+  const stockItems = getInvoiceProductQuantities(invoice.items || []);
+
+  for (const item of stockItems) {
+    const product = await Product.findByIdAndUpdate(
+      item.productId,
+      { $inc: { stockQty: item.quantity } },
+      { new: true }
+    );
+
+    if (product) {
+      product.status = getProductStockStatus(product.stockQty, product.minStockLevel);
+      await product.save();
+
+      await InventoryTransaction.create({
+        productId: item.productId,
+        type: "IN",
+        quantity: item.quantity,
+        reason: `${reason} ${invoice.invoiceNumber}`,
+        userId,
+        previousStock: (Number(product.stockQty) || 0) - item.quantity,
+        newStock: Number(product.stockQty) || 0,
+        date: new Date(),
+      });
+    }
+  }
+
+  invoice.stockReversed = true;
+  invoice.stockReversedAt = new Date();
+  await invoice.save();
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
   await connectDB();
   const localMirrorMode = isLocalMirrorMode();
@@ -234,6 +390,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   } catch (error) {
     console.error('❌ selectedParts migration error:', error);
+  }
+
+  // Auto-migrate: enforce minimum stock alert level of 10 on legacy products
+  try {
+    const productsWithLowMinimum = await Product.find({
+      $or: [
+        { minStockLevel: { $exists: false } },
+        { minStockLevel: null },
+        { minStockLevel: { $lt: 10 } },
+      ],
+    });
+
+    if (productsWithLowMinimum.length > 0) {
+      for (const product of productsWithLowMinimum) {
+        product.minStockLevel = 10;
+        product.status = getProductStockStatus(product.stockQty, 10);
+        await product.save();
+      }
+      console.log(`Migration complete: normalized minStockLevel to 10 for ${productsWithLowMinimum.length} products`);
+    }
+  } catch (error) {
+    console.error('Product min stock migration error:', error);
   }
   
   }
@@ -754,6 +932,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       req.body.productName = normalizedName;
       req.body.brand = normalizedBrand;
       req.body.model = normalizedModel;
+      req.body.minStockLevel = normalizeMinStockLevel(req.body.minStockLevel);
 
       const product = await Product.create(req.body);
       
@@ -809,9 +988,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         brand: mergedBrand,
         model: mergedModel,
       };
+      updatePayload.minStockLevel = normalizeMinStockLevel(updatePayload.minStockLevel ?? existing.minStockLevel);
       updatePayload.status = getProductStockStatus(
         updatePayload.stockQty ?? existing.stockQty,
-        updatePayload.minStockLevel ?? existing.minStockLevel
+        updatePayload.minStockLevel
       );
 
       const product = await Product.findByIdAndUpdate(req.params.id, updatePayload, { new: true });
@@ -1017,7 +1197,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             sellingPrice: Number(productData.sellingPrice) || 0,
             discount: Number(productData.discount) || 0,
             stockQty: Number(productData.stockQty) || 0,
-            minStockLevel: Number(productData.minStockLevel) || 10,
+            minStockLevel: normalizeMinStockLevel(productData.minStockLevel),
             productId: normalizeProductField(productData.productId) || undefined,
             hsnNumber: normalizeProductField(productData.hsnNumber) || undefined,
             barcode: productData.barcode || "",
@@ -4988,6 +5168,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!serviceVehicle) {
         return res.status(404).json({ error: "Vehicle not found for this service visit" });
       }
+
+      await validateInvoiceStock(items);
       
       // Build customer details object with ALL fields
       const customerDetails = {
@@ -5078,6 +5260,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       
       await invoice.save();
+      try {
+        await applyInvoiceStockAdjustment(invoice, userId);
+      } catch (stockError) {
+        await Invoice.findByIdAndDelete(invoice._id);
+        throw stockError;
+      }
       
       // Update coupon usage if applicable
       if (couponId) {
@@ -5105,9 +5293,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       
       res.json(invoice);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Invoice creation error:', error);
-      res.status(500).json({ error: "Failed to create invoice" });
+      res.status(error?.statusCode || 500).json({
+        error: error?.message || "Failed to create invoice",
+        details: error?.details,
+      });
     }
   });
   
@@ -5334,6 +5525,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (invoice.status !== 'pending_approval') {
         return res.status(400).json({ error: "Invoice is not pending approval" });
       }
+
+      await reverseInvoiceStockAdjustment(invoice, userId, "Rejected invoice");
       
       invoice.status = 'rejected';
       invoice.approvalStatus = {
@@ -5704,17 +5897,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Can only add payments to approved invoices" });
       }
       
-      if (totalAmount > invoice.dueAmount) {
-        return res.status(400).json({ error: "Payment amount exceeds due amount" });
-      }
-      
       // Handle both array format (multiple payments) and old single payment format
       const paymentsToAdd = Array.isArray(payments) ? payments : [{ amount: totalAmount, paymentMode: payments?.paymentMode || 'Cash', transactionId: payments?.transactionId }];
       
       let totalPaid = 0;
       for (const payment of paymentsToAdd) {
+        const amount = Number(payment.amount) || 0;
+        if (amount <= 0) {
+          return res.status(400).json({ error: "Payment amount must be greater than 0" });
+        }
+
+        if (!['UPI', 'Cash', 'Card', 'Net Banking', 'Cheque'].includes(payment.paymentMode)) {
+          return res.status(400).json({ error: "Invalid payment method" });
+        }
+
         const paymentEntry = {
-          amount: payment.amount,
+          amount,
           paymentMode: payment.paymentMode,
           transactionId: payment.transactionId,
           notes,
@@ -5722,7 +5920,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           transactionDate: new Date()
         };
         invoice.payments.push(paymentEntry as any);
-        totalPaid += payment.amount;
+        totalPaid += amount;
+      }
+
+      if (totalPaid > invoice.dueAmount) {
+        return res.status(400).json({ error: "Payment amount exceeds due amount" });
       }
       
       invoice.paidAmount += totalPaid;
@@ -5765,6 +5967,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!invoice) {
         return res.status(404).json({ error: "Invoice not found" });
       }
+
+      await reverseInvoiceStockAdjustment(invoice, userId, "Deleted invoice");
       
       if (invoice.pdfPath && fs.existsSync(invoice.pdfPath)) {
         const path = await import('path');

@@ -191,6 +191,7 @@ function CustomerVehicleCard({
   totalVehicles,
   isAdmin, 
   onEdit, 
+  onAddVehicle,
   onDeleteVehicle,
   onViewDetails 
 }: { 
@@ -199,6 +200,7 @@ function CustomerVehicleCard({
   totalVehicles: number;
   isAdmin: boolean; 
   onEdit: (customer: Customer) => void;
+  onAddVehicle: (customer: Customer) => void;
   onDeleteVehicle: (vehicleId: string, isLastVehicle: boolean) => void;
   onViewDetails: (customer: Customer) => void;
 }) {
@@ -323,6 +325,15 @@ function CustomerVehicleCard({
             
             {isAdmin && (
               <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onAddVehicle(customer)}
+                  data-testid={`button-add-vehicle-${customer.id}-${vehicle.id}`}
+                >
+                  <PlusCircle className="w-4 h-4" />
+                </Button>
+
                 <Button
                   variant="outline"
                   size="sm"
@@ -1343,6 +1354,11 @@ export default function CustomerRegistrationDashboard() {
                     setEditingCustomer(customer);
                     setEditDialogOpen(true);
                   }}
+                  onAddVehicle={(customer) => {
+                    setEditingCustomer(customer);
+                    setEditDialogOpen(true);
+                    setTimeout(() => openVehicleDialog("add"), 0);
+                  }}
                   onDeleteVehicle={(vehicleId) => deleteVehicleMutation.mutate(vehicleId)}
                   onViewDetails={(customer) => setSelectedCustomer(customer)}
                 />
@@ -1455,10 +1471,28 @@ export default function CustomerRegistrationDashboard() {
 
                 {/* Vehicle Information */}
                 <div>
-                  <h3 className="flex items-center gap-2 font-semibold mb-3">
-                    <Car className="w-4 h-4" />
-                    Registered Vehicles ({customerVehicles.length})
-                  </h3>
+                  <div className="flex items-center justify-between gap-3 mb-3">
+                    <h3 className="flex items-center gap-2 font-semibold">
+                      <Car className="w-4 h-4" />
+                      Registered Vehicles ({customerVehicles.length})
+                    </h3>
+                    {isAdmin && (
+                      <Button
+                        type="button"
+                        size="sm"
+                        onClick={() => {
+                          setEditingCustomer(selectedCustomer);
+                          setEditDialogOpen(true);
+                          setSelectedCustomer(null);
+                          setTimeout(() => openVehicleDialog("add"), 0);
+                        }}
+                        data-testid={`button-add-vehicle-detail-${selectedCustomer.id}`}
+                      >
+                        <PlusCircle className="w-4 h-4 mr-2" />
+                        Add Vehicle
+                      </Button>
+                    )}
+                  </div>
                   {customerVehicles.length === 0 ? (
                     <p className="text-sm text-muted-foreground">No vehicles registered yet</p>
                   ) : (

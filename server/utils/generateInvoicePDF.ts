@@ -65,6 +65,18 @@ interface InvoiceData {
   terms?: string;
 }
 
+function formatInvoiceDate(value?: Date): string {
+  if (!value) return '';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+
+  return [
+    String(date.getDate()).padStart(2, '0'),
+    String(date.getMonth() + 1).padStart(2, '0'),
+    date.getFullYear(),
+  ].join('/');
+}
+
 export async function generateInvoicePDF(invoiceData: InvoiceData): Promise<string> {
   return new Promise((resolve, reject) => {
     try {
@@ -147,7 +159,7 @@ export async function generateInvoicePDF(invoiceData: InvoiceData): Promise<stri
       }
 
       // Invoice Date Section (Right Side)
-      const invoiceDate = new Date(invoiceData.createdAt).toLocaleDateString();
+      const invoiceDate = formatInvoiceDate(invoiceData.createdAt);
       let rightYPos = 120;
       doc.fontSize(10).font('Helvetica-Bold').text('Invoice Date:', 400, rightYPos, { align: 'right' });
       rightYPos += 15;
@@ -155,7 +167,7 @@ export async function generateInvoicePDF(invoiceData: InvoiceData): Promise<stri
       rightYPos += 20;
 
       if (invoiceData.dueDate) {
-        const dueDate = new Date(invoiceData.dueDate).toLocaleDateString();
+        const dueDate = formatInvoiceDate(invoiceData.dueDate);
         doc.font('Helvetica-Bold').text('Due Date:', 400, rightYPos, { align: 'right' });
         rightYPos += 15;
         doc.font('Helvetica').text(dueDate, 400, rightYPos, { align: 'right' });
