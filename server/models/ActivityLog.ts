@@ -20,12 +20,12 @@ const activityLogSchema = new mongoose.Schema({
       'product', 'order', 'customer', 'employee', 
       'inventory', 'supplier', 'purchase_order',
       'service_visit', 'attendance', 'leave', 'task',
-      'communication', 'feedback', 'user',
+      'communication', 'feedback', 'support_ticket', 'user',
       'other'
     ],
     required: true 
   },
-  resourceId: { type: mongoose.Schema.Types.ObjectId },
+  resourceId: { type: String },
   description: { type: String, required: true },
   details: { type: mongoose.Schema.Types.Mixed },
   ipAddress: { type: String },
