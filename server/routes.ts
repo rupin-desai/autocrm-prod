@@ -137,7 +137,7 @@ async function findExistingProductByIdentity(params: {
 
 function normalizeMinStockLevel(value: any): number {
   const parsed = Number(value);
-  return Number.isFinite(parsed) && parsed >= 10 ? parsed : 10;
+  return Number.isFinite(parsed) && parsed >= 0 ? parsed : 0;
 }
 
 function getInvoiceProductQuantities(items: any[]): Array<{ productId: string; quantity: number; name: string }> {
@@ -392,23 +392,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     console.error('❌ selectedParts migration error:', error);
   }
 
-  // Auto-migrate: enforce minimum stock alert level of 10 on legacy products
+  // Auto-migrate: restore product minimum stock default to 0 while preserving custom higher levels.
   try {
-    const productsWithLowMinimum = await Product.find({
+    const productsToNormalizeMinStock = await Product.find({
       $or: [
         { minStockLevel: { $exists: false } },
         { minStockLevel: null },
-        { minStockLevel: { $lt: 10 } },
+        { minStockLevel: { $lt: 0 } },
+        { minStockLevel: 10 },
       ],
     });
 
-    if (productsWithLowMinimum.length > 0) {
-      for (const product of productsWithLowMinimum) {
-        product.minStockLevel = 10;
-        product.status = getProductStockStatus(product.stockQty, 10);
+    if (productsToNormalizeMinStock.length > 0) {
+      for (const product of productsToNormalizeMinStock) {
+        product.minStockLevel = 0;
+        product.status = getProductStockStatus(product.stockQty, 0);
         await product.save();
       }
-      console.log(`Migration complete: normalized minStockLevel to 10 for ${productsWithLowMinimum.length} products`);
+      console.log(`Migration complete: normalized minStockLevel to 0 for ${productsToNormalizeMinStock.length} products`);
     }
   } catch (error) {
     console.error('Product min stock migration error:', error);

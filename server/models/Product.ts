@@ -20,7 +20,7 @@ const productSchema = new mongoose.Schema({
   sellingPrice: { type: Number, required: true },
   discount: { type: Number, default: 0 },
   stockQty: { type: Number, default: 0 },
-  minStockLevel: { type: Number, default: 10 },
+  minStockLevel: { type: Number, default: 0 },
   status: { 
     type: String, 
     enum: ['in_stock', 'low_stock', 'out_of_stock', 'discontinued'],

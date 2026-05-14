@@ -34,7 +34,7 @@ import { VEHICLE_DATA } from "@shared/vehicleData";
 
 const normalizeMinStockLevel = (value: unknown) => {
   const parsed = Number(value);
-  return Number.isFinite(parsed) && parsed >= 10 ? parsed : 10;
+  return Number.isFinite(parsed) && parsed >= 0 ? parsed : 0;
 };
 
 export default function Products() {
@@ -66,7 +66,7 @@ export default function Products() {
     sellingPrice: "",
     discount: "",
     stockQty: "",
-    minStockLevel: "10",
+    minStockLevel: "0",
     warranty: "",
     warrantyCustom: "",
     images: [] as string[],
@@ -236,7 +236,7 @@ export default function Products() {
       sellingPrice: "",
       discount: "",
       stockQty: "",
-      minStockLevel: "10",
+      minStockLevel: "0",
       warranty: "",
       warrantyCustom: "",
       images: [],
@@ -897,14 +897,14 @@ export default function Products() {
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="minStockLevel">Min Stock Level (Minimum 10)</Label>
+          <Label htmlFor="minStockLevel">Min Stock Level</Label>
           <Input
             id="minStockLevel"
             type="number"
             value={formData.minStockLevel}
             onChange={(e) => setFormData({ ...formData, minStockLevel: e.target.value })}
-            min={10}
-            placeholder="10"
+            min={0}
+            placeholder="0"
             data-testid="input-product-minstocklevel"
           />
         </div>
