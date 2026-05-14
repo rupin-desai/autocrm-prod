@@ -33,6 +33,7 @@ import { sendInvoiceNotifications } from "./utils/invoiceNotifications";
 import { generateInvoicePDF } from "./utils/generateInvoicePDF";
 import { sendWhatsAppOTP, sendWhatsAppWelcome } from "./services/whatsapp";
 import { generateDailyReportData, formatDailyReportHTML, sendDailyReportEmail } from "./utils/emailReports";
+import { isLocalMirrorMode } from "./localMirror";
 
 // Helper function to normalize selectedParts to ensure consistent format
 function normalizeSelectedParts(selectedParts: any): Array<{ partId: string; quantity: number }> {
@@ -136,11 +137,16 @@ async function findExistingProductByIdentity(params: {
 
 export async function registerRoutes(app: Express): Promise<Server> {
   await connectDB();
+  const localMirrorMode = isLocalMirrorMode();
   const bypassWhatsappOtpForLocal =
-    process.env.NODE_ENV !== "production" &&
-    process.env.LOCAL_DISABLE_WHATSAPP_OTP === "true";
+    localMirrorMode ||
+    (process.env.NODE_ENV !== "production" &&
+      process.env.LOCAL_DISABLE_WHATSAPP_OTP === "true");
   const localDefaultShop = process.env.LOCAL_DEFAULT_SHOP || "beed";
   
+  if (localMirrorMode) {
+    console.log("Local mirror mode: skipping startup data migrations");
+  } else {
   // Auto-migrate: Add vehicleId to existing vehicles without it
   try {
     const vehiclesWithoutId = await RegistrationVehicle.find({ 
@@ -228,6 +234,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   } catch (error) {
     console.error('❌ selectedParts migration error:', error);
+  }
+  
   }
   
   app.use(attachUser);

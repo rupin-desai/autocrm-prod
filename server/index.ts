@@ -8,13 +8,14 @@ import MemoryStore from "memorystore";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { checkInactivityTimeout } from "./middleware";
+import { isLocalMirrorMode, localMirrorReadOnlyGuard } from "./localMirror";
 
 const app = express();
 app.use(
   cors({
     origin: true,
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
   }),
 );
@@ -41,6 +42,11 @@ app.use(
 );
 
 app.use(checkInactivityTimeout);
+app.use(localMirrorReadOnlyGuard);
+
+if (isLocalMirrorMode()) {
+  log("local mirror mode enabled: mutating API requests are blocked");
+}
 
 app.use((req, res, next) => {
   const start = Date.now();

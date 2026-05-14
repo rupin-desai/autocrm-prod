@@ -2,8 +2,19 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import mongoose from 'mongoose';
+import { assertLocalMirrorMongoTarget, isLocalMirrorMode } from './localMirror';
 
 let MONGODB_URI = process.env.MONGODB_URI?.trim();
+
+if (isLocalMirrorMode()) {
+  MONGODB_URI = process.env.LOCAL_MONGO_URI?.trim();
+
+  if (!MONGODB_URI) {
+    throw new Error('LOCAL_MIRROR_MODE=true requires LOCAL_MONGO_URI to point at local MongoDB');
+  }
+
+  assertLocalMirrorMongoTarget(MONGODB_URI);
+}
 
 if (MONGODB_URI?.includes('=')) {
   const parts = MONGODB_URI.split('=');

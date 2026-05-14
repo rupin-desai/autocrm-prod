@@ -1,4 +1,5 @@
 import { ActivityLog } from "../models/ActivityLog";
+import { isLocalMirrorMode } from "../localMirror";
 
 interface LogActivityParams {
   userId: string;
@@ -13,6 +14,10 @@ interface LogActivityParams {
 }
 
 export async function logActivity(params: LogActivityParams) {
+  if (isLocalMirrorMode()) {
+    return;
+  }
+
   try {
     await ActivityLog.create({
       userId: params.userId,

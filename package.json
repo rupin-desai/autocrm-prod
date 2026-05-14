@@ -6,6 +6,10 @@
   "scripts": {
     "dev": "NODE_ENV=development tsx server/index.ts",
     "local": "docker compose -f docker/docker-compose.db.yml up -d && npx tsx server/index.ts",
+    "mirror:pull": "node scripts/mirror-pull.mjs",
+    "mirror:restore": "node scripts/mirror-restore.mjs",
+    "mirror:refresh": "npm run mirror:pull && npm run mirror:restore",
+    "local:mirror": "node scripts/local-mirror.mjs",
     "build": "vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
     "start": "NODE_ENV=production node dist/index.js",
     "check": "tsc",
