@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -12,8 +12,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { CheckCircle2, Car, User, MapPin, UploadCloud, PlusCircle, Search, ChevronDown, ChevronUp } from "lucide-react";
-import { getAllBrandNames, getModelsByBrand, getPartsByBrandAndModel } from "@shared/vehicleData";
+import { getPartsByBrandAndModel } from "@shared/vehicleData";
 import { ScreenshotProtection } from "@/components/ScreenshotProtection";
+import { getVehicleMasterBrands, getVehicleMasterModels, type VehicleMasterResponse } from "@/lib/vehicleMaster";
 
 // States in India - predefined list
 const INDIAN_STATES = [
@@ -24,9 +25,6 @@ const INDIAN_STATES = [
   "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura",
   "Uttar Pradesh", "Uttarakhand", "West Bengal"
 ];
-
-// Vehicle Brands from shared data
-const VEHICLE_BRANDS = getAllBrandNames();
 
 // Referral sources
 const REFERRAL_SOURCES = [
@@ -95,9 +93,8 @@ const vehicleFormSchema = z.object({
   customBrand: z.string().optional(),
   vehicleModel: z.string().min(1, "Vehicle model is required"),
   customModel: z.string().optional(),
-  variant: z.enum(['Top', 'Base']).optional(),
+  variant: z.string().optional(),
   color: z.string().optional(),
-  customColor: z.string().optional(),
   yearOfPurchase: z.string().optional(),
   vehiclePhoto: z.string().min(1, "Vehicle photo is required"),
   isNewVehicle: z.string().min(1, "Please select vehicle condition"),
@@ -136,14 +133,6 @@ const vehicleFormSchema = z.object({
 }, {
   message: "Please specify the model name",
   path: ["customModel"],
-}).refine((data) => {
-  if (data.color === "Others" && !data.customColor) {
-    return false;
-  }
-  return true;
-}, {
-  message: "Please specify the color",
-  path: ["customColor"],
 });
 
 type CustomerFormData = z.infer<typeof customerFormSchema>;
@@ -160,10 +149,17 @@ export default function CustomerRegistration() {
   const [registeredVehicles, setRegisteredVehicles] = useState<any[]>([]);
   const [selectedBrand, setSelectedBrand] = useState<string>("");
   const [selectedModel, setSelectedModel] = useState<string>("");
-  const [availableModels, setAvailableModels] = useState<string[]>([]);
   const [availableParts, setAvailableParts] = useState<any[]>([]);
   const [partSearchTerm, setPartSearchTerm] = useState<string>("");
   const [isProductListExpanded, setIsProductListExpanded] = useState<boolean>(false);
+  const { data: vehicleMasterData } = useQuery<VehicleMasterResponse>({
+    queryKey: ["/api/vehicle-master"],
+  });
+  const vehicleBrands = useMemo(() => getVehicleMasterBrands(vehicleMasterData), [vehicleMasterData]);
+  const availableModels = useMemo(() => {
+    if (!selectedBrand || selectedBrand === "Other") return [];
+    return getVehicleMasterModels(vehicleBrands, selectedBrand).map((model) => model.name);
+  }, [selectedBrand, vehicleBrands]);
 
   const customerForm = useForm<CustomerFormData>({
     resolver: zodResolver(customerFormSchema),
@@ -192,9 +188,8 @@ export default function CustomerRegistration() {
       customBrand: "",
       vehicleModel: "",
       customModel: "",
-      variant: undefined,
+      variant: "",
       color: "",
-      customColor: "",
       yearOfPurchase: "",
       vehiclePhoto: "",
       isNewVehicle: "",
@@ -466,6 +461,10 @@ export default function CustomerRegistration() {
         vehicleNumber: data.vehicleNumber || undefined,
         customBrand: data.vehicleBrand === "Other" ? data.customBrand : undefined,
         customModel: data.vehicleModel === "Other" ? data.customModel : undefined,
+        vehicleBrand: data.vehicleBrand === "Other" ? (data.customBrand || "Other") : data.vehicleBrand,
+        vehicleModel: data.vehicleModel === "Other" ? (data.customModel || "Other") : data.vehicleModel,
+        variant: data.variant?.trim() || undefined,
+        color: data.color?.trim() || undefined,
         yearOfPurchase: data.yearOfPurchase ? parseInt(data.yearOfPurchase) : undefined,
         isNewVehicle: data.isNewVehicle === "true",
         chassisNumber: data.isNewVehicle === "true" ? data.chassisNumber : undefined,
@@ -502,9 +501,8 @@ export default function CustomerRegistration() {
         customBrand: "",
         vehicleModel: "",
         customModel: "",
-        variant: undefined,
+        variant: "",
         color: "",
-        customColor: "",
         yearOfPurchase: "",
         vehiclePhoto: "",
         isNewVehicle: "",
@@ -514,7 +512,6 @@ export default function CustomerRegistration() {
       });
       setSelectedBrand("");
       setSelectedModel("");
-      setAvailableModels([]);
       setAvailableParts([]);
     },
     onError: (error: any) => {
@@ -1207,11 +1204,9 @@ export default function CustomerRegistration() {
                             onValueChange={(value) => {
                               field.onChange(value);
                               setSelectedBrand(value);
-                              const models = getModelsByBrand(value);
-                              setAvailableModels(models.map(m => m.name));
-                              vehicleForm.setValue("vehicleModel", "Other");
+                              vehicleForm.setValue("vehicleModel", value === "Other" ? "Other" : "");
                               vehicleForm.setValue("selectedParts", []);
-                              setSelectedModel("Other");
+                              setSelectedModel(value === "Other" ? "Other" : "");
                               setAvailableParts([]);
                             }} 
                             defaultValue={field.value}
@@ -1222,11 +1217,12 @@ export default function CustomerRegistration() {
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              {VEHICLE_BRANDS.map((brand) => (
-                                <SelectItem key={brand} value={brand}>
-                                  {brand}
+                              {vehicleBrands.map((brand) => (
+                                <SelectItem key={brand.id} value={brand.name}>
+                                  {brand.name}
                                 </SelectItem>
                               ))}
+                              <SelectItem value="Other">Other</SelectItem>
                             </SelectContent>
                           </Select>
                           <FormMessage />
@@ -1275,6 +1271,7 @@ export default function CustomerRegistration() {
                                   {model}
                                 </SelectItem>
                               ))}
+                              <SelectItem value="Other">Other</SelectItem>
                             </SelectContent>
                           </Select>
                           <FormMessage />
@@ -1304,17 +1301,9 @@ export default function CustomerRegistration() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Variant</FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value}>
-                            <FormControl>
-                              <SelectTrigger data-testid="select-variant">
-                                <SelectValue placeholder="Select variant" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="Top">Top</SelectItem>
-                              <SelectItem value="Base">Base</SelectItem>
-                            </SelectContent>
-                          </Select>
+                          <FormControl>
+                            <Input {...field} placeholder="ZX, Sports, Top Diesel" data-testid="input-variant" />
+                          </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -1326,46 +1315,13 @@ export default function CustomerRegistration() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Color</FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value}>
-                            <FormControl>
-                              <SelectTrigger data-testid="select-color">
-                                <SelectValue placeholder="Select color" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="White">White</SelectItem>
-                              <SelectItem value="Black">Black</SelectItem>
-                              <SelectItem value="Silver">Silver</SelectItem>
-                              <SelectItem value="Grey">Grey</SelectItem>
-                              <SelectItem value="Red">Red</SelectItem>
-                              <SelectItem value="Blue">Blue</SelectItem>
-                              <SelectItem value="Brown">Brown</SelectItem>
-                              <SelectItem value="Orange">Orange</SelectItem>
-                              <SelectItem value="Green">Green</SelectItem>
-                              <SelectItem value="Yellow">Yellow</SelectItem>
-                              <SelectItem value="Others">Others</SelectItem>
-                            </SelectContent>
-                          </Select>
+                          <FormControl>
+                            <Input {...field} placeholder="Matte Black, Wine Red" data-testid="input-color" />
+                          </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
-
-                    {vehicleForm.watch("color") === "Others" && (
-                      <FormField
-                        control={vehicleForm.control}
-                        name="customColor"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Specify Color *</FormLabel>
-                            <FormControl>
-                              <Input {...field} placeholder="Enter color name" data-testid="input-custom-color" />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    )}
 
                     <FormField
                       control={vehicleForm.control}
@@ -1746,7 +1702,6 @@ export default function CustomerRegistration() {
                   setRegisteredVehicles([]);
                   setSelectedBrand("");
                   setSelectedModel("");
-                  setAvailableModels([]);
                   setAvailableParts([]);
                   
                   // Reset forms

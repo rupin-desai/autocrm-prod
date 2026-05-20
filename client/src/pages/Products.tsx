@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -30,7 +30,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useAuth } from "@/lib/auth";
 import * as XLSX from "xlsx";
-import { VEHICLE_DATA } from "@shared/vehicleData";
+import { getVehicleMasterBrands, getVehicleMasterModels, type VehicleMasterResponse } from "@/lib/vehicleMaster";
 
 const normalizeMinStockLevel = (value: unknown) => {
   const parsed = Number(value);
@@ -53,6 +53,10 @@ export default function Products() {
     reason: "",
   });
   const { toast } = useToast();
+  const { data: vehicleMasterData } = useQuery<VehicleMasterResponse>({
+    queryKey: ["/api/vehicle-master"],
+  });
+  const vehicleBrands = useMemo(() => getVehicleMasterBrands(vehicleMasterData), [vehicleMasterData]);
 
   const [formData, setFormData] = useState({
     brand: "",
@@ -1062,15 +1066,15 @@ export default function Products() {
                   <SelectValue placeholder="Other (Custom)" />
                 </SelectTrigger>
                 <SelectContent>
-                  {VEHICLE_DATA.map((brand) => (
-                    <SelectItem key={brand.name} value={brand.name}>
+                  {vehicleBrands.map((brand) => (
+                    <SelectItem key={brand.id} value={brand.name}>
                       {brand.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
               
-              {model && !model.startsWith('Other:') && model !== '' && VEHICLE_DATA.find(b => b.name === (model.includes(' - ') ? model.split(' - ')[0] : model)) && (
+              {model && !model.startsWith('Other:') && model !== '' && vehicleBrands.find((b) => b.name === (model.includes(' - ') ? model.split(' - ')[0] : model)) && (
                 <Select
                   value={model.includes(' - ') ? model.split(' - ')[1] : ''}
                   onValueChange={(modelName) => {
@@ -1082,9 +1086,12 @@ export default function Products() {
                     <SelectValue placeholder="Select model" />
                   </SelectTrigger>
                   <SelectContent>
-                    {VEHICLE_DATA.find(b => b.name === (model.includes(' - ') ? model.split(' - ')[0] : model))?.models.filter(m => m.name !== 'Other').map((m) => (
-                      <SelectItem key={m.name} value={m.name}>
-                        {m.name}
+                    {getVehicleMasterModels(
+                      vehicleBrands,
+                      model.includes(' - ') ? model.split(' - ')[0] : model
+                    ).map((vehicleModel) => (
+                      <SelectItem key={vehicleModel.id} value={vehicleModel.name}>
+                        {vehicleModel.name}
                       </SelectItem>
                     ))}
                     <SelectItem value="Other">Other</SelectItem>

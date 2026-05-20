@@ -23,6 +23,7 @@ import {
   Receipt,
   TrendingUp,
   Headset,
+  Car,
 } from "lucide-react";
 import logoImage from "@assets/image_1760164042662.png";
 import {
@@ -63,6 +64,7 @@ const mainMenuItems: MenuItem[] = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard, group: "dashboard" },
   { title: "Register Customer", url: "/register-customer", icon: UserPlus, permission: { resource: "customers", action: "create" }, group: "customer" },
   { title: "Registration Dashboard", url: "/registration-dashboard", icon: ListChecks, permission: { resource: "customers", action: "create" }, group: "customer" },
+  { title: "Car Master", url: "/car-master", icon: Car, permission: { resource: "customers", action: "update" }, group: "customer" },
   { title: "Service Visits", url: "/visits", icon: ClipboardList, permission: { resource: "orders", action: "read" }, group: "service" },
   { title: "Support & Feedback", url: "/support", icon: Headset, permission: { resource: "supportTickets", action: "read" }, group: "support" },
   { title: "Invoices", url: "/invoices", icon: Receipt, permission: { resource: "invoices", action: "read" }, group: "invoice" },

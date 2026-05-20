@@ -31,7 +31,7 @@ export const insertVehicleSchema = z.object({
   vehicleBrand: z.string().min(1, "Vehicle brand is required"),
   vehicleModel: z.string().min(1, "Vehicle model is required"),
   customModel: z.string().optional(),
-  variant: z.enum(['Top', 'Base']).optional(),
+  variant: z.string().optional(),
   color: z.string().optional(),
   yearOfPurchase: z.number().optional(),
   vehiclePhoto: z.string().min(1, "Vehicle photo is required"),

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -30,11 +30,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { getAllBrandNames, getModelsByBrand } from "@shared/vehicleData";
-
-// Vehicle Brands
-const VEHICLE_BRANDS = getAllBrandNames();
-const VEHICLE_COLORS = ["White", "Black", "Silver", "Grey", "Red", "Blue", "Brown", "Orange", "Green", "Yellow", "Others"];
+import { getVehicleMasterBrands, getVehicleMasterModels, type VehicleMasterResponse } from "@/lib/vehicleMaster";
 
 // Referral sources
 const REFERRAL_SOURCES = [
@@ -78,7 +74,7 @@ interface Vehicle {
   vehicleBrand: string;
   vehicleModel: string;
   customModel?: string | null;
-  variant?: 'Top' | 'Base' | null;
+  variant?: string | null;
   color?: string | null;
   yearOfPurchase: number | null;
   vehiclePhoto: string;
@@ -131,9 +127,8 @@ const vehicleManageSchema = z.object({
   vehicleBrand: z.string().min(1, "Vehicle brand is required"),
   vehicleModel: z.string().min(1, "Vehicle model is required"),
   customModel: z.string().optional(),
-  variant: z.enum(['Top', 'Base']).optional(),
+  variant: z.string().optional(),
   color: z.string().optional(),
-  customColor: z.string().optional(),
   yearOfPurchase: z.string().optional(),
   vehiclePhoto: z.string().min(1, "Vehicle photo is required"),
   isNewVehicle: z.string().min(1, "Please select vehicle condition"),
@@ -158,12 +153,6 @@ const vehicleManageSchema = z.object({
 }, {
   message: "Please specify the model name",
   path: ["customModel"],
-}).refine((data) => {
-  if (data.color === "Others" && !data.customColor) return false;
-  return true;
-}, {
-  message: "Please specify the color",
-  path: ["customColor"],
 });
 
 type VehicleManageFormData = z.infer<typeof vehicleManageSchema>;
@@ -173,9 +162,8 @@ const emptyVehicleValues: VehicleManageFormData = {
   vehicleBrand: "",
   vehicleModel: "",
   customModel: "",
-  variant: undefined,
+  variant: "",
   color: "",
-  customColor: "",
   yearOfPurchase: "",
   vehiclePhoto: "",
   isNewVehicle: "",
@@ -414,10 +402,21 @@ export default function CustomerRegistrationDashboard() {
   const [vehicleDialogMode, setVehicleDialogMode] = useState<"add" | "edit">("add");
   const [vehicleSelectedBrand, setVehicleSelectedBrand] = useState("");
   const [vehicleSelectedModel, setVehicleSelectedModel] = useState("");
-  const [vehicleAvailableModels, setVehicleAvailableModels] = useState<string[]>([]);
   const [vehicleAvailableParts, setVehicleAvailableParts] = useState<any[]>([]);
   const [vehiclePartSearchTerm, setVehiclePartSearchTerm] = useState("");
   const [vehicleProductListExpanded, setVehicleProductListExpanded] = useState(false);
+  const { data: vehicleMasterData } = useQuery<VehicleMasterResponse>({
+    queryKey: ["/api/vehicle-master"],
+  });
+  const vehicleBrands = useMemo(() => getVehicleMasterBrands(vehicleMasterData), [vehicleMasterData]);
+  const vehicleAvailableModels = useMemo(() => {
+    if (!vehicleSelectedBrand) return [];
+    const baseModels = getVehicleMasterModels(vehicleBrands, vehicleSelectedBrand).map((model) => model.name);
+    if (editingVehicle?.vehicleBrand === vehicleSelectedBrand && editingVehicle.vehicleModel && !baseModels.includes(editingVehicle.vehicleModel)) {
+      return [...baseModels, editingVehicle.vehicleModel];
+    }
+    return baseModels;
+  }, [editingVehicle, vehicleBrands, vehicleSelectedBrand]);
   
   const isAdmin = user?.role === 'Admin' || user?.role === 'Manager';
   
@@ -622,7 +621,6 @@ export default function CustomerRegistrationDashboard() {
     setEditingVehicle(null);
     setVehicleSelectedBrand("");
     setVehicleSelectedModel("");
-    setVehicleAvailableModels([]);
     setVehicleAvailableParts([]);
     setVehiclePartSearchTerm("");
     setVehicleProductListExpanded(false);
@@ -633,19 +631,15 @@ export default function CustomerRegistrationDashboard() {
     setEditingVehicle(vehicle || null);
 
     if (mode === "edit" && vehicle) {
-      const colorValue = vehicle.color && VEHICLE_COLORS.includes(vehicle.color) ? vehicle.color : (vehicle.color ? "Others" : "");
-      const models = getModelsByBrand(vehicle.vehicleBrand).map(m => m.name);
       setVehicleSelectedBrand(vehicle.vehicleBrand);
       setVehicleSelectedModel(vehicle.vehicleModel);
-      setVehicleAvailableModels(models.includes(vehicle.vehicleModel) ? models : [...models, vehicle.vehicleModel]);
       vehicleForm.reset({
         vehicleNumber: vehicle.vehicleNumber || "",
         vehicleBrand: vehicle.vehicleBrand || "",
         vehicleModel: vehicle.vehicleModel || "",
         customModel: vehicle.customModel || "",
-        variant: vehicle.variant || undefined,
-        color: colorValue,
-        customColor: colorValue === "Others" ? (vehicle.color || "") : "",
+        variant: vehicle.variant || "",
+        color: vehicle.color || "",
         yearOfPurchase: vehicle.yearOfPurchase?.toString() || "",
         vehiclePhoto: vehicle.vehiclePhoto || "",
         isNewVehicle: vehicle.isNewVehicle ? "true" : "false",
@@ -853,10 +847,10 @@ export default function CustomerRegistrationDashboard() {
       const vehiclePayload = {
         vehicleNumber: data.isNewVehicle === "false" ? data.vehicleNumber : undefined,
         vehicleBrand: data.vehicleBrand,
-        vehicleModel: data.vehicleModel,
+        vehicleModel: data.vehicleModel === "Other" ? (data.customModel || "Other") : data.vehicleModel,
         customModel: data.vehicleModel === "Other" ? data.customModel : undefined,
-        variant: data.variant,
-        color: data.color === "Others" ? data.customColor : data.color,
+        variant: data.variant?.trim() || undefined,
+        color: data.color?.trim() || undefined,
         yearOfPurchase: data.yearOfPurchase ? parseInt(data.yearOfPurchase) : undefined,
         vehiclePhoto: data.vehiclePhoto,
         isNewVehicle: data.isNewVehicle === "true",
@@ -2041,12 +2035,10 @@ export default function CustomerRegistrationDashboard() {
                         onValueChange={(value) => {
                           field.onChange(value);
                           setVehicleSelectedBrand(value);
-                          const models = getModelsByBrand(value).map(m => m.name);
-                          setVehicleAvailableModels(models);
-                          vehicleForm.setValue("vehicleModel", "Other");
+                          vehicleForm.setValue("vehicleModel", "");
                           vehicleForm.setValue("selectedParts", []);
                           vehicleForm.setValue("warrantyCards", []);
-                          setVehicleSelectedModel("Other");
+                          setVehicleSelectedModel("");
                         }}
                         value={field.value}
                       >
@@ -2056,8 +2048,8 @@ export default function CustomerRegistrationDashboard() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {VEHICLE_BRANDS.map((brand) => (
-                            <SelectItem key={brand} value={brand}>{brand}</SelectItem>
+                          {vehicleBrands.map((brand) => (
+                            <SelectItem key={brand.id} value={brand.name}>{brand.name}</SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
@@ -2091,6 +2083,7 @@ export default function CustomerRegistrationDashboard() {
                           {vehicleAvailableModels.map((model) => (
                             <SelectItem key={model} value={model}>{model}</SelectItem>
                           ))}
+                          <SelectItem value="Other">Other</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -2120,17 +2113,9 @@ export default function CustomerRegistrationDashboard() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Variant</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger data-testid="select-manage-variant">
-                            <SelectValue placeholder="Select variant" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="Top">Top</SelectItem>
-                          <SelectItem value="Base">Base</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <FormControl>
+                        <Input {...field} placeholder="ZX, Sports, Top Diesel" data-testid="input-manage-variant" />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -2142,38 +2127,13 @@ export default function CustomerRegistrationDashboard() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Color</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger data-testid="select-manage-color">
-                            <SelectValue placeholder="Select color" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {VEHICLE_COLORS.map((color) => (
-                            <SelectItem key={color} value={color}>{color}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <FormControl>
+                        <Input {...field} placeholder="Matte Black, Wine Red" data-testid="input-manage-color" />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-
-                {vehicleForm.watch("color") === "Others" && (
-                  <FormField
-                    control={vehicleForm.control}
-                    name="customColor"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Specify Color *</FormLabel>
-                        <FormControl>
-                          <Input {...field} placeholder="Enter color name" data-testid="input-manage-custom-color" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                )}
 
                 <FormField
                   control={vehicleForm.control}

@@ -7,7 +7,7 @@ const registrationVehicleSchema = new mongoose.Schema({
   vehicleBrand: { type: String, required: true },
   vehicleModel: { type: String, required: true },
   customModel: { type: String, default: null },
-  variant: { type: String, enum: ['Top', 'Base'], default: null },
+  variant: { type: String, default: null },
   color: { type: String, default: null },
   yearOfPurchase: { type: Number, default: null },
   vehiclePhoto: { type: String, required: true },

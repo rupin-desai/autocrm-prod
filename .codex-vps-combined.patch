@@ -1,0 +1,1483 @@
+diff --git a/client/src/App.tsx b/client/src/App.tsx
+index 855eceb..0333e40 100644
+--- a/client/src/App.tsx
++++ b/client/src/App.tsx
+@@ -30,6 +30,7 @@ import Leaves from "@/pages/Leaves";
+ import Communications from "@/pages/Communications";
+ import CustomerRegistration from "@/pages/CustomerRegistration";
+ import CustomerRegistrationDashboard from "@/pages/CustomerRegistrationDashboard";
++import CarMaster from "@/pages/CarMaster";
+ import Invoices from "@/pages/Invoices";
+ import SupportFeedback from "@/pages/SupportFeedback";
+ import { useEffect } from "react";
+@@ -43,6 +44,7 @@ const ROUTE_PERMISSIONS: Record<string, { resource: string; action: string } | n
+   '/settings': null, // Settings is accessible to all authenticated users
+   '/register-customer': { resource: 'customers', action: 'create' },
+   '/registration-dashboard': { resource: 'customers', action: 'create' },
++  '/car-master': { resource: 'customers', action: 'update' },
+   '/products': { resource: 'products', action: 'read' },
+   '/inventory': { resource: 'inventory', action: 'read' },
+   '/orders': { resource: 'orders', action: 'read' },
+@@ -159,6 +161,9 @@ function Router() {
+       <Route path="/registration-dashboard">
+         {() => <ProtectedRoute component={CustomerRegistrationDashboard} />}
+       </Route>
++      <Route path="/car-master">
++        {() => <ProtectedRoute component={CarMaster} />}
++      </Route>
+       <Route path="/analytics">
+         {() => <ProtectedRoute component={Analytics} />}
+       </Route>
+diff --git a/client/src/components/app-sidebar.tsx b/client/src/components/app-sidebar.tsx
+index c6fa40e..2ce2cee 100644
+--- a/client/src/components/app-sidebar.tsx
++++ b/client/src/components/app-sidebar.tsx
+@@ -23,6 +23,7 @@ import {
+   Receipt,
+   TrendingUp,
+   Headset,
++  Car,
+ } from "lucide-react";
+ import logoImage from "@assets/image_1760164042662.png";
+ import {
+@@ -63,6 +64,7 @@ const mainMenuItems: MenuItem[] = [
+   { title: "Dashboard", url: "/", icon: LayoutDashboard, group: "dashboard" },
+   { title: "Register Customer", url: "/register-customer", icon: UserPlus, permission: { resource: "customers", action: "create" }, group: "customer" },
+   { title: "Registration Dashboard", url: "/registration-dashboard", icon: ListChecks, permission: { resource: "customers", action: "create" }, group: "customer" },
++  { title: "Car Master", url: "/car-master", icon: Car, permission: { resource: "customers", action: "update" }, group: "customer" },
+   { title: "Service Visits", url: "/visits", icon: ClipboardList, permission: { resource: "orders", action: "read" }, group: "service" },
+   { title: "Support & Feedback", url: "/support", icon: Headset, permission: { resource: "supportTickets", action: "read" }, group: "support" },
+   { title: "Invoices", url: "/invoices", icon: Receipt, permission: { resource: "invoices", action: "read" }, group: "invoice" },
+diff --git a/client/src/pages/CustomerRegistration.tsx b/client/src/pages/CustomerRegistration.tsx
+index 036ad51..09cf09b 100644
+--- a/client/src/pages/CustomerRegistration.tsx
++++ b/client/src/pages/CustomerRegistration.tsx
+@@ -1,4 +1,4 @@
+-import { useState, useEffect } from "react";
++import { useMemo, useState, useEffect } from "react";
+ import { useForm } from "react-hook-form";
+ import { zodResolver } from "@hookform/resolvers/zod";
+ import { z } from "zod";
+@@ -12,8 +12,9 @@ import { Checkbox } from "@/components/ui/checkbox";
+ import { useToast } from "@/hooks/use-toast";
+ import { apiRequest, queryClient } from "@/lib/queryClient";
+ import { CheckCircle2, Car, User, MapPin, UploadCloud, PlusCircle, Search, ChevronDown, ChevronUp } from "lucide-react";
+-import { getAllBrandNames, getModelsByBrand, getPartsByBrandAndModel } from "@shared/vehicleData";
++import { getPartsByBrandAndModel } from "@shared/vehicleData";
+ import { ScreenshotProtection } from "@/components/ScreenshotProtection";
++import { getVehicleMasterBrands, getVehicleMasterModels, type VehicleMasterResponse } from "@/lib/vehicleMaster";
+ 
+ // States in India - predefined list
+ const INDIAN_STATES = [
+@@ -25,9 +26,6 @@ const INDIAN_STATES = [
+   "Uttar Pradesh", "Uttarakhand", "West Bengal"
+ ];
+ 
+-// Vehicle Brands from shared data
+-const VEHICLE_BRANDS = getAllBrandNames();
+-
+ // Referral sources
+ const REFERRAL_SOURCES = [
+   "Facebook",
+@@ -95,9 +93,8 @@ const vehicleFormSchema = z.object({
+   customBrand: z.string().optional(),
+   vehicleModel: z.string().min(1, "Vehicle model is required"),
+   customModel: z.string().optional(),
+-  variant: z.enum(['Top', 'Base']).optional(),
++  variant: z.string().optional(),
+   color: z.string().optional(),
+-  customColor: z.string().optional(),
+   yearOfPurchase: z.string().optional(),
+   vehiclePhoto: z.string().min(1, "Vehicle photo is required"),
+   isNewVehicle: z.string().min(1, "Please select vehicle condition"),
+@@ -136,14 +133,6 @@ const vehicleFormSchema = z.object({
+ }, {
+   message: "Please specify the model name",
+   path: ["customModel"],
+-}).refine((data) => {
+-  if (data.color === "Others" && !data.customColor) {
+-    return false;
+-  }
+-  return true;
+-}, {
+-  message: "Please specify the color",
+-  path: ["customColor"],
+ });
+ 
+ type CustomerFormData = z.infer<typeof customerFormSchema>;
+@@ -160,10 +149,17 @@ export default function CustomerRegistration() {
+   const [registeredVehicles, setRegisteredVehicles] = useState<any[]>([]);
+   const [selectedBrand, setSelectedBrand] = useState<string>("");
+   const [selectedModel, setSelectedModel] = useState<string>("");
+-  const [availableModels, setAvailableModels] = useState<string[]>([]);
+   const [availableParts, setAvailableParts] = useState<any[]>([]);
+   const [partSearchTerm, setPartSearchTerm] = useState<string>("");
+   const [isProductListExpanded, setIsProductListExpanded] = useState<boolean>(false);
++  const { data: vehicleMasterData } = useQuery<VehicleMasterResponse>({
++    queryKey: ["/api/vehicle-master"],
++  });
++  const vehicleBrands = useMemo(() => getVehicleMasterBrands(vehicleMasterData), [vehicleMasterData]);
++  const availableModels = useMemo(() => {
++    if (!selectedBrand || selectedBrand === "Other") return [];
++    return getVehicleMasterModels(vehicleBrands, selectedBrand).map((model) => model.name);
++  }, [selectedBrand, vehicleBrands]);
+ 
+   const customerForm = useForm<CustomerFormData>({
+     resolver: zodResolver(customerFormSchema),
+@@ -192,9 +188,8 @@ export default function CustomerRegistration() {
+       customBrand: "",
+       vehicleModel: "",
+       customModel: "",
+-      variant: undefined,
++      variant: "",
+       color: "",
+-      customColor: "",
+       yearOfPurchase: "",
+       vehiclePhoto: "",
+       isNewVehicle: "",
+@@ -466,6 +461,10 @@ export default function CustomerRegistration() {
+         vehicleNumber: data.vehicleNumber || undefined,
+         customBrand: data.vehicleBrand === "Other" ? data.customBrand : undefined,
+         customModel: data.vehicleModel === "Other" ? data.customModel : undefined,
++        vehicleBrand: data.vehicleBrand === "Other" ? (data.customBrand || "Other") : data.vehicleBrand,
++        vehicleModel: data.vehicleModel === "Other" ? (data.customModel || "Other") : data.vehicleModel,
++        variant: data.variant?.trim() || undefined,
++        color: data.color?.trim() || undefined,
+         yearOfPurchase: data.yearOfPurchase ? parseInt(data.yearOfPurchase) : undefined,
+         isNewVehicle: data.isNewVehicle === "true",
+         chassisNumber: data.isNewVehicle === "true" ? data.chassisNumber : undefined,
+@@ -502,9 +501,8 @@ export default function CustomerRegistration() {
+         customBrand: "",
+         vehicleModel: "",
+         customModel: "",
+-        variant: undefined,
++        variant: "",
+         color: "",
+-        customColor: "",
+         yearOfPurchase: "",
+         vehiclePhoto: "",
+         isNewVehicle: "",
+@@ -514,7 +512,6 @@ export default function CustomerRegistration() {
+       });
+       setSelectedBrand("");
+       setSelectedModel("");
+-      setAvailableModels([]);
+       setAvailableParts([]);
+     },
+     onError: (error: any) => {
+@@ -1207,11 +1204,9 @@ export default function CustomerRegistration() {
+                             onValueChange={(value) => {
+                               field.onChange(value);
+                               setSelectedBrand(value);
+-                              const models = getModelsByBrand(value);
+-                              setAvailableModels(models.map(m => m.name));
+-                              vehicleForm.setValue("vehicleModel", "Other");
++                              vehicleForm.setValue("vehicleModel", value === "Other" ? "Other" : "");
+                               vehicleForm.setValue("selectedParts", []);
+-                              setSelectedModel("Other");
++                              setSelectedModel(value === "Other" ? "Other" : "");
+                               setAvailableParts([]);
+                             }} 
+                             defaultValue={field.value}
+@@ -1222,11 +1217,12 @@ export default function CustomerRegistration() {
+                               </SelectTrigger>
+                             </FormControl>
+                             <SelectContent>
+-                              {VEHICLE_BRANDS.map((brand) => (
+-                                <SelectItem key={brand} value={brand}>
+-                                  {brand}
++                              {vehicleBrands.map((brand) => (
++                                <SelectItem key={brand.id} value={brand.name}>
++                                  {brand.name}
+                                 </SelectItem>
+                               ))}
++                              <SelectItem value="Other">Other</SelectItem>
+                             </SelectContent>
+                           </Select>
+                           <FormMessage />
+@@ -1275,6 +1271,7 @@ export default function CustomerRegistration() {
+                                   {model}
+                                 </SelectItem>
+                               ))}
++                              <SelectItem value="Other">Other</SelectItem>
+                             </SelectContent>
+                           </Select>
+                           <FormMessage />
+@@ -1304,17 +1301,9 @@ export default function CustomerRegistration() {
+                       render={({ field }) => (
+                         <FormItem>
+                           <FormLabel>Variant</FormLabel>
+-                          <Select onValueChange={field.onChange} value={field.value}>
+-                            <FormControl>
+-                              <SelectTrigger data-testid="select-variant">
+-                                <SelectValue placeholder="Select variant" />
+-                              </SelectTrigger>
+-                            </FormControl>
+-                            <SelectContent>
+-                              <SelectItem value="Top">Top</SelectItem>
+-                              <SelectItem value="Base">Base</SelectItem>
+-                            </SelectContent>
+-                          </Select>
++                          <FormControl>
++                            <Input {...field} placeholder="ZX, Sports, Top Diesel" data-testid="input-variant" />
++                          </FormControl>
+                           <FormMessage />
+                         </FormItem>
+                       )}
+@@ -1326,47 +1315,14 @@ export default function CustomerRegistration() {
+                       render={({ field }) => (
+                         <FormItem>
+                           <FormLabel>Color</FormLabel>
+-                          <Select onValueChange={field.onChange} value={field.value}>
+-                            <FormControl>
+-                              <SelectTrigger data-testid="select-color">
+-                                <SelectValue placeholder="Select color" />
+-                              </SelectTrigger>
+-                            </FormControl>
+-                            <SelectContent>
+-                              <SelectItem value="White">White</SelectItem>
+-                              <SelectItem value="Black">Black</SelectItem>
+-                              <SelectItem value="Silver">Silver</SelectItem>
+-                              <SelectItem value="Grey">Grey</SelectItem>
+-                              <SelectItem value="Red">Red</SelectItem>
+-                              <SelectItem value="Blue">Blue</SelectItem>
+-                              <SelectItem value="Brown">Brown</SelectItem>
+-                              <SelectItem value="Orange">Orange</SelectItem>
+-                              <SelectItem value="Green">Green</SelectItem>
+-                              <SelectItem value="Yellow">Yellow</SelectItem>
+-                              <SelectItem value="Others">Others</SelectItem>
+-                            </SelectContent>
+-                          </Select>
++                          <FormControl>
++                            <Input {...field} placeholder="Matte Black, Wine Red" data-testid="input-color" />
++                          </FormControl>
+                           <FormMessage />
+                         </FormItem>
+                       )}
+                     />
+ 
+-                    {vehicleForm.watch("color") === "Others" && (
+-                      <FormField
+-                        control={vehicleForm.control}
+-                        name="customColor"
+-                        render={({ field }) => (
+-                          <FormItem>
+-                            <FormLabel>Specify Color *</FormLabel>
+-                            <FormControl>
+-                              <Input {...field} placeholder="Enter color name" data-testid="input-custom-color" />
+-                            </FormControl>
+-                            <FormMessage />
+-                          </FormItem>
+-                        )}
+-                      />
+-                    )}
+-
+                     <FormField
+                       control={vehicleForm.control}
+                       name="yearOfPurchase"
+@@ -1746,7 +1702,6 @@ export default function CustomerRegistration() {
+                   setRegisteredVehicles([]);
+                   setSelectedBrand("");
+                   setSelectedModel("");
+-                  setAvailableModels([]);
+                   setAvailableParts([]);
+                   
+                   // Reset forms
+diff --git a/client/src/pages/CustomerRegistrationDashboard.tsx b/client/src/pages/CustomerRegistrationDashboard.tsx
+index e8fb213..061acad 100644
+--- a/client/src/pages/CustomerRegistrationDashboard.tsx
++++ b/client/src/pages/CustomerRegistrationDashboard.tsx
+@@ -1,4 +1,4 @@
+-import { useState, useEffect } from "react";
++import { useMemo, useState, useEffect } from "react";
+ import { useQuery, useMutation } from "@tanstack/react-query";
+ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+ import { Input } from "@/components/ui/input";
+@@ -30,11 +30,7 @@ import {
+   AlertDialogTitle,
+   AlertDialogTrigger,
+ } from "@/components/ui/alert-dialog";
+-import { getAllBrandNames, getModelsByBrand } from "@shared/vehicleData";
+-
+-// Vehicle Brands
+-const VEHICLE_BRANDS = getAllBrandNames();
+-const VEHICLE_COLORS = ["White", "Black", "Silver", "Grey", "Red", "Blue", "Brown", "Orange", "Green", "Yellow", "Others"];
++import { getVehicleMasterBrands, getVehicleMasterModels, type VehicleMasterResponse } from "@/lib/vehicleMaster";
+ 
+ // Referral sources
+ const REFERRAL_SOURCES = [
+@@ -78,7 +74,7 @@ interface Vehicle {
+   vehicleBrand: string;
+   vehicleModel: string;
+   customModel?: string | null;
+-  variant?: 'Top' | 'Base' | null;
++  variant?: string | null;
+   color?: string | null;
+   yearOfPurchase: number | null;
+   vehiclePhoto: string;
+@@ -131,9 +127,8 @@ const vehicleManageSchema = z.object({
+   vehicleBrand: z.string().min(1, "Vehicle brand is required"),
+   vehicleModel: z.string().min(1, "Vehicle model is required"),
+   customModel: z.string().optional(),
+-  variant: z.enum(['Top', 'Base']).optional(),
++  variant: z.string().optional(),
+   color: z.string().optional(),
+-  customColor: z.string().optional(),
+   yearOfPurchase: z.string().optional(),
+   vehiclePhoto: z.string().min(1, "Vehicle photo is required"),
+   isNewVehicle: z.string().min(1, "Please select vehicle condition"),
+@@ -158,12 +153,6 @@ const vehicleManageSchema = z.object({
+ }, {
+   message: "Please specify the model name",
+   path: ["customModel"],
+-}).refine((data) => {
+-  if (data.color === "Others" && !data.customColor) return false;
+-  return true;
+-}, {
+-  message: "Please specify the color",
+-  path: ["customColor"],
+ });
+ 
+ type VehicleManageFormData = z.infer<typeof vehicleManageSchema>;
+@@ -173,9 +162,8 @@ const emptyVehicleValues: VehicleManageFormData = {
+   vehicleBrand: "",
+   vehicleModel: "",
+   customModel: "",
+-  variant: undefined,
++  variant: "",
+   color: "",
+-  customColor: "",
+   yearOfPurchase: "",
+   vehiclePhoto: "",
+   isNewVehicle: "",
+@@ -414,10 +402,21 @@ export default function CustomerRegistrationDashboard() {
+   const [vehicleDialogMode, setVehicleDialogMode] = useState<"add" | "edit">("add");
+   const [vehicleSelectedBrand, setVehicleSelectedBrand] = useState("");
+   const [vehicleSelectedModel, setVehicleSelectedModel] = useState("");
+-  const [vehicleAvailableModels, setVehicleAvailableModels] = useState<string[]>([]);
+   const [vehicleAvailableParts, setVehicleAvailableParts] = useState<any[]>([]);
+   const [vehiclePartSearchTerm, setVehiclePartSearchTerm] = useState("");
+   const [vehicleProductListExpanded, setVehicleProductListExpanded] = useState(false);
++  const { data: vehicleMasterData } = useQuery<VehicleMasterResponse>({
++    queryKey: ["/api/vehicle-master"],
++  });
++  const vehicleBrands = useMemo(() => getVehicleMasterBrands(vehicleMasterData), [vehicleMasterData]);
++  const vehicleAvailableModels = useMemo(() => {
++    if (!vehicleSelectedBrand) return [];
++    const baseModels = getVehicleMasterModels(vehicleBrands, vehicleSelectedBrand).map((model) => model.name);
++    if (editingVehicle?.vehicleBrand === vehicleSelectedBrand && editingVehicle.vehicleModel && !baseModels.includes(editingVehicle.vehicleModel)) {
++      return [...baseModels, editingVehicle.vehicleModel];
++    }
++    return baseModels;
++  }, [editingVehicle, vehicleBrands, vehicleSelectedBrand]);
+   
+   const isAdmin = user?.role === 'Admin' || user?.role === 'Manager';
+   
+@@ -622,7 +621,6 @@ export default function CustomerRegistrationDashboard() {
+     setEditingVehicle(null);
+     setVehicleSelectedBrand("");
+     setVehicleSelectedModel("");
+-    setVehicleAvailableModels([]);
+     setVehicleAvailableParts([]);
+     setVehiclePartSearchTerm("");
+     setVehicleProductListExpanded(false);
+@@ -633,19 +631,15 @@ export default function CustomerRegistrationDashboard() {
+     setEditingVehicle(vehicle || null);
+ 
+     if (mode === "edit" && vehicle) {
+-      const colorValue = vehicle.color && VEHICLE_COLORS.includes(vehicle.color) ? vehicle.color : (vehicle.color ? "Others" : "");
+-      const models = getModelsByBrand(vehicle.vehicleBrand).map(m => m.name);
+       setVehicleSelectedBrand(vehicle.vehicleBrand);
+       setVehicleSelectedModel(vehicle.vehicleModel);
+-      setVehicleAvailableModels(models.includes(vehicle.vehicleModel) ? models : [...models, vehicle.vehicleModel]);
+       vehicleForm.reset({
+         vehicleNumber: vehicle.vehicleNumber || "",
+         vehicleBrand: vehicle.vehicleBrand || "",
+         vehicleModel: vehicle.vehicleModel || "",
+         customModel: vehicle.customModel || "",
+-        variant: vehicle.variant || undefined,
+-        color: colorValue,
+-        customColor: colorValue === "Others" ? (vehicle.color || "") : "",
++        variant: vehicle.variant || "",
++        color: vehicle.color || "",
+         yearOfPurchase: vehicle.yearOfPurchase?.toString() || "",
+         vehiclePhoto: vehicle.vehiclePhoto || "",
+         isNewVehicle: vehicle.isNewVehicle ? "true" : "false",
+@@ -853,10 +847,10 @@ export default function CustomerRegistrationDashboard() {
+       const vehiclePayload = {
+         vehicleNumber: data.isNewVehicle === "false" ? data.vehicleNumber : undefined,
+         vehicleBrand: data.vehicleBrand,
+-        vehicleModel: data.vehicleModel,
++        vehicleModel: data.vehicleModel === "Other" ? (data.customModel || "Other") : data.vehicleModel,
+         customModel: data.vehicleModel === "Other" ? data.customModel : undefined,
+-        variant: data.variant,
+-        color: data.color === "Others" ? data.customColor : data.color,
++        variant: data.variant?.trim() || undefined,
++        color: data.color?.trim() || undefined,
+         yearOfPurchase: data.yearOfPurchase ? parseInt(data.yearOfPurchase) : undefined,
+         vehiclePhoto: data.vehiclePhoto,
+         isNewVehicle: data.isNewVehicle === "true",
+@@ -2041,12 +2035,10 @@ export default function CustomerRegistrationDashboard() {
+                         onValueChange={(value) => {
+                           field.onChange(value);
+                           setVehicleSelectedBrand(value);
+-                          const models = getModelsByBrand(value).map(m => m.name);
+-                          setVehicleAvailableModels(models);
+-                          vehicleForm.setValue("vehicleModel", "Other");
++                          vehicleForm.setValue("vehicleModel", "");
+                           vehicleForm.setValue("selectedParts", []);
+                           vehicleForm.setValue("warrantyCards", []);
+-                          setVehicleSelectedModel("Other");
++                          setVehicleSelectedModel("");
+                         }}
+                         value={field.value}
+                       >
+@@ -2056,8 +2048,8 @@ export default function CustomerRegistrationDashboard() {
+                           </SelectTrigger>
+                         </FormControl>
+                         <SelectContent>
+-                          {VEHICLE_BRANDS.map((brand) => (
+-                            <SelectItem key={brand} value={brand}>{brand}</SelectItem>
++                          {vehicleBrands.map((brand) => (
++                            <SelectItem key={brand.id} value={brand.name}>{brand.name}</SelectItem>
+                           ))}
+                         </SelectContent>
+                       </Select>
+@@ -2091,6 +2083,7 @@ export default function CustomerRegistrationDashboard() {
+                           {vehicleAvailableModels.map((model) => (
+                             <SelectItem key={model} value={model}>{model}</SelectItem>
+                           ))}
++                          <SelectItem value="Other">Other</SelectItem>
+                         </SelectContent>
+                       </Select>
+                       <FormMessage />
+@@ -2120,17 +2113,9 @@ export default function CustomerRegistrationDashboard() {
+                   render={({ field }) => (
+                     <FormItem>
+                       <FormLabel>Variant</FormLabel>
+-                      <Select onValueChange={field.onChange} value={field.value}>
+-                        <FormControl>
+-                          <SelectTrigger data-testid="select-manage-variant">
+-                            <SelectValue placeholder="Select variant" />
+-                          </SelectTrigger>
+-                        </FormControl>
+-                        <SelectContent>
+-                          <SelectItem value="Top">Top</SelectItem>
+-                          <SelectItem value="Base">Base</SelectItem>
+-                        </SelectContent>
+-                      </Select>
++                      <FormControl>
++                        <Input {...field} placeholder="ZX, Sports, Top Diesel" data-testid="input-manage-variant" />
++                      </FormControl>
+                       <FormMessage />
+                     </FormItem>
+                   )}
+@@ -2142,39 +2127,14 @@ export default function CustomerRegistrationDashboard() {
+                   render={({ field }) => (
+                     <FormItem>
+                       <FormLabel>Color</FormLabel>
+-                      <Select onValueChange={field.onChange} value={field.value}>
+-                        <FormControl>
+-                          <SelectTrigger data-testid="select-manage-color">
+-                            <SelectValue placeholder="Select color" />
+-                          </SelectTrigger>
+-                        </FormControl>
+-                        <SelectContent>
+-                          {VEHICLE_COLORS.map((color) => (
+-                            <SelectItem key={color} value={color}>{color}</SelectItem>
+-                          ))}
+-                        </SelectContent>
+-                      </Select>
++                      <FormControl>
++                        <Input {...field} placeholder="Matte Black, Wine Red" data-testid="input-manage-color" />
++                      </FormControl>
+                       <FormMessage />
+                     </FormItem>
+                   )}
+                 />
+ 
+-                {vehicleForm.watch("color") === "Others" && (
+-                  <FormField
+-                    control={vehicleForm.control}
+-                    name="customColor"
+-                    render={({ field }) => (
+-                      <FormItem>
+-                        <FormLabel>Specify Color *</FormLabel>
+-                        <FormControl>
+-                          <Input {...field} placeholder="Enter color name" data-testid="input-manage-custom-color" />
+-                        </FormControl>
+-                        <FormMessage />
+-                      </FormItem>
+-                    )}
+-                  />
+-                )}
+-
+                 <FormField
+                   control={vehicleForm.control}
+                   name="yearOfPurchase"
+diff --git a/client/src/pages/Products.tsx b/client/src/pages/Products.tsx
+index 45895e3..c4003e7 100644
+--- a/client/src/pages/Products.tsx
++++ b/client/src/pages/Products.tsx
+@@ -1,4 +1,4 @@
+-import { useState } from "react";
++import { useMemo, useState } from "react";
+ import { useQuery, useMutation } from "@tanstack/react-query";
+ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+ import { Button } from "@/components/ui/button";
+@@ -30,7 +30,7 @@ import { useToast } from "@/hooks/use-toast";
+ import { apiRequest, queryClient } from "@/lib/queryClient";
+ import { useAuth } from "@/lib/auth";
+ import * as XLSX from "xlsx";
+-import { VEHICLE_DATA } from "@shared/vehicleData";
++import { getVehicleMasterBrands, getVehicleMasterModels, type VehicleMasterResponse } from "@/lib/vehicleMaster";
+ 
+ const normalizeMinStockLevel = (value: unknown) => {
+   const parsed = Number(value);
+@@ -53,6 +53,10 @@ export default function Products() {
+     reason: "",
+   });
+   const { toast } = useToast();
++  const { data: vehicleMasterData } = useQuery<VehicleMasterResponse>({
++    queryKey: ["/api/vehicle-master"],
++  });
++  const vehicleBrands = useMemo(() => getVehicleMasterBrands(vehicleMasterData), [vehicleMasterData]);
+ 
+   const [formData, setFormData] = useState({
+     brand: "",
+@@ -1062,15 +1066,15 @@ export default function Products() {
+                   <SelectValue placeholder="Other (Custom)" />
+                 </SelectTrigger>
+                 <SelectContent>
+-                  {VEHICLE_DATA.map((brand) => (
+-                    <SelectItem key={brand.name} value={brand.name}>
++                  {vehicleBrands.map((brand) => (
++                    <SelectItem key={brand.id} value={brand.name}>
+                       {brand.name}
+                     </SelectItem>
+                   ))}
+                 </SelectContent>
+               </Select>
+               
+-              {model && !model.startsWith('Other:') && model !== '' && VEHICLE_DATA.find(b => b.name === (model.includes(' - ') ? model.split(' - ')[0] : model)) && (
++              {model && !model.startsWith('Other:') && model !== '' && vehicleBrands.find((b) => b.name === (model.includes(' - ') ? model.split(' - ')[0] : model)) && (
+                 <Select
+                   value={model.includes(' - ') ? model.split(' - ')[1] : ''}
+                   onValueChange={(modelName) => {
+@@ -1082,9 +1086,12 @@ export default function Products() {
+                     <SelectValue placeholder="Select model" />
+                   </SelectTrigger>
+                   <SelectContent>
+-                    {VEHICLE_DATA.find(b => b.name === (model.includes(' - ') ? model.split(' - ')[0] : model))?.models.filter(m => m.name !== 'Other').map((m) => (
+-                      <SelectItem key={m.name} value={m.name}>
+-                        {m.name}
++                    {getVehicleMasterModels(
++                      vehicleBrands,
++                      model.includes(' - ') ? model.split(' - ')[0] : model
++                    ).map((vehicleModel) => (
++                      <SelectItem key={vehicleModel.id} value={vehicleModel.name}>
++                        {vehicleModel.name}
+                       </SelectItem>
+                     ))}
+                     <SelectItem value="Other">Other</SelectItem>
+diff --git a/server/models/RegistrationVehicle.ts b/server/models/RegistrationVehicle.ts
+index 2de9f99..b4354e7 100644
+--- a/server/models/RegistrationVehicle.ts
++++ b/server/models/RegistrationVehicle.ts
+@@ -7,7 +7,7 @@ const registrationVehicleSchema = new mongoose.Schema({
+   vehicleBrand: { type: String, required: true },
+   vehicleModel: { type: String, required: true },
+   customModel: { type: String, default: null },
+-  variant: { type: String, enum: ['Top', 'Base'], default: null },
++  variant: { type: String, default: null },
+   color: { type: String, default: null },
+   yearOfPurchase: { type: Number, default: null },
+   vehiclePhoto: { type: String, required: true },
+diff --git a/server/routes.ts b/server/routes.ts
+index 322f7f6..cfc0120 100644
+--- a/server/routes.ts
++++ b/server/routes.ts
+@@ -26,6 +26,7 @@ import { requireAuth, requireRole, attachUser, requirePermission } from "./middl
+ import { insertCustomerSchema, insertVehicleSchema } from "./schemas";
+ import { RegistrationCustomer } from "./models/RegistrationCustomer";
+ import { RegistrationVehicle } from "./models/RegistrationVehicle";
++import { VehicleMasterBrand } from "./models/VehicleMaster";
+ import { Invoice } from "./models/Invoice";
+ import { Coupon } from "./models/Coupon";
+ import { Warranty } from "./models/Warranty";
+@@ -34,6 +35,7 @@ import { generateInvoicePDF } from "./utils/generateInvoicePDF";
+ import { sendWhatsAppOTP, sendWhatsAppWelcome } from "./services/whatsapp";
+ import { generateDailyReportData, formatDailyReportHTML, sendDailyReportEmail } from "./utils/emailReports";
+ import { isLocalMirrorMode } from "./localMirror";
++import { VEHICLE_DATA } from "@shared/vehicleData";
+ 
+ // Helper function to normalize selectedParts to ensure consistent format
+ function normalizeSelectedParts(selectedParts: any): Array<{ partId: string; quantity: number }> {
+@@ -100,6 +102,74 @@ function normalizeProductField(value: any): string {
+   return String(value ?? "").trim();
+ }
+ 
++function normalizeOptionalText(value: any): string | undefined {
++  const normalized = String(value ?? "").trim();
++  return normalized ? normalized : undefined;
++}
++
++function normalizeRequiredText(value: any): string {
++  return String(value ?? "").trim();
++}
++
++function normalizeVehicleMasterName(value: string): string {
++  return value.trim().replace(/\s+/g, " ");
++}
++
++function buildVehicleMasterResponse(brands: any[]) {
++  return {
++    brands: brands.map((brand) => ({
++      id: brand._id.toString(),
++      name: brand.name,
++      active: brand.active !== false,
++      models: (brand.models || [])
++        .map((model: any) => ({
++          id: model._id.toString(),
++          name: model.name,
++          active: model.active !== false,
++        }))
++        .sort((a: any, b: any) => a.name.localeCompare(b.name)),
++    })),
++  };
++}
++
++async function seedVehicleMasterIfEmpty() {
++  const count = await VehicleMasterBrand.countDocuments();
++  if (count > 0) return;
++
++  const brandsToInsert = VEHICLE_DATA.map((brand) => ({
++    name: normalizeVehicleMasterName(brand.name),
++    active: true,
++    models: (brand.models || [])
++      .map((model) => normalizeVehicleMasterName(model.name))
++      .filter((modelName) => modelName && modelName.toLowerCase() !== "other")
++      .filter((modelName, index, all) => all.findIndex((entry) => entry.toLowerCase() === modelName.toLowerCase()) === index)
++      .map((name) => ({ name, active: true })),
++  })).filter((brand) => brand.name);
++
++  if (brandsToInsert.length > 0) {
++    await VehicleMasterBrand.insertMany(brandsToInsert);
++    console.log(`Seeded vehicle master with ${brandsToInsert.length} brands`);
++  }
++}
++
++async function updateProductCompatibilityStrings(replacer: (value: string) => string) {
++  const products = await Product.find({ modelCompatibility: { $exists: true, $ne: [] } });
++  for (const product of products) {
++    const currentCompatibility = Array.isArray(product.modelCompatibility) ? product.modelCompatibility : [];
++    const nextCompatibility = currentCompatibility.map((value: any) =>
++      typeof value === "string" ? replacer(value) : value
++    );
++
++    const changed =
++      JSON.stringify(currentCompatibility) !== JSON.stringify(nextCompatibility);
++
++    if (changed) {
++      product.modelCompatibility = nextCompatibility;
++      await product.save();
++    }
++  }
++}
++
+ function escapeRegex(value: string): string {
+   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+ }
+@@ -414,11 +484,261 @@ export async function registerRoutes(app: Express): Promise<Server> {
+   } catch (error) {
+     console.error('Product min stock migration error:', error);
+   }
+-  
++
++  }
++
++  try {
++    await seedVehicleMasterIfEmpty();
++  } catch (error) {
++    console.error("Vehicle master seed error:", error);
+   }
+   
+   app.use(attachUser);
+ 
++  app.get("/api/vehicle-master", async (req, res) => {
++    try {
++      const includeInactive = req.query.includeInactive === "true";
++      const query = includeInactive ? {} : { active: true };
++      const brands = await VehicleMasterBrand.find(query).sort({ name: 1 }).lean();
++      const normalizedBrands = includeInactive
++        ? brands
++        : brands.map((brand: any) => ({
++            ...brand,
++            models: (brand.models || []).filter((model: any) => model.active !== false),
++          }));
++
++      res.json(buildVehicleMasterResponse(normalizedBrands));
++    } catch (error) {
++      res.status(500).json({ error: "Failed to fetch vehicle master" });
++    }
++  });
++
++  app.post("/api/vehicle-master/brands", requireAuth, requirePermission("customers", "update"), async (req, res) => {
++    try {
++      const name = normalizeVehicleMasterName(req.body.name || "");
++      if (!name) {
++        return res.status(400).json({ error: "Brand name is required" });
++      }
++
++      const existingBrand = await VehicleMasterBrand.findOne({
++        name: { $regex: `^${escapeRegex(name)}$`, $options: "i" },
++      });
++      if (existingBrand) {
++        return res.status(400).json({ error: "Brand already exists" });
++      }
++
++      const brand = await VehicleMasterBrand.create({ name, active: req.body.active !== false, models: [] });
++      res.json({ brand: buildVehicleMasterResponse([brand]).brands[0], message: "Brand created successfully" });
++    } catch (error) {
++      res.status(400).json({ error: error instanceof Error ? error.message : "Failed to create brand" });
++    }
++  });
++
++  app.patch("/api/vehicle-master/brands/:id", requireAuth, requirePermission("customers", "update"), async (req, res) => {
++    try {
++      const brand = await VehicleMasterBrand.findById(req.params.id);
++      if (!brand) {
++        return res.status(404).json({ error: "Brand not found" });
++      }
++
++      const oldName = brand.name;
++      const nextName = normalizeVehicleMasterName(req.body.name || oldName);
++      if (!nextName) {
++        return res.status(400).json({ error: "Brand name is required" });
++      }
++
++      const duplicate = await VehicleMasterBrand.findOne({
++        _id: { $ne: brand._id },
++        name: { $regex: `^${escapeRegex(nextName)}$`, $options: "i" },
++      });
++      if (duplicate) {
++        return res.status(400).json({ error: "Brand already exists" });
++      }
++
++      brand.name = nextName;
++      if (typeof req.body.active === "boolean") {
++        brand.active = req.body.active;
++      }
++      await brand.save();
++
++      if (oldName !== nextName) {
++        await RegistrationVehicle.updateMany(
++          { vehicleBrand: oldName },
++          { $set: { vehicleBrand: nextName } }
++        );
++
++        await updateProductCompatibilityStrings((value) => {
++          if (value === oldName) return nextName;
++          if (value.startsWith(`${oldName} - `)) {
++            return `${nextName}${value.slice(oldName.length)}`;
++          }
++          return value;
++        });
++      }
++
++      res.json({ brand: buildVehicleMasterResponse([brand]).brands[0], message: "Brand updated successfully" });
++    } catch (error) {
++      res.status(400).json({ error: error instanceof Error ? error.message : "Failed to update brand" });
++    }
++  });
++
++  app.delete("/api/vehicle-master/brands/:id", requireAuth, requirePermission("customers", "update"), async (req, res) => {
++    try {
++      const brand = await VehicleMasterBrand.findById(req.params.id);
++      if (!brand) {
++        return res.status(404).json({ error: "Brand not found" });
++      }
++
++      const vehicleUsageCount = await RegistrationVehicle.countDocuments({ vehicleBrand: brand.name });
++      const productUsageCount = await Product.countDocuments({
++        $or: [
++          { modelCompatibility: brand.name },
++          { modelCompatibility: { $regex: `^${escapeRegex(brand.name)} - `, $options: "i" } },
++        ],
++      });
++
++      if (vehicleUsageCount > 0 || productUsageCount > 0) {
++        return res.status(400).json({
++          error: "Brand is in use and cannot be deleted",
++          usage: { vehicles: vehicleUsageCount, products: productUsageCount },
++        });
++      }
++
++      await VehicleMasterBrand.findByIdAndDelete(req.params.id);
++      res.json({ success: true, message: "Brand deleted successfully" });
++    } catch (error) {
++      res.status(400).json({ error: error instanceof Error ? error.message : "Failed to delete brand" });
++    }
++  });
++
++  app.post("/api/vehicle-master/models", requireAuth, requirePermission("customers", "update"), async (req, res) => {
++    try {
++      const brand = await VehicleMasterBrand.findById(req.body.brandId);
++      if (!brand) {
++        return res.status(404).json({ error: "Brand not found" });
++      }
++
++      const name = normalizeVehicleMasterName(req.body.name || "");
++      if (!name) {
++        return res.status(400).json({ error: "Model name is required" });
++      }
++
++      const duplicate = (brand.models || []).some(
++        (model: any) => model.name.toLowerCase() === name.toLowerCase()
++      );
++      if (duplicate) {
++        return res.status(400).json({ error: "Model already exists for this brand" });
++      }
++
++      brand.models.push({ name, active: req.body.active !== false } as any);
++      await brand.save();
++      const nextBrand = await VehicleMasterBrand.findById(brand._id);
++      res.json({
++        brand: nextBrand ? buildVehicleMasterResponse([nextBrand]).brands[0] : null,
++        message: "Model created successfully",
++      });
++    } catch (error) {
++      res.status(400).json({ error: error instanceof Error ? error.message : "Failed to create model" });
++    }
++  });
++
++  app.patch("/api/vehicle-master/models/:id", requireAuth, requirePermission("customers", "update"), async (req, res) => {
++    try {
++      const brand = await VehicleMasterBrand.findOne({ "models._id": req.params.id });
++      if (!brand) {
++        return res.status(404).json({ error: "Model not found" });
++      }
++
++      const model = brand.models.id(req.params.id) as any;
++      if (!model) {
++        return res.status(404).json({ error: "Model not found" });
++      }
++
++      const oldBrandName = brand.name;
++      const oldModelName = model.name;
++      const nextName = normalizeVehicleMasterName(req.body.name || oldModelName);
++      if (!nextName) {
++        return res.status(400).json({ error: "Model name is required" });
++      }
++
++      const duplicate = (brand.models || []).some(
++        (entry: any) =>
++          entry._id.toString() !== req.params.id &&
++          entry.name.toLowerCase() === nextName.toLowerCase()
++      );
++      if (duplicate) {
++        return res.status(400).json({ error: "Model already exists for this brand" });
++      }
++
++      model.name = nextName;
++      if (typeof req.body.active === "boolean") {
++        model.active = req.body.active;
++      }
++      await brand.save();
++
++      if (oldModelName !== nextName) {
++        await RegistrationVehicle.updateMany(
++          { vehicleBrand: oldBrandName, vehicleModel: oldModelName },
++          { $set: { vehicleModel: nextName } }
++        );
++
++        await updateProductCompatibilityStrings((value) => {
++          if (value === `${oldBrandName} - ${oldModelName}`) {
++            return `${oldBrandName} - ${nextName}`;
++          }
++          return value;
++        });
++      }
++
++      const nextBrand = await VehicleMasterBrand.findById(brand._id);
++      res.json({
++        brand: nextBrand ? buildVehicleMasterResponse([nextBrand]).brands[0] : null,
++        message: "Model updated successfully",
++      });
++    } catch (error) {
++      res.status(400).json({ error: error instanceof Error ? error.message : "Failed to update model" });
++    }
++  });
++
++  app.delete("/api/vehicle-master/models/:id", requireAuth, requirePermission("customers", "update"), async (req, res) => {
++    try {
++      const brand = await VehicleMasterBrand.findOne({ "models._id": req.params.id });
++      if (!brand) {
++        return res.status(404).json({ error: "Model not found" });
++      }
++
++      const model = brand.models.id(req.params.id) as any;
++      if (!model) {
++        return res.status(404).json({ error: "Model not found" });
++      }
++
++      const vehicleUsageCount = await RegistrationVehicle.countDocuments({
++        vehicleBrand: brand.name,
++        vehicleModel: model.name,
++      });
++      const productUsageCount = await Product.countDocuments({
++        modelCompatibility: `${brand.name} - ${model.name}`,
++      });
++
++      if (vehicleUsageCount > 0 || productUsageCount > 0) {
++        return res.status(400).json({
++          error: "Model is in use and cannot be deleted",
++          usage: { vehicles: vehicleUsageCount, products: productUsageCount },
++        });
++      }
++
++      model.deleteOne();
++      await brand.save();
++      const nextBrand = await VehicleMasterBrand.findById(brand._id);
++      res.json({
++        brand: nextBrand ? buildVehicleMasterResponse([nextBrand]).brands[0] : null,
++        message: "Model deleted successfully",
++      });
++    } catch (error) {
++      res.status(400).json({ error: error instanceof Error ? error.message : "Failed to delete model" });
++    }
++  });
++
+   app.post("/api/auth/login", async (req, res) => {
+     try {
+       const { email, password, selectedRole } = req.body;
+@@ -4327,6 +4647,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
+       
+       const vehicle = await RegistrationVehicle.create({
+         ...validatedData,
++        vehicleNumber: normalizeOptionalText(validatedData.vehicleNumber),
++        vehicleBrand: normalizeRequiredText(validatedData.vehicleBrand),
++        vehicleModel: normalizeRequiredText(validatedData.vehicleModel),
++        customModel: normalizeOptionalText(validatedData.customModel) ?? null,
++        variant: normalizeOptionalText(validatedData.variant) ?? null,
++        color: normalizeOptionalText(validatedData.color) ?? null,
++        chassisNumber: normalizeOptionalText(validatedData.chassisNumber) ?? null,
+         vehicleId
+       });
+       
+@@ -4398,6 +4725,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
+ 
+       const vehicle = await RegistrationVehicle.create({
+         ...validatedData,
++        vehicleNumber: normalizeOptionalText(validatedData.vehicleNumber),
++        vehicleBrand: normalizeRequiredText(validatedData.vehicleBrand),
++        vehicleModel: normalizeRequiredText(validatedData.vehicleModel),
++        customModel: normalizeOptionalText(validatedData.customModel) ?? null,
++        variant: normalizeOptionalText(validatedData.variant) ?? null,
++        color: normalizeOptionalText(validatedData.color) ?? null,
++        chassisNumber: normalizeOptionalText(validatedData.chassisNumber) ?? null,
+         vehicleId
+       });
+ 
+@@ -4648,6 +4982,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
+       if (updateData.selectedParts) {
+         updateData.selectedParts = normalizeSelectedParts(updateData.selectedParts);
+       }
++      if ("vehicleNumber" in updateData) {
++        updateData.vehicleNumber = normalizeOptionalText(updateData.vehicleNumber) ?? null;
++      }
++      if ("vehicleBrand" in updateData) {
++        updateData.vehicleBrand = normalizeRequiredText(updateData.vehicleBrand);
++      }
++      if ("vehicleModel" in updateData) {
++        updateData.vehicleModel = normalizeRequiredText(updateData.vehicleModel);
++      }
++      if ("customModel" in updateData) {
++        updateData.customModel = normalizeOptionalText(updateData.customModel) ?? null;
++      }
++      if ("variant" in updateData) {
++        updateData.variant = normalizeOptionalText(updateData.variant) ?? null;
++      }
++      if ("color" in updateData) {
++        updateData.color = normalizeOptionalText(updateData.color) ?? null;
++      }
++      if ("chassisNumber" in updateData) {
++        updateData.chassisNumber = normalizeOptionalText(updateData.chassisNumber) ?? null;
++      }
+ 
+       const vehicle = await RegistrationVehicle.findByIdAndUpdate(req.params.id, updateData, { new: true });
+       if (!vehicle) {
+diff --git a/server/schemas.ts b/server/schemas.ts
+index 9ffacd6..ac7533b 100644
+--- a/server/schemas.ts
++++ b/server/schemas.ts
+@@ -31,7 +31,7 @@ export const insertVehicleSchema = z.object({
+   vehicleBrand: z.string().min(1, "Vehicle brand is required"),
+   vehicleModel: z.string().min(1, "Vehicle model is required"),
+   customModel: z.string().optional(),
+-  variant: z.enum(['Top', 'Base']).optional(),
++  variant: z.string().optional(),
+   color: z.string().optional(),
+   yearOfPurchase: z.number().optional(),
+   vehiclePhoto: z.string().min(1, "Vehicle photo is required"),
+diff --git a/server/models/VehicleMaster.ts b/server/models/VehicleMaster.ts
+new file mode 100644
+index 0000000..ded17a7
+--- /dev/null
++++ b/server/models/VehicleMaster.ts
+@@ -0,0 +1,22 @@
++import mongoose from "mongoose";
++
++const vehicleMasterModelSchema = new mongoose.Schema(
++  {
++    name: { type: String, required: true, trim: true },
++    active: { type: Boolean, default: true },
++  },
++  { _id: true }
++);
++
++const vehicleMasterBrandSchema = new mongoose.Schema(
++  {
++    name: { type: String, required: true, trim: true, unique: true, index: true },
++    active: { type: Boolean, default: true },
++    models: { type: [vehicleMasterModelSchema], default: [] },
++  },
++  { timestamps: true }
++);
++
++export const VehicleMasterBrand =
++  mongoose.models.VehicleMasterBrand ||
++  mongoose.model("VehicleMasterBrand", vehicleMasterBrandSchema);
+diff --git a/client/src/lib/vehicleMaster.ts b/client/src/lib/vehicleMaster.ts
+new file mode 100644
+index 0000000..a609be2
+--- /dev/null
++++ b/client/src/lib/vehicleMaster.ts
+@@ -0,0 +1,46 @@
++import { VEHICLE_DATA } from "@shared/vehicleData";
++
++export interface VehicleMasterModel {
++  id: string;
++  name: string;
++  active: boolean;
++}
++
++export interface VehicleMasterBrand {
++  id: string;
++  name: string;
++  active: boolean;
++  models: VehicleMasterModel[];
++}
++
++export interface VehicleMasterResponse {
++  brands: VehicleMasterBrand[];
++}
++
++export function buildLegacyVehicleMaster(): VehicleMasterBrand[] {
++  return VEHICLE_DATA.map((brand) => ({
++    id: `legacy-${brand.name}`,
++    name: brand.name,
++    active: true,
++    models: (brand.models || [])
++      .filter((model) => model.name !== "Other")
++      .map((model) => ({
++        id: `legacy-${brand.name}-${model.name}`,
++        name: model.name,
++        active: true,
++      })),
++  }));
++}
++
++export function getVehicleMasterBrands(
++  response?: VehicleMasterResponse | null
++): VehicleMasterBrand[] {
++  return response?.brands?.length ? response.brands : buildLegacyVehicleMaster();
++}
++
++export function getVehicleMasterModels(
++  brands: VehicleMasterBrand[],
++  brandName: string
++): VehicleMasterModel[] {
++  return brands.find((brand) => brand.name === brandName)?.models || [];
++}
+diff --git a/client/src/pages/CarMaster.tsx b/client/src/pages/CarMaster.tsx
+new file mode 100644
+index 0000000..58ecd99
+--- /dev/null
++++ b/client/src/pages/CarMaster.tsx
+@@ -0,0 +1,375 @@
++import { useEffect, useMemo, useState } from "react";
++import { useMutation, useQuery } from "@tanstack/react-query";
++import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
++import { Button } from "@/components/ui/button";
++import { Input } from "@/components/ui/input";
++import { Label } from "@/components/ui/label";
++import { Badge } from "@/components/ui/badge";
++import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
++import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
++import { Switch } from "@/components/ui/switch";
++import { Skeleton } from "@/components/ui/skeleton";
++import { apiRequest, queryClient } from "@/lib/queryClient";
++import { useToast } from "@/hooks/use-toast";
++import { type VehicleMasterBrand, type VehicleMasterResponse } from "@/lib/vehicleMaster";
++import { Car, Pencil, Plus, Search, Trash2 } from "lucide-react";
++
++type DeleteTarget =
++  | { type: "brand"; id: string; name: string }
++  | { type: "model"; id: string; name: string };
++
++export default function CarMaster() {
++  const { toast } = useToast();
++  const [searchTerm, setSearchTerm] = useState("");
++  const [selectedBrandId, setSelectedBrandId] = useState<string>("");
++  const [brandDialogOpen, setBrandDialogOpen] = useState(false);
++  const [modelDialogOpen, setModelDialogOpen] = useState(false);
++  const [editingBrand, setEditingBrand] = useState<VehicleMasterBrand | null>(null);
++  const [editingModel, setEditingModel] = useState<{ id: string; name: string; active: boolean } | null>(null);
++  const [deleteTarget, setDeleteTarget] = useState<DeleteTarget | null>(null);
++  const [brandForm, setBrandForm] = useState({ name: "", active: true });
++  const [modelForm, setModelForm] = useState({ name: "", active: true });
++
++  const { data, isLoading, error } = useQuery<VehicleMasterResponse>({
++    queryKey: ["/api/vehicle-master", "includeInactive"],
++    queryFn: async () => {
++      const response = await fetch("/api/vehicle-master?includeInactive=true", {
++        credentials: "include",
++      });
++      if (!response.ok) throw new Error("Failed to load car master");
++      return response.json();
++    },
++  });
++
++  const brands = data?.brands || [];
++
++  const filteredBrands = useMemo(() => {
++    const term = searchTerm.trim().toLowerCase();
++    if (!term) return brands;
++    return brands.filter((brand) => {
++      if (brand.name.toLowerCase().includes(term)) return true;
++      return brand.models.some((model) => model.name.toLowerCase().includes(term));
++    });
++  }, [brands, searchTerm]);
++
++  const selectedBrand =
++    filteredBrands.find((brand) => brand.id === selectedBrandId) ||
++    brands.find((brand) => brand.id === selectedBrandId) ||
++    filteredBrands[0] ||
++    null;
++
++  useEffect(() => {
++    if (!selectedBrandId && filteredBrands[0]?.id) {
++      setSelectedBrandId(filteredBrands[0].id);
++    }
++  }, [filteredBrands, selectedBrandId]);
++
++  const refreshVehicleMaster = () => {
++    queryClient.invalidateQueries({ queryKey: ["/api/vehicle-master"] });
++    queryClient.invalidateQueries({ queryKey: ["/api/vehicle-master", "includeInactive"] });
++  };
++
++  const brandMutation = useMutation({
++    mutationFn: async () => {
++      const payload = { ...brandForm, name: brandForm.name.trim() };
++      if (!payload.name) throw new Error("Brand name is required");
++      const response = editingBrand
++        ? await apiRequest("PATCH", `/api/vehicle-master/brands/${editingBrand.id}`, payload)
++        : await apiRequest("POST", "/api/vehicle-master/brands", payload);
++      return response.json();
++    },
++    onSuccess: () => {
++      refreshVehicleMaster();
++      setBrandDialogOpen(false);
++      setEditingBrand(null);
++      setBrandForm({ name: "", active: true });
++      toast({ title: "Success", description: editingBrand ? "Brand updated successfully" : "Brand created successfully" });
++    },
++    onError: (error: any) => {
++      toast({ title: "Error", description: error.message || "Failed to save brand", variant: "destructive" });
++    },
++  });
++
++  const modelMutation = useMutation({
++    mutationFn: async () => {
++      const payload = { ...modelForm, name: modelForm.name.trim(), brandId: selectedBrand?.id };
++      if (!selectedBrand?.id) throw new Error("Please select a brand first");
++      if (!payload.name) throw new Error("Model name is required");
++      const response = editingModel
++        ? await apiRequest("PATCH", `/api/vehicle-master/models/${editingModel.id}`, payload)
++        : await apiRequest("POST", "/api/vehicle-master/models", payload);
++      return response.json();
++    },
++    onSuccess: () => {
++      refreshVehicleMaster();
++      setModelDialogOpen(false);
++      setEditingModel(null);
++      setModelForm({ name: "", active: true });
++      toast({ title: "Success", description: editingModel ? "Model updated successfully" : "Model created successfully" });
++    },
++    onError: (error: any) => {
++      toast({ title: "Error", description: error.message || "Failed to save model", variant: "destructive" });
++    },
++  });
++
++  const deleteMutation = useMutation({
++    mutationFn: async () => {
++      if (!deleteTarget) throw new Error("Nothing selected");
++      const url =
++        deleteTarget.type === "brand"
++          ? `/api/vehicle-master/brands/${deleteTarget.id}`
++          : `/api/vehicle-master/models/${deleteTarget.id}`;
++      const response = await apiRequest("DELETE", url);
++      return response.json();
++    },
++    onSuccess: () => {
++      refreshVehicleMaster();
++      setDeleteTarget(null);
++      toast({ title: "Success", description: "Deleted successfully" });
++    },
++    onError: (error: any) => {
++      toast({ title: "Delete blocked", description: error.message || "Failed to delete", variant: "destructive" });
++    },
++  });
++
++  const openCreateBrand = () => {
++    setEditingBrand(null);
++    setBrandForm({ name: "", active: true });
++    setBrandDialogOpen(true);
++  };
++
++  const openEditBrand = (brand: VehicleMasterBrand) => {
++    setEditingBrand(brand);
++    setBrandForm({ name: brand.name, active: brand.active });
++    setBrandDialogOpen(true);
++  };
++
++  const openCreateModel = () => {
++    setEditingModel(null);
++    setModelForm({ name: "", active: true });
++    setModelDialogOpen(true);
++  };
++
++  const openEditModel = (model: { id: string; name: string; active: boolean }) => {
++    setEditingModel(model);
++    setModelForm({ name: model.name, active: model.active });
++    setModelDialogOpen(true);
++  };
++
++  if (isLoading) {
++    return (
++      <div className="space-y-6">
++        <Skeleton className="h-8 w-40" />
++        <div className="grid gap-4 lg:grid-cols-[320px,1fr]">
++          <Skeleton className="h-[520px]" />
++          <Skeleton className="h-[520px]" />
++        </div>
++      </div>
++    );
++  }
++
++  if (error) {
++    return (
++      <Card className="border-destructive">
++        <CardContent className="pt-6">
++          <div className="text-center py-10 space-y-3">
++            <Car className="mx-auto h-10 w-10 text-destructive" />
++            <h2 className="text-xl font-semibold">Failed to load car master</h2>
++            <p className="text-muted-foreground">{(error as Error).message}</p>
++          </div>
++        </CardContent>
++      </Card>
++    );
++  }
++
++  return (
++    <div className="space-y-6">
++      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
++        <div>
++          <h1 className="text-3xl font-bold">Car Master</h1>
++          <p className="text-muted-foreground">Manage vehicle brands and models used across registration and product compatibility.</p>
++        </div>
++        <Button onClick={openCreateBrand} data-testid="button-add-brand">
++          <Plus className="mr-2 h-4 w-4" />
++          Add Brand
++        </Button>
++      </div>
++
++      <div className="grid gap-4 lg:grid-cols-[320px,1fr]">
++        <Card>
++          <CardHeader className="space-y-3">
++            <CardTitle>Brands</CardTitle>
++            <div className="relative">
++              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
++              <Input
++                value={searchTerm}
++                onChange={(e) => setSearchTerm(e.target.value)}
++                placeholder="Search brands or models"
++                className="pl-9"
++                data-testid="input-car-master-search"
++              />
++            </div>
++          </CardHeader>
++          <CardContent className="space-y-2">
++            {filteredBrands.map((brand) => (
++              <button
++                key={brand.id}
++                type="button"
++                onClick={() => setSelectedBrandId(brand.id)}
++                className={`w-full rounded-md border px-3 py-3 text-left transition ${selectedBrand?.id === brand.id ? "border-primary bg-primary/5" : "border-border hover:bg-muted/40"}`}
++                data-testid={`button-select-brand-${brand.id}`}
++              >
++                <div className="flex items-center justify-between gap-3">
++                  <div>
++                    <p className="font-medium">{brand.name}</p>
++                    <p className="text-xs text-muted-foreground">{brand.models.length} model{brand.models.length === 1 ? "" : "s"}</p>
++                  </div>
++                  <Badge variant={brand.active ? "default" : "secondary"}>{brand.active ? "Active" : "Inactive"}</Badge>
++                </div>
++              </button>
++            ))}
++            {filteredBrands.length === 0 && (
++              <p className="text-sm text-muted-foreground">No brands match this search.</p>
++            )}
++          </CardContent>
++        </Card>
++
++        <Card>
++          <CardHeader className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
++            <div>
++              <CardTitle>{selectedBrand ? selectedBrand.name : "Select a brand"}</CardTitle>
++              <CardDescription>
++                {selectedBrand ? "Add, rename, deactivate, or delete models under this brand." : "Choose a brand from the left to manage its models."}
++              </CardDescription>
++            </div>
++            {selectedBrand && (
++              <div className="flex flex-wrap gap-2">
++                <Button variant="outline" onClick={() => openEditBrand(selectedBrand)} data-testid="button-edit-brand">
++                  <Pencil className="mr-2 h-4 w-4" />
++                  Edit Brand
++                </Button>
++                <Button variant="outline" onClick={openCreateModel} data-testid="button-add-model">
++                  <Plus className="mr-2 h-4 w-4" />
++                  Add Model
++                </Button>
++                <Button variant="destructive" onClick={() => setDeleteTarget({ type: "brand", id: selectedBrand.id, name: selectedBrand.name })} data-testid="button-delete-brand">
++                  <Trash2 className="mr-2 h-4 w-4" />
++                  Delete Brand
++                </Button>
++              </div>
++            )}
++          </CardHeader>
++          <CardContent>
++            {!selectedBrand ? (
++              <div className="rounded-md border border-dashed p-10 text-center text-muted-foreground">
++                Pick a brand to manage its models.
++              </div>
++            ) : (
++              <div className="space-y-3">
++                {selectedBrand.models.map((model) => (
++                  <div key={model.id} className="flex flex-col gap-3 rounded-md border p-3 md:flex-row md:items-center md:justify-between" data-testid={`row-model-${model.id}`}>
++                    <div className="flex items-center gap-3">
++                      <div>
++                        <p className="font-medium">{model.name}</p>
++                        <p className="text-xs text-muted-foreground">{selectedBrand.name}</p>
++                      </div>
++                      <Badge variant={model.active ? "default" : "secondary"}>{model.active ? "Active" : "Inactive"}</Badge>
++                    </div>
++                    <div className="flex gap-2">
++                      <Button variant="outline" size="sm" onClick={() => openEditModel(model)} data-testid={`button-edit-model-${model.id}`}>
++                        <Pencil className="mr-2 h-4 w-4" />
++                        Edit
++                      </Button>
++                      <Button variant="destructive" size="sm" onClick={() => setDeleteTarget({ type: "model", id: model.id, name: model.name })} data-testid={`button-delete-model-${model.id}`}>
++                        <Trash2 className="mr-2 h-4 w-4" />
++                        Delete
++                      </Button>
++                    </div>
++                  </div>
++                ))}
++                {selectedBrand.models.length === 0 && (
++                  <div className="rounded-md border border-dashed p-8 text-center text-muted-foreground">
++                    No models yet for this brand.
++                  </div>
++                )}
++              </div>
++            )}
++          </CardContent>
++        </Card>
++      </div>
++
++      <Dialog open={brandDialogOpen} onOpenChange={setBrandDialogOpen}>
++        <DialogContent>
++          <DialogHeader>
++            <DialogTitle>{editingBrand ? "Edit Brand" : "Add Brand"}</DialogTitle>
++            <DialogDescription>Manage a brand name and whether it stays available in forms.</DialogDescription>
++          </DialogHeader>
++          <div className="space-y-4">
++            <div className="space-y-2">
++              <Label htmlFor="brand-name">Brand Name</Label>
++              <Input id="brand-name" value={brandForm.name} onChange={(e) => setBrandForm((current) => ({ ...current, name: e.target.value }))} data-testid="input-brand-name" />
++            </div>
++            <div className="flex items-center justify-between rounded-md border p-3">
++              <div>
++                <p className="font-medium">Active</p>
++                <p className="text-xs text-muted-foreground">Inactive brands stay in admin view but disappear from selection forms.</p>
++              </div>
++              <Switch checked={brandForm.active} onCheckedChange={(checked) => setBrandForm((current) => ({ ...current, active: checked }))} />
++            </div>
++          </div>
++          <DialogFooter>
++            <Button variant="outline" onClick={() => setBrandDialogOpen(false)}>Cancel</Button>
++            <Button onClick={() => brandMutation.mutate()} disabled={brandMutation.isPending}>
++              {brandMutation.isPending ? "Saving..." : editingBrand ? "Save Brand" : "Create Brand"}
++            </Button>
++          </DialogFooter>
++        </DialogContent>
++      </Dialog>
++
++      <Dialog open={modelDialogOpen} onOpenChange={setModelDialogOpen}>
++        <DialogContent>
++          <DialogHeader>
++            <DialogTitle>{editingModel ? "Edit Model" : "Add Model"}</DialogTitle>
++            <DialogDescription>{selectedBrand ? `Model under ${selectedBrand.name}` : "Select a brand first"}</DialogDescription>
++          </DialogHeader>
++          <div className="space-y-4">
++            <div className="space-y-2">
++              <Label htmlFor="model-name">Model Name</Label>
++              <Input id="model-name" value={modelForm.name} onChange={(e) => setModelForm((current) => ({ ...current, name: e.target.value }))} data-testid="input-model-name" />
++            </div>
++            <div className="flex items-center justify-between rounded-md border p-3">
++              <div>
++                <p className="font-medium">Active</p>
++                <p className="text-xs text-muted-foreground">Inactive models stay in admin view but disappear from selection forms.</p>
++              </div>
++              <Switch checked={modelForm.active} onCheckedChange={(checked) => setModelForm((current) => ({ ...current, active: checked }))} />
++            </div>
++          </div>
++          <DialogFooter>
++            <Button variant="outline" onClick={() => setModelDialogOpen(false)}>Cancel</Button>
++            <Button onClick={() => modelMutation.mutate()} disabled={modelMutation.isPending || !selectedBrand}>
++              {modelMutation.isPending ? "Saving..." : editingModel ? "Save Model" : "Create Model"}
++            </Button>
++          </DialogFooter>
++        </DialogContent>
++      </Dialog>
++
++      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
++        <AlertDialogContent>
++          <AlertDialogHeader>
++            <AlertDialogTitle>Delete {deleteTarget?.type === "brand" ? "Brand" : "Model"}</AlertDialogTitle>
++            <AlertDialogDescription>
++              {deleteTarget ? `This will permanently remove "${deleteTarget.name}" if it is not already in use.` : ""}
++            </AlertDialogDescription>
++          </AlertDialogHeader>
++          <AlertDialogFooter>
++            <AlertDialogCancel>Cancel</AlertDialogCancel>
++            <AlertDialogAction onClick={() => deleteMutation.mutate()} disabled={deleteMutation.isPending}>
++              {deleteMutation.isPending ? "Deleting..." : "Delete"}
++            </AlertDialogAction>
++          </AlertDialogFooter>
++        </AlertDialogContent>
++      </AlertDialog>
++    </div>
++  );
++}

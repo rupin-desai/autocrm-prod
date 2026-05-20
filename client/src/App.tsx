@@ -30,6 +30,7 @@ import Leaves from "@/pages/Leaves";
 import Communications from "@/pages/Communications";
 import CustomerRegistration from "@/pages/CustomerRegistration";
 import CustomerRegistrationDashboard from "@/pages/CustomerRegistrationDashboard";
+import CarMaster from "@/pages/CarMaster";
 import Invoices from "@/pages/Invoices";
 import SupportFeedback from "@/pages/SupportFeedback";
 import { useEffect } from "react";
@@ -43,6 +44,7 @@ const ROUTE_PERMISSIONS: Record<string, { resource: string; action: string } | n
   '/settings': null, // Settings is accessible to all authenticated users
   '/register-customer': { resource: 'customers', action: 'create' },
   '/registration-dashboard': { resource: 'customers', action: 'create' },
+  '/car-master': { resource: 'customers', action: 'update' },
   '/products': { resource: 'products', action: 'read' },
   '/inventory': { resource: 'inventory', action: 'read' },
   '/orders': { resource: 'orders', action: 'read' },
@@ -158,6 +160,9 @@ function Router() {
       </Route>
       <Route path="/registration-dashboard">
         {() => <ProtectedRoute component={CustomerRegistrationDashboard} />}
+      </Route>
+      <Route path="/car-master">
+        {() => <ProtectedRoute component={CarMaster} />}
       </Route>
       <Route path="/analytics">
         {() => <ProtectedRoute component={Analytics} />}

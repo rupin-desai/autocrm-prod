@@ -26,6 +26,7 @@ import { requireAuth, requireRole, attachUser, requirePermission } from "./middl
 import { insertCustomerSchema, insertVehicleSchema } from "./schemas";
 import { RegistrationCustomer } from "./models/RegistrationCustomer";
 import { RegistrationVehicle } from "./models/RegistrationVehicle";
+import { VehicleMasterBrand } from "./models/VehicleMaster";
 import { Invoice } from "./models/Invoice";
 import { Coupon } from "./models/Coupon";
 import { Warranty } from "./models/Warranty";
@@ -34,6 +35,7 @@ import { generateInvoicePDF } from "./utils/generateInvoicePDF";
 import { sendWhatsAppOTP, sendWhatsAppWelcome } from "./services/whatsapp";
 import { generateDailyReportData, formatDailyReportHTML, sendDailyReportEmail } from "./utils/emailReports";
 import { isLocalMirrorMode } from "./localMirror";
+import { VEHICLE_DATA } from "@shared/vehicleData";
 
 // Helper function to normalize selectedParts to ensure consistent format
 function normalizeSelectedParts(selectedParts: any): Array<{ partId: string; quantity: number }> {
@@ -98,6 +100,74 @@ function buildProductResponse(product: any) {
 
 function normalizeProductField(value: any): string {
   return String(value ?? "").trim();
+}
+
+function normalizeOptionalText(value: any): string | undefined {
+  const normalized = String(value ?? "").trim();
+  return normalized ? normalized : undefined;
+}
+
+function normalizeRequiredText(value: any): string {
+  return String(value ?? "").trim();
+}
+
+function normalizeVehicleMasterName(value: string): string {
+  return value.trim().replace(/\s+/g, " ");
+}
+
+function buildVehicleMasterResponse(brands: any[]) {
+  return {
+    brands: brands.map((brand) => ({
+      id: brand._id.toString(),
+      name: brand.name,
+      active: brand.active !== false,
+      models: (brand.models || [])
+        .map((model: any) => ({
+          id: model._id.toString(),
+          name: model.name,
+          active: model.active !== false,
+        }))
+        .sort((a: any, b: any) => a.name.localeCompare(b.name)),
+    })),
+  };
+}
+
+async function seedVehicleMasterIfEmpty() {
+  const count = await VehicleMasterBrand.countDocuments();
+  if (count > 0) return;
+
+  const brandsToInsert = VEHICLE_DATA.map((brand) => ({
+    name: normalizeVehicleMasterName(brand.name),
+    active: true,
+    models: (brand.models || [])
+      .map((model) => normalizeVehicleMasterName(model.name))
+      .filter((modelName) => modelName && modelName.toLowerCase() !== "other")
+      .filter((modelName, index, all) => all.findIndex((entry) => entry.toLowerCase() === modelName.toLowerCase()) === index)
+      .map((name) => ({ name, active: true })),
+  })).filter((brand) => brand.name);
+
+  if (brandsToInsert.length > 0) {
+    await VehicleMasterBrand.insertMany(brandsToInsert);
+    console.log(`Seeded vehicle master with ${brandsToInsert.length} brands`);
+  }
+}
+
+async function updateProductCompatibilityStrings(replacer: (value: string) => string) {
+  const products = await Product.find({ modelCompatibility: { $exists: true, $ne: [] } });
+  for (const product of products) {
+    const currentCompatibility = Array.isArray(product.modelCompatibility) ? product.modelCompatibility : [];
+    const nextCompatibility = currentCompatibility.map((value: any) =>
+      typeof value === "string" ? replacer(value) : value
+    );
+
+    const changed =
+      JSON.stringify(currentCompatibility) !== JSON.stringify(nextCompatibility);
+
+    if (changed) {
+      product.modelCompatibility = nextCompatibility;
+      await product.save();
+    }
+  }
 }
 
 function escapeRegex(value: string): string {
@@ -414,10 +484,260 @@ export async function registerRoutes(app: Express): Promise<Server> {
   } catch (error) {
     console.error('Product min stock migration error:', error);
   }
-  
+
+  }
+
+  try {
+    await seedVehicleMasterIfEmpty();
+  } catch (error) {
+    console.error("Vehicle master seed error:", error);
   }
   
   app.use(attachUser);
+
+  app.get("/api/vehicle-master", async (req, res) => {
+    try {
+      const includeInactive = req.query.includeInactive === "true";
+      const query = includeInactive ? {} : { active: true };
+      const brands = await VehicleMasterBrand.find(query).sort({ name: 1 }).lean();
+      const normalizedBrands = includeInactive
+        ? brands
+        : brands.map((brand: any) => ({
+            ...brand,
+            models: (brand.models || []).filter((model: any) => model.active !== false),
+          }));
+
+      res.json(buildVehicleMasterResponse(normalizedBrands));
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch vehicle master" });
+    }
+  });
+
+  app.post("/api/vehicle-master/brands", requireAuth, requirePermission("customers", "update"), async (req, res) => {
+    try {
+      const name = normalizeVehicleMasterName(req.body.name || "");
+      if (!name) {
+        return res.status(400).json({ error: "Brand name is required" });
+      }
+
+      const existingBrand = await VehicleMasterBrand.findOne({
+        name: { $regex: `^${escapeRegex(name)}$`, $options: "i" },
+      });
+      if (existingBrand) {
+        return res.status(400).json({ error: "Brand already exists" });
+      }
+
+      const brand = await VehicleMasterBrand.create({ name, active: req.body.active !== false, models: [] });
+      res.json({ brand: buildVehicleMasterResponse([brand]).brands[0], message: "Brand created successfully" });
+    } catch (error) {
+      res.status(400).json({ error: error instanceof Error ? error.message : "Failed to create brand" });
+    }
+  });
+
+  app.patch("/api/vehicle-master/brands/:id", requireAuth, requirePermission("customers", "update"), async (req, res) => {
+    try {
+      const brand = await VehicleMasterBrand.findById(req.params.id);
+      if (!brand) {
+        return res.status(404).json({ error: "Brand not found" });
+      }
+
+      const oldName = brand.name;
+      const nextName = normalizeVehicleMasterName(req.body.name || oldName);
+      if (!nextName) {
+        return res.status(400).json({ error: "Brand name is required" });
+      }
+
+      const duplicate = await VehicleMasterBrand.findOne({
+        _id: { $ne: brand._id },
+        name: { $regex: `^${escapeRegex(nextName)}$`, $options: "i" },
+      });
+      if (duplicate) {
+        return res.status(400).json({ error: "Brand already exists" });
+      }
+
+      brand.name = nextName;
+      if (typeof req.body.active === "boolean") {
+        brand.active = req.body.active;
+      }
+      await brand.save();
+
+      if (oldName !== nextName) {
+        await RegistrationVehicle.updateMany(
+          { vehicleBrand: oldName },
+          { $set: { vehicleBrand: nextName } }
+        );
+
+        await updateProductCompatibilityStrings((value) => {
+          if (value === oldName) return nextName;
+          if (value.startsWith(`${oldName} - `)) {
+            return `${nextName}${value.slice(oldName.length)}`;
+          }
+          return value;
+        });
+      }
+
+      res.json({ brand: buildVehicleMasterResponse([brand]).brands[0], message: "Brand updated successfully" });
+    } catch (error) {
+      res.status(400).json({ error: error instanceof Error ? error.message : "Failed to update brand" });
+    }
+  });
+
+  app.delete("/api/vehicle-master/brands/:id", requireAuth, requirePermission("customers", "update"), async (req, res) => {
+    try {
+      const brand = await VehicleMasterBrand.findById(req.params.id);
+      if (!brand) {
+        return res.status(404).json({ error: "Brand not found" });
+      }
+
+      const vehicleUsageCount = await RegistrationVehicle.countDocuments({ vehicleBrand: brand.name });
+      const productUsageCount = await Product.countDocuments({
+        $or: [
+          { modelCompatibility: brand.name },
+          { modelCompatibility: { $regex: `^${escapeRegex(brand.name)} - `, $options: "i" } },
+        ],
+      });
+
+      if (vehicleUsageCount > 0 || productUsageCount > 0) {
+        return res.status(400).json({
+          error: "Brand is in use and cannot be deleted",
+          usage: { vehicles: vehicleUsageCount, products: productUsageCount },
+        });
+      }
+
+      await VehicleMasterBrand.findByIdAndDelete(req.params.id);
+      res.json({ success: true, message: "Brand deleted successfully" });
+    } catch (error) {
+      res.status(400).json({ error: error instanceof Error ? error.message : "Failed to delete brand" });
+    }
+  });
+
+  app.post("/api/vehicle-master/models", requireAuth, requirePermission("customers", "update"), async (req, res) => {
+    try {
+      const brand = await VehicleMasterBrand.findById(req.body.brandId);
+      if (!brand) {
+        return res.status(404).json({ error: "Brand not found" });
+      }
+
+      const name = normalizeVehicleMasterName(req.body.name || "");
+      if (!name) {
+        return res.status(400).json({ error: "Model name is required" });
+      }
+
+      const duplicate = (brand.models || []).some(
+        (model: any) => model.name.toLowerCase() === name.toLowerCase()
+      );
+      if (duplicate) {
+        return res.status(400).json({ error: "Model already exists for this brand" });
+      }
+
+      brand.models.push({ name, active: req.body.active !== false } as any);
+      await brand.save();
+      const nextBrand = await VehicleMasterBrand.findById(brand._id);
+      res.json({
+        brand: nextBrand ? buildVehicleMasterResponse([nextBrand]).brands[0] : null,
+        message: "Model created successfully",
+      });
+    } catch (error) {
+      res.status(400).json({ error: error instanceof Error ? error.message : "Failed to create model" });
+    }
+  });
+
+  app.patch("/api/vehicle-master/models/:id", requireAuth, requirePermission("customers", "update"), async (req, res) => {
+    try {
+      const brand = await VehicleMasterBrand.findOne({ "models._id": req.params.id });
+      if (!brand) {
+        return res.status(404).json({ error: "Model not found" });
+      }
+
+      const model = brand.models.id(req.params.id) as any;
+      if (!model) {
+        return res.status(404).json({ error: "Model not found" });
+      }
+
+      const oldBrandName = brand.name;
+      const oldModelName = model.name;
+      const nextName = normalizeVehicleMasterName(req.body.name || oldModelName);
+      if (!nextName) {
+        return res.status(400).json({ error: "Model name is required" });
+      }
+
+      const duplicate = (brand.models || []).some(
+        (entry: any) =>
+          entry._id.toString() !== req.params.id &&
+          entry.name.toLowerCase() === nextName.toLowerCase()
+      );
+      if (duplicate) {
+        return res.status(400).json({ error: "Model already exists for this brand" });
+      }
+
+      model.name = nextName;
+      if (typeof req.body.active === "boolean") {
+        model.active = req.body.active;
+      }
+      await brand.save();
+
+      if (oldModelName !== nextName) {
+        await RegistrationVehicle.updateMany(
+          { vehicleBrand: oldBrandName, vehicleModel: oldModelName },
+          { $set: { vehicleModel: nextName } }
+        );
+
+        await updateProductCompatibilityStrings((value) => {
+          if (value === `${oldBrandName} - ${oldModelName}`) {
+            return `${oldBrandName} - ${nextName}`;
+          }
+          return value;
+        });
+      }
+
+      const nextBrand = await VehicleMasterBrand.findById(brand._id);
+      res.json({
+        brand: nextBrand ? buildVehicleMasterResponse([nextBrand]).brands[0] : null,
+        message: "Model updated successfully",
+      });
+    } catch (error) {
+      res.status(400).json({ error: error instanceof Error ? error.message : "Failed to update model" });
+    }
+  });
+
+  app.delete("/api/vehicle-master/models/:id", requireAuth, requirePermission("customers", "update"), async (req, res) => {
+    try {
+      const brand = await VehicleMasterBrand.findOne({ "models._id": req.params.id });
+      if (!brand) {
+        return res.status(404).json({ error: "Model not found" });
+      }
+
+      const model = brand.models.id(req.params.id) as any;
+      if (!model) {
+        return res.status(404).json({ error: "Model not found" });
+      }
+
+      const vehicleUsageCount = await RegistrationVehicle.countDocuments({
+        vehicleBrand: brand.name,
+        vehicleModel: model.name,
+      });
+      const productUsageCount = await Product.countDocuments({
+        modelCompatibility: `${brand.name} - ${model.name}`,
+      });
+
+      if (vehicleUsageCount > 0 || productUsageCount > 0) {
+        return res.status(400).json({
+          error: "Model is in use and cannot be deleted",
+          usage: { vehicles: vehicleUsageCount, products: productUsageCount },
+        });
+      }
+
+      model.deleteOne();
+      await brand.save();
+      const nextBrand = await VehicleMasterBrand.findById(brand._id);
+      res.json({
+        brand: nextBrand ? buildVehicleMasterResponse([nextBrand]).brands[0] : null,
+        message: "Model deleted successfully",
+      });
+    } catch (error) {
+      res.status(400).json({ error: error instanceof Error ? error.message : "Failed to delete model" });
+    }
+  });
 
   app.post("/api/auth/login", async (req, res) => {
     try {
@@ -4327,6 +4647,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const vehicle = await RegistrationVehicle.create({
         ...validatedData,
+        vehicleNumber: normalizeOptionalText(validatedData.vehicleNumber),
+        vehicleBrand: normalizeRequiredText(validatedData.vehicleBrand),
+        vehicleModel: normalizeRequiredText(validatedData.vehicleModel),
+        customModel: normalizeOptionalText(validatedData.customModel) ?? null,
+        variant: normalizeOptionalText(validatedData.variant) ?? null,
+        color: normalizeOptionalText(validatedData.color) ?? null,
+        chassisNumber: normalizeOptionalText(validatedData.chassisNumber) ?? null,
         vehicleId
       });
       
@@ -4398,6 +4725,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const vehicle = await RegistrationVehicle.create({
         ...validatedData,
+        vehicleNumber: normalizeOptionalText(validatedData.vehicleNumber),
+        vehicleBrand: normalizeRequiredText(validatedData.vehicleBrand),
+        vehicleModel: normalizeRequiredText(validatedData.vehicleModel),
+        customModel: normalizeOptionalText(validatedData.customModel) ?? null,
+        variant: normalizeOptionalText(validatedData.variant) ?? null,
+        color: normalizeOptionalText(validatedData.color) ?? null,
+        chassisNumber: normalizeOptionalText(validatedData.chassisNumber) ?? null,
         vehicleId
       });
 
@@ -4647,6 +4981,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const updateData = { ...req.body };
       if (updateData.selectedParts) {
         updateData.selectedParts = normalizeSelectedParts(updateData.selectedParts);
+      }
+      if ("vehicleNumber" in updateData) {
+        updateData.vehicleNumber = normalizeOptionalText(updateData.vehicleNumber) ?? null;
+      }
+      if ("vehicleBrand" in updateData) {
+        updateData.vehicleBrand = normalizeRequiredText(updateData.vehicleBrand);
+      }
+      if ("vehicleModel" in updateData) {
+        updateData.vehicleModel = normalizeRequiredText(updateData.vehicleModel);
+      }
+      if ("customModel" in updateData) {
+        updateData.customModel = normalizeOptionalText(updateData.customModel) ?? null;
+      }
+      if ("variant" in updateData) {
+        updateData.variant = normalizeOptionalText(updateData.variant) ?? null;
+      }
+      if ("color" in updateData) {
+        updateData.color = normalizeOptionalText(updateData.color) ?? null;
+      }
+      if ("chassisNumber" in updateData) {
+        updateData.chassisNumber = normalizeOptionalText(updateData.chassisNumber) ?? null;
       }
 
       const vehicle = await RegistrationVehicle.findByIdAndUpdate(req.params.id, updateData, { new: true });
