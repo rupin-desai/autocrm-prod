@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const insertCustomerSchema = z.object({
   fullName: z.string().min(1, "Full name is required"),
-  mobileNumber: z.string().min(10, "Mobile number must be at least 10 digits"),
+  mobileNumber: z.string().optional().default(""),
   alternativeNumber: z.string().optional(),
   email: z.union([z.string().email("Invalid email address"), z.literal("")]),
   address: z.string().optional(),
@@ -12,6 +12,17 @@ export const insertCustomerSchema = z.object({
   state: z.string().optional(),
   pinCode: z.string().optional(),
   referralSource: z.string().optional(),
+  walkInNoPhone: z.boolean().optional().default(false),
+  estimatedBillAmount: z.coerce.number().optional(),
+}).refine((data) => {
+  const mobile = (data.mobileNumber || "").trim();
+  if (data.walkInNoPhone) {
+    return !mobile && Number(data.estimatedBillAmount || 0) < 1000;
+  }
+  return mobile.length >= 10;
+}, {
+  message: "Mobile number is required unless this is low-value walk-in billing (< 1000) without phone.",
+  path: ["mobileNumber"],
 });
 
 const warrantyCardSchema = z.object({

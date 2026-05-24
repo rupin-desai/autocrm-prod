@@ -152,6 +152,8 @@ const invoiceSchema = new mongoose.Schema({
   notes: { type: String },
   terms: { type: String },
   dueDate: { type: Date },
+  walkInBilling: { type: Boolean, default: false },
+  skipOtpReason: { type: String },
   
 }, { timestamps: true });
 

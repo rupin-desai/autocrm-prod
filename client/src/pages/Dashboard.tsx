@@ -49,6 +49,10 @@ import {
 interface DashboardStats {
   // Admin stats
   todaySales?: number;
+  upiCollection?: number;
+  cardCollection?: number;
+  cashCollection?: number;
+  pendingAmount?: number;
   activeServices?: number;
   totalCustomers?: number;
   lowStockProducts?: any[];
@@ -148,6 +152,30 @@ export default function Dashboard() {
             color: "blue" as const,
           },
           {
+            title: "UPI Collection",
+            value: formatCurrency(dashboardStats.upiCollection || 0),
+            icon: IndianRupee,
+            color: "green" as const,
+          },
+          {
+            title: "Card Collection",
+            value: formatCurrency(dashboardStats.cardCollection || 0),
+            icon: IndianRupee,
+            color: "purple" as const,
+          },
+          {
+            title: "Cash Collection",
+            value: formatCurrency(dashboardStats.cashCollection || 0),
+            icon: IndianRupee,
+            color: "yellow" as const,
+          },
+          {
+            title: "Pending Amount",
+            value: formatCurrency(dashboardStats.pendingAmount || 0),
+            icon: AlertCircle,
+            color: "orange" as const,
+          },
+          {
             title: "Active Service Jobs",
             value: dashboardStats.activeServices || 0,
             icon: Package,
@@ -175,6 +203,30 @@ export default function Dashboard() {
             icon: IndianRupee,
             trend: { value: 12.5, isPositive: true },
             color: "blue" as const,
+          },
+          {
+            title: "UPI Collection",
+            value: formatCurrency(dashboardStats.upiCollection || 0),
+            icon: IndianRupee,
+            color: "green" as const,
+          },
+          {
+            title: "Card Collection",
+            value: formatCurrency(dashboardStats.cardCollection || 0),
+            icon: IndianRupee,
+            color: "purple" as const,
+          },
+          {
+            title: "Cash Collection",
+            value: formatCurrency(dashboardStats.cashCollection || 0),
+            icon: IndianRupee,
+            color: "yellow" as const,
+          },
+          {
+            title: "Pending Amount",
+            value: formatCurrency(dashboardStats.pendingAmount || 0),
+            icon: AlertCircle,
+            color: "orange" as const,
           },
           {
             title: "Active Service Jobs",

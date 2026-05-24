@@ -62,6 +62,7 @@ export function InvoiceGenerationDialog({ open, onOpenChange, serviceVisit }: In
   });
   const [initialItemsSet, setInitialItemsSet] = useState(false);
   const [productSearchQueries, setProductSearchQueries] = useState<Record<number, string>>({});
+  const [debouncedProductSearch, setDebouncedProductSearch] = useState("");
 
   const form = useForm<InvoiceFormValues>({
     resolver: zodResolver(invoiceFormSchema),
@@ -85,8 +86,27 @@ export function InvoiceGenerationDialog({ open, onOpenChange, serviceVisit }: In
     },
   });
 
+  const activeProductSearch = Object.values(productSearchQueries).find((v) => v?.trim())?.trim() || "";
+
+  useEffect(() => {
+    const id = window.setTimeout(() => {
+      setDebouncedProductSearch(activeProductSearch);
+    }, 250);
+    return () => window.clearTimeout(id);
+  }, [activeProductSearch]);
+
   const { data: products = [] } = useQuery<any[]>({
-    queryKey: ['/api/products'],
+    queryKey: ['/api/products', 'typeahead', debouncedProductSearch],
+    queryFn: () => {
+      const params = new URLSearchParams({
+        inStockOnly: 'true',
+        limit: '120',
+      });
+      if (debouncedProductSearch) {
+        params.set('q', debouncedProductSearch);
+      }
+      return fetch(`/api/products?${params.toString()}`, { credentials: 'include' }).then((res) => res.json());
+    },
   });
 
   const { data: suggestedProductsData, isLoading: loadingSuggestedProducts } = useQuery<{ products: any[] }>({
@@ -385,12 +405,20 @@ export function InvoiceGenerationDialog({ open, onOpenChange, serviceVisit }: In
 
   const getFilteredProducts = (itemIndex: number) => {
     const searchQuery = productSearchQueries[itemIndex] || '';
-    return products
-      .filter((p: any) => p.stockQty > 0)
-      .filter((p: any) => {
-        const productName = (p.productName || p.name || p.model || 'Unknown').toLowerCase();
-        return productName.includes(searchQuery.toLowerCase());
-      });
+    if (!searchQuery) return products;
+    return products.filter((p: any) => {
+      const productName = (p.productName || p.name || '').toLowerCase();
+      const brand = (p.brand || '').toLowerCase();
+      const model = (p.model || '').toLowerCase();
+      const barcode = (p.barcode || '').toLowerCase();
+      const q = searchQuery.toLowerCase();
+      return (
+        productName.includes(q) ||
+        brand.includes(q) ||
+        model.includes(q) ||
+        barcode.includes(q)
+      );
+    });
   };
 
   const onSubmit = (data: InvoiceFormValues) => {

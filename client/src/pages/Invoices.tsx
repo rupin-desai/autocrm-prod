@@ -474,7 +474,7 @@ export default function Invoices() {
                           Download
                         </Button>
                       )}
-                      {user?.role === 'Admin' && invoice.status === 'approved' && (
+                      {(user?.role === 'Admin' || user?.role === 'Manager') && invoice.status === 'approved' && (
                         <Button
                           size="sm"
                           variant={invoice.paymentStatus === 'paid' ? 'secondary' : 'default'}
@@ -625,7 +625,7 @@ export default function Invoices() {
                             Download
                           </Button>
                         )}
-                        {user?.role === 'Admin' && invoice.status === 'approved' && (
+                        {(user?.role === 'Admin' || user?.role === 'Manager') && invoice.status === 'approved' && (
                           <Button
                             size="sm"
                             variant={invoice.paymentStatus === 'paid' ? 'secondary' : 'default'}

@@ -63,6 +63,7 @@ interface InvoiceData {
   dueAmount: number;
   notes?: string;
   terms?: string;
+  showGstBreakup?: boolean;
 }
 
 function formatInvoiceDate(value?: Date): string {
@@ -87,13 +88,18 @@ export async function generateInvoicePDF(invoiceData: InvoiceData): Promise<stri
 
       const filename = `invoice_${invoiceData.invoiceNumber.replace(/\//g, '_')}.pdf`;
       const filepath = path.join(pdfDir, filename);
+      const logoPath = path.join(process.cwd(), 'attached_assets', 'image_1760164042662.png');
+      const showGstColumns = invoiceData.showGstBreakup === true;
 
       const doc = new PDFDocument({ margin: 50 });
       const stream = fs.createWriteStream(filepath);
 
       doc.pipe(stream);
 
-      doc.fontSize(20).font('Helvetica-Bold').text('Mauli Car World', 50, 50);
+      if (fs.existsSync(logoPath)) {
+        doc.image(logoPath, 50, 44, { fit: [60, 35] });
+      }
+      doc.fontSize(20).font('Helvetica-Bold').text('Mauli Car World', 120, 50);
       doc.fontSize(10).font('Helvetica').text('Invoice', 50, 75);
 
       doc.fontSize(16).font('Helvetica-Bold').text('INVOICE', 400, 50, { align: 'right' });
@@ -227,13 +233,6 @@ export async function generateInvoicePDF(invoiceData: InvoiceData): Promise<stri
             yPosition += 14;
           }
           
-          if (vehicle.selectedParts && vehicle.selectedParts.length > 0) {
-            const partsText = `Parts: ${vehicle.selectedParts.join(', ')}`;
-            const partsHeight = doc.heightOfString(partsText, { width: 270 });
-            doc.text(partsText, 60, yPosition, { width: 270 });
-            yPosition += Math.ceil(partsHeight) + 2;
-          }
-          
           yPosition += 5;
         });
       }
@@ -248,9 +247,13 @@ export async function generateInvoicePDF(invoiceData: InvoiceData): Promise<stri
       doc.text('HSN', 190, yPosition, { width: 60, align: 'left' });
       doc.text('Qty', 255, yPosition, { width: 30, align: 'right' });
       doc.text('Unit', 295, yPosition, { width: 60, align: 'right' });
-      doc.text('GST %', 365, yPosition, { width: 45, align: 'right' });
-      doc.text('GST Amt', 415, yPosition, { width: 55, align: 'right' });
-      doc.text('Total', 475, yPosition, { width: 75, align: 'right' });
+      if (showGstColumns) {
+        doc.text('GST %', 365, yPosition, { width: 45, align: 'right' });
+        doc.text('GST Amt', 415, yPosition, { width: 55, align: 'right' });
+        doc.text('Total', 475, yPosition, { width: 75, align: 'right' });
+      } else {
+        doc.text('Total', 415, yPosition, { width: 135, align: 'right' });
+      }
 
       yPosition += 20;
       doc.moveTo(50, yPosition).lineTo(550, yPosition).stroke();
@@ -276,9 +279,13 @@ export async function generateInvoicePDF(invoiceData: InvoiceData): Promise<stri
           doc.text('HSN', 190, yPosition, { width: 60, align: 'left' });
           doc.text('Qty', 255, yPosition, { width: 30, align: 'right' });
           doc.text('Unit', 295, yPosition, { width: 60, align: 'right' });
-          doc.text('GST %', 365, yPosition, { width: 45, align: 'right' });
-          doc.text('GST Amt', 415, yPosition, { width: 55, align: 'right' });
-          doc.text('Total', 475, yPosition, { width: 75, align: 'right' });
+          if (showGstColumns) {
+            doc.text('GST %', 365, yPosition, { width: 45, align: 'right' });
+            doc.text('GST Amt', 415, yPosition, { width: 55, align: 'right' });
+            doc.text('Total', 475, yPosition, { width: 75, align: 'right' });
+          } else {
+            doc.text('Total', 415, yPosition, { width: 135, align: 'right' });
+          }
           yPosition += 20;
           doc.moveTo(50, yPosition).lineTo(550, yPosition).stroke();
           yPosition += 15;
@@ -307,9 +314,13 @@ export async function generateInvoicePDF(invoiceData: InvoiceData): Promise<stri
 
         doc.fontSize(10).text(item.quantity.toString(), 255, itemYPosition, { width: 30, align: 'right' });
         doc.text(Math.round(unitAmountExclGst).toString(), 295, itemYPosition, { width: 60, align: 'right' });
-        doc.text(gstRate, 365, itemYPosition, { width: 45, align: 'right' });
-        doc.text(gstDisplay, 415, itemYPosition, { width: 55, align: 'right' });
-        doc.text(Math.round(item.total).toString(), 475, itemYPosition, { width: 75, align: 'right' });
+        if (showGstColumns) {
+          doc.text(gstRate, 365, itemYPosition, { width: 45, align: 'right' });
+          doc.text(gstDisplay, 415, itemYPosition, { width: 55, align: 'right' });
+          doc.text(Math.round(item.total).toString(), 475, itemYPosition, { width: 75, align: 'right' });
+        } else {
+          doc.text(Math.round(item.total).toString(), 415, itemYPosition, { width: 135, align: 'right' });
+        }
 
         yPosition += item.description ? 25 : 25;
       });

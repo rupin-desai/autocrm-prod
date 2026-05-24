@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft } from 'lucide-react';
 import logoImage from '@assets/image_1760164042662.png';
 import { queryClient } from '@/lib/queryClient';
+import { apiRequest } from '@/lib/queryClient';
 
 export default function Login() {
   const [location, setLocation] = useLocation();
@@ -35,17 +36,16 @@ export default function Login() {
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ email, password, selectedRole }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Login failed');
+      let data: any;
+      try {
+        const response = await apiRequest('POST', '/api/auth/login', { email, password, selectedRole });
+        data = await response.json();
+      } catch (error: any) {
+        const rawMessage = String(error?.message || '').trim();
+        const safeMessage = rawMessage.includes('<!DOCTYPE') || rawMessage.includes('<html')
+          ? 'Login failed due to unexpected server response. Please refresh and try again.'
+          : (rawMessage || 'Login failed');
+        throw new Error(safeMessage);
       }
 
       if (data.requireOTP) {

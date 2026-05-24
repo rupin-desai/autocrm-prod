@@ -43,7 +43,7 @@ const REFERRAL_SOURCES = [
 // Customer form schema
 const customerFormSchema = z.object({
   fullName: z.string().min(1, "Name is required"),
-  mobileNumber: z.string().min(10, "Mobile number must be at least 10 digits"),
+  mobileNumber: z.string().optional(),
   alternativeNumber: z.string().optional(),
   email: z.union([z.string().email("Invalid email address"), z.literal("")]),
   address: z.string().optional(),
@@ -55,6 +55,8 @@ const customerFormSchema = z.object({
   referralSource: z.string().optional(),
   customReferralSource: z.string().optional(),
   referralPersonName: z.string().optional(),
+  walkInNoPhone: z.boolean().default(false),
+  estimatedBillAmount: z.string().optional(),
 }).refine((data) => {
   if (data.referralSource === "Other" && !data.customReferralSource) {
     return false;
@@ -71,6 +73,16 @@ const customerFormSchema = z.object({
 }, {
   message: "Please enter the name of the person who referred you",
   path: ["referralPersonName"],
+}).refine((data) => {
+  const hasMobile = Boolean(data.mobileNumber?.trim());
+  const amount = Number(data.estimatedBillAmount || 0);
+  if (data.walkInNoPhone) {
+    return !hasMobile && amount > 0 && amount < 1000;
+  }
+  return hasMobile && data.mobileNumber!.trim().length >= 10;
+}, {
+  message: "Mobile is required unless low-value walk-in billing is selected with amount below 1000.",
+  path: ["mobileNumber"],
 });
 
 // Warranty card schema
@@ -177,6 +189,8 @@ export default function CustomerRegistration() {
       referralSource: "",
       customReferralSource: "",
       referralPersonName: "",
+      walkInNoPhone: false,
+      estimatedBillAmount: "",
     },
   });
 
@@ -360,7 +374,10 @@ export default function CustomerRegistration() {
       console.log('Customer Data:', data);
       console.log('================================\n');
       
-      const response = await apiRequest("POST", "/api/registration/customers", data);
+      const response = await apiRequest("POST", "/api/registration/customers", {
+        ...data,
+        estimatedBillAmount: data.estimatedBillAmount ? Number(data.estimatedBillAmount) : undefined,
+      });
       const result = await response.json();
       
       console.log('📱 CUSTOMER REGISTRATION - RESPONSE');
@@ -376,8 +393,23 @@ export default function CustomerRegistration() {
       
       return result;
     },
-    onSuccess: (data) => {
+    onSuccess: (data, variables) => {
       setCustomerId(data.customerId);
+      if (data.skipOtp) {
+        setCustomerData({
+          fullName: variables.fullName,
+          mobileNumber: variables.mobileNumber || "N/A (Walk-in)",
+          email: variables.email,
+          address: variables.address,
+          referenceCode: "Pending",
+        });
+        setStep("vehicle");
+        toast({
+          title: "Walk-in customer saved",
+          description: "OTP skipped for low-value billing without phone number.",
+        });
+        return;
+      }
       if (data.otp) setOtp(data.otp); // For development
       setStep("otp");
       
@@ -893,7 +925,7 @@ export default function CustomerRegistration() {
                       name="mobileNumber"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Mobile Number *</FormLabel>
+                          <FormLabel>Mobile Number {customerForm.watch("walkInNoPhone") ? "(Optional)" : "*"}</FormLabel>
                           <FormControl>
                             <Input {...field} placeholder="10-digit mobile number" data-testid="input-mobile" />
                           </FormControl>
@@ -901,6 +933,37 @@ export default function CustomerRegistration() {
                         </FormItem>
                       )}
                     />
+
+                    <FormField
+                      control={customerForm.control}
+                      name="walkInNoPhone"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Walk-in Billing</FormLabel>
+                          <div className="flex items-center gap-2 pt-2">
+                            <Checkbox checked={field.value} onCheckedChange={(checked) => field.onChange(Boolean(checked))} />
+                            <span className="text-sm">No phone available (allow only if bill amount &lt; 1000)</span>
+                          </div>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    {customerForm.watch("walkInNoPhone") && (
+                      <FormField
+                        control={customerForm.control}
+                        name="estimatedBillAmount"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Estimated Bill Amount *</FormLabel>
+                            <FormControl>
+                              <Input {...field} type="number" min="1" max="999" placeholder="Enter amount below 1000" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    )}
 
                     <FormField
                       control={customerForm.control}

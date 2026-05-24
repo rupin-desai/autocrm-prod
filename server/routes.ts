@@ -742,6 +742,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/auth/login", async (req, res) => {
     try {
       const { email, password, selectedRole } = req.body;
+
+      if (!email || !password) {
+        return res.status(400).json({ error: "Email and password are required" });
+      }
       
       const user = await authenticateUser(email, password);
       if (!user) {
@@ -753,7 +757,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       if (!user.mobileNumber) {
-        return res.status(400).json({ error: "No mobile number registered for this account. Please contact administrator." });
+        return res.status(400).json({
+          error: "No mobile number registered for this account. Please contact administrator to update your profile.",
+        });
       }
 
       if (bypassWhatsappOtpForLocal) {
@@ -1221,7 +1227,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Products endpoints with permission checks
   app.get("/api/products", requireAuth, requirePermission('products', 'read'), async (req, res) => {
     try {
-      const products = await Product.find().sort({ createdAt: -1 });
+      const { q, limit, inStockOnly } = req.query as {
+        q?: string;
+        limit?: string;
+        inStockOnly?: string;
+      };
+
+      const parsedLimit = Math.min(Math.max(Number(limit) || 200, 1), 500);
+      const search = (q || "").trim();
+      const query: any = {};
+
+      if (inStockOnly === "true") {
+        query.stockQty = { $gt: 0 };
+      }
+
+      if (search) {
+        const safe = escapeRegex(search);
+        const regex = new RegExp(safe, "i");
+        const startsWithRegex = new RegExp(`^${safe}`, "i");
+        query.$or = [
+          { productName: regex },
+          { name: regex },
+          { brand: regex },
+          { model: regex },
+          { barcode: regex },
+        ];
+
+        const products = await Product.find(query).limit(parsedLimit * 3).lean();
+        const ranked = products
+          .map((p: any) => {
+            const productName = String(p.productName || p.name || "");
+            const brand = String(p.brand || "");
+            const model = String(p.model || "");
+            const barcode = String(p.barcode || "");
+            let score = 0;
+            if (startsWithRegex.test(productName)) score += 5;
+            if (startsWithRegex.test(brand)) score += 3;
+            if (startsWithRegex.test(model)) score += 2;
+            if (startsWithRegex.test(barcode)) score += 4;
+            if (regex.test(productName)) score += 2;
+            if (regex.test(brand) || regex.test(model)) score += 1;
+            return { score, product: p };
+          })
+          .sort((a, b) => b.score - a.score || new Date(b.product.createdAt || 0).getTime() - new Date(a.product.createdAt || 0).getTime())
+          .slice(0, parsedLimit)
+          .map((entry) => entry.product);
+
+        return res.json(ranked);
+      }
+
+      const products = await Product.find(query).sort({ createdAt: -1 }).limit(parsedLimit);
       res.json(products);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch products" });
@@ -2884,6 +2939,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
           paymentStatus: { $in: ['paid', 'partial'] }
         });
         stats.todaySales = todayInvoices.reduce((sum, invoice) => sum + (invoice.paidAmount || 0), 0);
+        stats.upiCollection = todayInvoices
+          .filter((invoice) => invoice.paymentMethod === 'UPI')
+          .reduce((sum, invoice) => sum + (invoice.paidAmount || 0), 0);
+        stats.cardCollection = todayInvoices
+          .filter((invoice) => invoice.paymentMethod === 'Card')
+          .reduce((sum, invoice) => sum + (invoice.paidAmount || 0), 0);
+        stats.cashCollection = todayInvoices
+          .filter((invoice) => invoice.paymentMethod === 'Cash')
+          .reduce((sum, invoice) => sum + (invoice.paidAmount || 0), 0);
+        stats.pendingAmount = await Invoice.aggregate([
+          { $match: { status: 'approved', dueAmount: { $gt: 0 } } },
+          { $group: { _id: null, totalPending: { $sum: '$dueAmount' } } },
+        ]).then((rows) => rows[0]?.totalPending || 0);
         stats.activeServices = await ServiceVisit.countDocuments({ 
           status: { $in: ['inquired', 'working', 'waiting'] } 
         });
@@ -2902,6 +2970,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
           paymentStatus: { $in: ['paid', 'partial'] }
         });
         stats.todaySales = todayInvoices.reduce((sum, invoice) => sum + (invoice.paidAmount || 0), 0);
+        stats.upiCollection = todayInvoices
+          .filter((invoice) => invoice.paymentMethod === 'UPI')
+          .reduce((sum, invoice) => sum + (invoice.paidAmount || 0), 0);
+        stats.cardCollection = todayInvoices
+          .filter((invoice) => invoice.paymentMethod === 'Card')
+          .reduce((sum, invoice) => sum + (invoice.paidAmount || 0), 0);
+        stats.cashCollection = todayInvoices
+          .filter((invoice) => invoice.paymentMethod === 'Cash')
+          .reduce((sum, invoice) => sum + (invoice.paidAmount || 0), 0);
+        stats.pendingAmount = await Invoice.aggregate([
+          { $match: { status: 'approved', dueAmount: { $gt: 0 } } },
+          { $group: { _id: null, totalPending: { $sum: '$dueAmount' } } },
+        ]).then((rows) => rows[0]?.totalPending || 0);
         stats.activeServices = await ServiceVisit.countDocuments({ 
           status: { $in: ['inquired', 'working', 'waiting'] } 
         });
@@ -4479,10 +4560,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/registration/customers", async (req, res) => {
     try {
       const validatedData = insertCustomerSchema.parse(req.body);
+      const hasMobile = Boolean(validatedData.mobileNumber?.trim());
+      const isLowValueWalkInNoPhone =
+        Boolean(validatedData.walkInNoPhone) &&
+        !hasMobile &&
+        Number(validatedData.estimatedBillAmount || 0) < 1000;
+      const normalizedMobile = hasMobile ? validatedData.mobileNumber!.trim() : "0000000000";
       
       // Check if mobile number already exists
-      const existing = await RegistrationCustomer.findOne({ mobileNumber: validatedData.mobileNumber });
-      if (existing) {
+      const existing = await RegistrationCustomer.findOne({ mobileNumber: normalizedMobile });
+      if (existing && !isLowValueWalkInNoPhone) {
         return res.status(400).json({ error: "Mobile number already registered" });
       }
       
@@ -4511,9 +4598,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         referenceCode = `CUST-${stateCode}-${String(nextNumber).padStart(6, '0')}`;
       }
       
-      // Generate OTP
-      const otp = Math.floor(100000 + Math.random() * 900000).toString();
-      const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+      // Generate OTP unless this is an allowed low-value walk-in without phone.
+      const otp = isLowValueWalkInNoPhone ? null : Math.floor(100000 + Math.random() * 900000).toString();
+      const otpExpiresAt = isLowValueWalkInNoPhone ? null : new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
       
       // Capture who registered the customer (if authenticated)
       const registeredBy = (req as any).user ? (req as any).user.name : null;
@@ -4521,19 +4608,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const customer = await RegistrationCustomer.create({
         ...validatedData,
+        mobileNumber: normalizedMobile,
         referenceCode,
-        isVerified: false,
+        isVerified: isLowValueWalkInNoPhone,
         otp,
         otpExpiresAt,
         registeredBy,
         registeredByRole
       });
       
+      if (isLowValueWalkInNoPhone) {
+        return res.json({
+          customerId: customer._id.toString(),
+          skipOtp: true,
+          skipOtpReason: "low_value_no_phone",
+          message: "Low-value walk-in customer registered without OTP",
+        });
+      }
+
       // Send OTP via WhatsApp
       console.log(`OTP for ${customer.mobileNumber}: ${otp}`);
       const whatsappResult = await sendWhatsAppOTP({
         to: customer.mobileNumber,
-        otp
+        otp: otp as string
       });
       
       if (!whatsappResult.success) {
@@ -5591,6 +5688,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Calculate total (tax is already included in item totals via per-item GST)
       const totalAmount = subtotal - discountAmount;
       const taxAmount = 0;
+      const customerMobile = String(customer.mobileNumber || "").trim();
+      const hasUsablePhone = customerMobile.length >= 10 && customerMobile !== "0000000000";
+      const walkInBilling = !hasUsablePhone && totalAmount < 1000;
+
+      if (!hasUsablePhone && !walkInBilling) {
+        return res.status(400).json({
+          error: "Customer phone number is required for invoices of 1000 or more.",
+        });
+      }
       
       // Create invoice (using new + save to trigger pre-save hooks)
       const invoice = new Invoice({
@@ -5612,7 +5718,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         createdBy: userId,
         status: 'pending_approval',
         notes,
-        terms
+        terms,
+        walkInBilling,
+        skipOtpReason: walkInBilling ? 'low_value_no_phone' : undefined,
       });
       
       await invoice.save();
@@ -5911,7 +6019,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Update invoice payment status
-  app.patch("/api/invoices/:id/payment-status", requireAuth, requirePermission('invoices', 'update'), async (req, res) => {
+  app.patch("/api/invoices/:id/payment-status", requireAuth, requirePermission('invoices', 'mark_paid'), async (req, res) => {
     try {
       const userId = (req as any).session.userId;
       const userName = (req as any).session.userName;
