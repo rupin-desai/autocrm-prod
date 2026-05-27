@@ -1276,7 +1276,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.json(ranked);
       }
 
-      const products = await Product.find(query).sort({ createdAt: -1 }).limit(parsedLimit);
+      const productsQuery = Product.find(query).sort({ createdAt: -1 });
+      if (limit) {
+        productsQuery.limit(parsedLimit);
+      }
+      const products = await productsQuery;
       res.json(products);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch products" });
