@@ -114,7 +114,7 @@ export function hasPermission(userRole: string, resource: string, action: string
   return resourcePermissions.includes(action);
 }
 
-export async function sendOTPToMobile(mobileNumber: string): Promise<{ success: boolean; error?: string }> {
+export async function sendOTPToMobile(mobileNumber: string): Promise<{ success: boolean; error?: string; providerMessageId?: string; statusDesc?: string }> {
   try {
     const otp = generateOTP();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
@@ -132,7 +132,7 @@ export async function sendOTPToMobile(mobileNumber: string): Promise<{ success: 
     const result = await sendRoleOTP({ to: mobileNumber, otp });
 
     if (result.success) {
-      return { success: true };
+      return { success: true, providerMessageId: result.providerMessageId, statusDesc: result.statusDesc };
     } else {
       return { success: false, error: result.error || 'Failed to send OTP' };
     }
@@ -174,7 +174,7 @@ export async function verifyOTP(mobileNumber: string, otp: string): Promise<{ su
   }
 }
 
-export async function sendEmployeeOTP(mobileNumber: string, purpose: 'employee_verification' | 'phone_update' = 'employee_verification'): Promise<{ success: boolean; error?: string }> {
+export async function sendEmployeeOTP(mobileNumber: string, purpose: 'employee_verification' | 'phone_update' = 'employee_verification'): Promise<{ success: boolean; error?: string; providerMessageId?: string; statusDesc?: string }> {
   try {
     const otp = generateOTP();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
@@ -193,7 +193,7 @@ export async function sendEmployeeOTP(mobileNumber: string, purpose: 'employee_v
     const result = await sendWhatsAppOTP({ to: mobileNumber, otp });
 
     if (result.success) {
-      return { success: true };
+      return { success: true, providerMessageId: result.providerMessageId, statusDesc: result.statusDesc };
     } else {
       return { success: false, error: result.error || 'Failed to send OTP' };
     }

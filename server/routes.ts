@@ -812,7 +812,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({
         requireOTP: true,
         mobileNumber: user.mobileNumber,
-        message: "OTP sent to your registered mobile number",
+        providerMessageId: otpResult.providerMessageId,
+        message: "OTP request accepted by WhatsApp provider",
       });
     } catch (error) {
       console.error('Login error:', error);
@@ -932,7 +933,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const result = await sendOTPToMobile(mobileNumber);
       
       if (result.success) {
-        res.json({ success: true, message: "OTP sent successfully" });
+        res.json({
+          success: true,
+          providerMessageId: result.providerMessageId,
+          message: "OTP request accepted by WhatsApp provider",
+        });
       } else {
         res.status(500).json({ error: result.error || "Failed to send OTP" });
       }
@@ -1029,7 +1034,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json({
         success: true,
-        message: "OTP sent to your mobile number",
+        providerMessageId: otpResult.providerMessageId,
+        message: "OTP request accepted by WhatsApp provider",
         mobileNumber: mobileNumber,
       });
     } catch (error) {
@@ -1630,7 +1636,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const result = await sendEmployeeOTP(mobileNumber, purpose || 'employee_verification');
       
       if (result.success) {
-        res.json({ success: true, message: "OTP sent successfully" });
+        res.json({
+          success: true,
+          providerMessageId: result.providerMessageId,
+          message: "OTP request accepted by WhatsApp provider",
+        });
       } else {
         res.status(500).json({ error: result.error || "Failed to send OTP" });
       }
@@ -4643,7 +4653,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json({ 
         customerId: customer._id.toString(),
-        message: "OTP sent successfully",
+        providerMessageId: whatsappResult.providerMessageId,
+        message: whatsappResult.success ? "OTP request accepted by WhatsApp provider" : "WhatsApp OTP request failed",
         whatsappSent: whatsappResult.success,
         whatsappError: whatsappResult.error
       });
