@@ -241,18 +241,23 @@ nano /var/www/AutoCarV8/.env
 
 2. Add credentials:
 ```env
-MONGODB_URI=mongodb+srv://raneaniket23_db_user:c51rYLvbIEDGX1qc@autocrm.fuz97x1.mongodb.net/?retryWrites=true&w=majority&appName=AUTOCRM
-WHATSAPP_API_KEY=7RlFwj57xE6wHngTfSmNHA
+MONGODB_URI=replace_with_mongodb_connection_string
+WHATSAPP_API_KEY=replace_with_cloudapi_invoice_and_welcome_token
 WHATSAPP_PHONE_NUMBER_ID=919970127778
 WHATSAPP_OTP_BRAND_NAME=MAULI CAR DECOR
-WHATSAPP_OTP_TEMPLATE_NAME=otptest
-WHATSAPP_ROLE_OTP_TEMPLATE_NAME=roleotp
-SESSION_SECRET=8pSnCe9YF1FehlBI1YcX1Z2Z6r90x7zRd0yBM+CPTZaGwkurNBDzybjgretUTO4l9LT7wRLZln1jqnpqjtKECw==
+WHATSAPP_ONBOARDING_BASE_URL=https://onboarding.akst.in
+WHATSAPP_ONBOARDING_VERSION=v23.0
+WHATSAPP_ONBOARDING_PHONE_NUMBER_ID=951514724722583
+WHATSAPP_ONBOARDING_ACCESS_TOKEN=replace_with_onboarding_otp_token
+WHATSAPP_ONBOARDING_OTP_TEMPLATE=verify_code_1
+WHATSAPP_ONBOARDING_OTP_BUTTON_TEXT=Copy
+WHATSAPP_BIZ_OPAQUE_CALLBACK_DATA={{BizOpaqueCallbackData}}
+SESSION_SECRET=replace_with_long_random_secret
 APP_URL=https://crm.maulicardecor.com
 PORT=5000
 ```
 
-The OTP provider templates must also be approved/displayed as `MAULI CAR DECOR` in the WhatsApp provider dashboard. App config can select the template and log/enforce the brand name, but it cannot rewrite already-approved provider template text.
+OTP messages now use the Onboarding WhatsApp API template `verify_code_1`. Invoice and welcome messages still use the CloudAPI WhatsApp provider settings.
 
 3. Update `ecosystem.config.cjs`:
 ```javascript

@@ -150,15 +150,9 @@ components: [
 ]
 ```
 
-### Step 4: Test with a Working Template
+### Step 4: Test with an Approved Invoice Template
 
-Try using the `roleotp` template which we know works (from your logs):
-```bash
-# Temporarily change the template name to test
-WHATSAPP_INVOICE_TEMPLATE=roleotp
-```
-
-If this works, you know the issue is with the `invoicetest1` template configuration.
+Use an approved invoice template that matches the invoice payload shape. OTP templates now use the separate Onboarding WhatsApp API and should not be used as invoice test templates.
 
 ## Alternative: Use WhatsApp API Logs
 
@@ -202,10 +196,11 @@ Your `ecosystem.config.cjs` file contains **hardcoded credentials**. This is a *
 **Recommended Fix:**
 1. Create a `.env` file (add to .gitignore):
 ```env
-MONGODB_URI=mongodb+srv://raneaniket23_db_user:c51rYLvbIEDGX1qc@autocrm.fuz97x1.mongodb.net/?retryWrites=true&w=majority&appName=AUTOCRM
-WHATSAPP_API_KEY=7RlFwj57xE6wHngTfSmNHA
+MONGODB_URI=replace_with_mongodb_connection_string
+WHATSAPP_API_KEY=replace_with_cloudapi_invoice_and_welcome_token
 WHATSAPP_PHONE_NUMBER_ID=919970127778
-SESSION_SECRET=8pSnCe9YF1FehlBI1YcX1Z2Z6r90x7zRd0yBM+CPTZaGwkurNBDzybjgretUTO4l9LT7wRLZln1jqnpqjtKECw==
+WHATSAPP_ONBOARDING_ACCESS_TOKEN=replace_with_onboarding_otp_token
+SESSION_SECRET=replace_with_long_random_secret
 APP_URL=https://crm.maulicardecor.com
 ```
 

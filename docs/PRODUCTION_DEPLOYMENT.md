@@ -35,8 +35,15 @@ If you're using PM2 to run the application, you have two options:
    ```
    APP_URL=https://crm.maulicardecor.com
    MONGODB_URI=your_mongodb_connection_string
-   WHATSAPP_API_KEY=your_whatsapp_api_key
-   WHATSAPP_PHONE_NUMBER_ID=your_phone_number_id
+   WHATSAPP_API_KEY=your_cloudapi_invoice_and_welcome_key
+   WHATSAPP_PHONE_NUMBER_ID=your_cloudapi_phone_number_id
+   WHATSAPP_ONBOARDING_BASE_URL=https://onboarding.akst.in
+   WHATSAPP_ONBOARDING_VERSION=v23.0
+   WHATSAPP_ONBOARDING_PHONE_NUMBER_ID=951514724722583
+   WHATSAPP_ONBOARDING_ACCESS_TOKEN=your_onboarding_otp_token
+   WHATSAPP_ONBOARDING_OTP_TEMPLATE=verify_code_1
+   WHATSAPP_ONBOARDING_OTP_BUTTON_TEXT=Copy
+   WHATSAPP_BIZ_OPAQUE_CALLBACK_DATA={{BizOpaqueCallbackData}}
    ```
 
 3. Save and exit (Ctrl+X, then Y, then Enter)
@@ -59,8 +66,9 @@ If you're using PM2 to run the application, you have two options:
          NODE_ENV: 'production',
          APP_URL: 'https://crm.maulicardecor.com',
          MONGODB_URI: 'your_mongodb_connection_string',
-         WHATSAPP_API_KEY: 'your_whatsapp_api_key',
-         WHATSAPP_PHONE_NUMBER_ID: 'your_phone_number_id'
+         WHATSAPP_API_KEY: process.env.WHATSAPP_API_KEY,
+         WHATSAPP_PHONE_NUMBER_ID: process.env.WHATSAPP_PHONE_NUMBER_ID,
+         WHATSAPP_ONBOARDING_ACCESS_TOKEN: process.env.WHATSAPP_ONBOARDING_ACCESS_TOKEN
        }
      }]
    }
