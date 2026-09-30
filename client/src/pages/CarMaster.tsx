@@ -186,7 +186,7 @@ export default function CarMaster() {
     <div className="space-y-6">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Car Master</h1>
+          <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">Car Master</h1>
           <p className="text-muted-foreground">Manage vehicle brands and models used across registration and product compatibility.</p>
         </div>
         <Button onClick={openCreateBrand} data-testid="button-add-brand">

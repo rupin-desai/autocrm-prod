@@ -57,6 +57,8 @@ const customerFormSchema = z.object({
   referralPersonName: z.string().optional(),
   walkInNoPhone: z.boolean().default(false),
   estimatedBillAmount: z.string().optional(),
+  // Requirement 1: OTP verification is optional, chosen per registration.
+  otpRequired: z.boolean().default(true),
 }).refine((data) => {
   if (data.referralSource === "Other" && !data.customReferralSource) {
     return false;
@@ -190,6 +192,7 @@ export default function CustomerRegistration() {
       customReferralSource: "",
       referralPersonName: "",
       walkInNoPhone: false,
+      otpRequired: true,
       estimatedBillAmount: "",
     },
   });
@@ -401,12 +404,15 @@ export default function CustomerRegistration() {
           mobileNumber: variables.mobileNumber || "N/A (Walk-in)",
           email: variables.email,
           address: variables.address,
-          referenceCode: "Pending",
+          referenceCode: data.referenceCode || "Pending",
         });
         setStep("vehicle");
         toast({
-          title: "Walk-in customer saved",
-          description: "OTP skipped for low-value billing without phone number.",
+          title: "Customer saved",
+          description:
+            data.skipOtpReason === "staff_opted_out"
+              ? "Registered without OTP verification, as selected."
+              : "OTP skipped for low-value billing without a phone number.",
         });
         return;
       }
@@ -819,13 +825,13 @@ export default function CustomerRegistration() {
 
   return (
     <ScreenshotProtection enabled={step !== 'success'}>
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-4 sm:p-6">
+      <div>
         <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-6 sm:mb-8">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2">
+          <div className="mb-6 text-center">
+            <h1 className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
               Customer Registration
             </h1>
-            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
+            <p className="mt-1 text-sm text-muted-foreground">
               Register your vehicle with us for exclusive services and offers
             </p>
           </div>
@@ -929,6 +935,34 @@ export default function CustomerRegistration() {
                           <FormControl>
                             <Input {...field} placeholder="10-digit mobile number" data-testid="input-mobile" />
                           </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={customerForm.control}
+                      name="otpRequired"
+                      render={({ field }) => (
+                        <FormItem className="sm:col-span-2">
+                          <FormLabel>OTP Verification</FormLabel>
+                          <div className="flex flex-wrap items-center gap-4 pt-2 rounded-md border p-3">
+                            <div className="flex items-center gap-2">
+                              <Checkbox
+                                checked={field.value}
+                                onCheckedChange={(checked) => field.onChange(Boolean(checked))}
+                                data-testid="checkbox-otp-required"
+                              />
+                              <span className="text-sm font-medium">
+                                {field.value ? "Yes — verify with OTP" : "No — continue without OTP"}
+                              </span>
+                            </div>
+                            <span className="text-xs text-muted-foreground">
+                              {field.value
+                                ? "An OTP will be sent to the customer's WhatsApp before the registration completes."
+                                : "The customer is registered immediately. No OTP is sent."}
+                            </span>
+                          </div>
                           <FormMessage />
                         </FormItem>
                       )}

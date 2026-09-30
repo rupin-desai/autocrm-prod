@@ -4,6 +4,7 @@ import { useLocation } from "wouter";
 import { KPICard } from "@/components/KPICard";
 import { ServiceWorkflowCard } from "@/components/ServiceWorkflowCard";
 import { ActivityFeed } from "@/components/ActivityFeed";
+import { PeriodOverview } from "@/components/PeriodOverview";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -411,19 +412,24 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Dashboard</h1>
-          <p className="text-muted-foreground mt-1" data-testid="text-welcome">{getWelcomeMessage()}</p>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="min-w-0">
+          <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">Dashboard</h1>
+          <p className="mt-0.5 text-sm text-muted-foreground" data-testid="text-welcome">{getWelcomeMessage()}</p>
         </div>
-        <div className="flex items-center gap-2 bg-primary/10 dark:bg-primary/20 px-4 py-2 rounded-lg border border-primary/20">
-          <Store className="h-5 w-5 text-primary" />
-          <div>
-            <p className="text-xs text-muted-foreground">Current Shop</p>
-            <p className="font-semibold text-sm" data-testid="text-current-shop">{shopName}</p>
+        <div className="flex shrink-0 items-center gap-2.5 rounded-lg border border-border bg-card px-3 py-2">
+          <span className="flex h-8 w-8 items-center justify-center rounded-md bg-primary/10 text-primary">
+            <Store className="h-4 w-4" />
+          </span>
+          <div className="min-w-0">
+            <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Current Shop</p>
+            <p className="truncate text-sm font-medium" data-testid="text-current-shop">{shopName}</p>
           </div>
         </div>
       </div>
+
+      {/* Requirement 4: date / month / year / range filtering for every figure. */}
+      <PeriodOverview />
 
       {statsError && (
         <Card className="border-destructive">

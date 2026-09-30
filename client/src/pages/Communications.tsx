@@ -60,7 +60,7 @@ export default function Communications() {
   if (error) {
     return (
       <div className="space-y-6">
-        <h1 className="text-3xl font-bold">Communications & Feedback</h1>
+        <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">Communications & Feedback</h1>
         <Card className="border-destructive">
           <CardContent className="pt-6">
             <div className="text-center py-8">
@@ -80,7 +80,7 @@ export default function Communications() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Communications & Feedback</h1>
+        <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">Communications & Feedback</h1>
         <Button data-testid="button-create-communication">
           <Plus className="h-4 w-4 mr-2" />
           New Communication

@@ -28,6 +28,13 @@ const productSchema = new mongoose.Schema({
   },
   variants: [variantSchema],
   images: [String],
+  // E-commerce website publishing. Only products flagged here are exposed by
+  // the public storefront feed; everything else stays CRM-internal.
+  showOnWebsite: { type: Boolean, default: false },
+  websiteTitle: { type: String },
+  websiteDescription: { type: String },
+  websitePrice: { type: Number },
+  websiteUpdatedAt: { type: Date },
   supplierId: { type: mongoose.Schema.Types.ObjectId, ref: 'Supplier' },
 }, { timestamps: true });
 
@@ -45,6 +52,11 @@ export function getProductStockStatus(stockQty: number, minStockLevel: number) {
 
   return 'in_stock';
 }
+
+productSchema.index({ showOnWebsite: 1 });
+productSchema.index({ category: 1 });
+productSchema.index({ stockQty: 1 });
+productSchema.index({ barcode: 1 });
 
 productSchema.pre('save', function(next) {
   this.status = getProductStockStatus(this.stockQty, this.minStockLevel);

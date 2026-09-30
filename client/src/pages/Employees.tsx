@@ -641,7 +641,7 @@ export default function Employees() {
   if (error) {
     return (
       <div className="space-y-6">
-        <h1 className="text-3xl font-bold">Employees</h1>
+        <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">Employees</h1>
         <Card className="border-destructive">
           <CardContent className="pt-6">
             <div className="text-center py-8">
@@ -662,7 +662,7 @@ export default function Employees() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Employees</h1>
+          <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">Employees</h1>
           <p className="text-muted-foreground mt-1 text-sm">All employees have user accounts for system access</p>
         </div>
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>

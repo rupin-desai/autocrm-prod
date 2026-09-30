@@ -289,7 +289,7 @@ export default function SupportFeedback() {
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold" data-testid="text-page-title">Support & Feedback</h1>
+          <h1 className="text-xl font-semibold tracking-tight sm:text-2xl" data-testid="text-page-title">Support & Feedback</h1>
           <p className="text-muted-foreground">Manage customer support tickets and feedback</p>
         </div>
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>

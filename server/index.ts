@@ -9,6 +9,7 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { checkInactivityTimeout } from "./middleware";
 import { isLocalMirrorMode, localMirrorReadOnlyGuard } from "./localMirror";
+import { startReminderScheduler } from "./services/reminders";
 
 const app = express();
 app.use(
@@ -110,6 +111,12 @@ app.use((req, res, next) => {
     },
     () => {
       log(`serving on port ${port}`);
+
+      // Reminders for advances, inquiries, warranty items and quotations.
+      // Skipped in mirror mode, which is read-only.
+      if (!isLocalMirrorMode()) {
+        startReminderScheduler();
+      }
     },
   );
 })();

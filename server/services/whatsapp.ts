@@ -36,6 +36,68 @@ const WHATSAPP_ONBOARDING_OTP_BUTTON_TEXT = process.env.WHATSAPP_ONBOARDING_OTP_
 const WHATSAPP_BIZ_OPAQUE_CALLBACK_DATA = process.env.WHATSAPP_BIZ_OPAQUE_CALLBACK_DATA?.trim() || '{{BizOpaqueCallbackData}}';
 export const WHATSAPP_OTP_BRAND_NAME = process.env.WHATSAPP_OTP_BRAND_NAME?.trim() || 'MAULI CAR DECOR';
 
+export const WHATSAPP_REQUEST_TIMEOUT_MS = Number(process.env.WHATSAPP_TIMEOUT_MS || 10000);
+
+// Template names for the automatic customer update messages (requirement 6).
+// Each must be approved on the WhatsApp provider before it will deliver.
+export const WHATSAPP_TEMPLATES = {
+  workStarted: process.env.WHATSAPP_WORK_STARTED_TEMPLATE || '',
+  workUpdated: process.env.WHATSAPP_WORK_UPDATED_TEMPLATE || '',
+  workCompleted: process.env.WHATSAPP_WORK_COMPLETED_TEMPLATE || '',
+  paymentReceived: process.env.WHATSAPP_PAYMENT_RECEIVED_TEMPLATE || '',
+  advanceReceived: process.env.WHATSAPP_ADVANCE_RECEIVED_TEMPLATE || '',
+  quotationShared: process.env.WHATSAPP_QUOTATION_TEMPLATE || '',
+  warrantyUpdate: process.env.WHATSAPP_WARRANTY_TEMPLATE || '',
+};
+
+/**
+ * Sends an approved template whose body takes positional {{1}}, {{2}}, ... parameters.
+ * Used by the automatic customer update messages.
+ */
+export async function sendWhatsAppTemplateMessage({
+  to,
+  templateName,
+  bodyParams,
+  logLabel = 'WhatsApp Template',
+  languageCode = 'en',
+}: {
+  to: string;
+  templateName: string;
+  bodyParams: string[];
+  logLabel?: string;
+  languageCode?: string;
+}): Promise<WhatsAppResponse> {
+  if (!templateName) {
+    return { success: false, error: 'No WhatsApp template configured for this message type' };
+  }
+
+  const formattedPhone = formatPhoneNumber(to);
+  if (!validatePhoneNumber(formattedPhone)) {
+    return {
+      success: false,
+      error: `Invalid phone number format: "${to}". Expected Indian mobile number (10 digits or with +91/91 prefix)`,
+    };
+  }
+
+  return postWhatsAppTemplate({
+    url: `${WHATSAPP_BASE_URL}/send-template/${WHATSAPP_PHONE_NUMBER_ID}`,
+    logLabel,
+    payload: {
+      messaging_product: 'whatsapp',
+      recipient_type: 'individual',
+      to: formattedPhone,
+      type: 'template',
+      template: {
+        name: templateName,
+        language: { code: languageCode },
+        components: bodyParams.length
+          ? [{ type: 'body', parameters: bodyParams.map((text) => ({ type: 'text', text: String(text ?? '') })) }]
+          : [],
+      },
+    },
+  });
+}
+
 function extractProviderMessageId(data: any): string | undefined {
   if (Array.isArray(data?.messages) && typeof data.messages[0]?.id === 'string' && data.messages[0].id.trim()) {
     return data.messages[0].id.trim();
@@ -129,6 +191,7 @@ async function postWhatsAppTemplate({
         Authorization: `Bearer ${WHATSAPP_API_KEY}`,
       },
       body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(WHATSAPP_REQUEST_TIMEOUT_MS),
     });
 
     const responseTime = Date.now() - startTime;

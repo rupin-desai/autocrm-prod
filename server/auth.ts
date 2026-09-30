@@ -58,6 +58,11 @@ export const ROLE_PERMISSIONS = {
     communications: ['read', 'create', 'update', 'delete'],
     feedbacks: ['read', 'create', 'update', 'delete'],
     supportTickets: ['read', 'create', 'update', 'delete'],
+    advancePayments: ['read', 'create', 'update', 'delete'],
+    inquiries: ['read', 'create', 'update', 'delete'],
+    warrantyClaims: ['read', 'create', 'update', 'delete'],
+    quotations: ['read', 'create', 'update', 'delete', 'convert'],
+    website: ['read', 'update'],
   },
   Manager: {
     products: ['read', 'create', 'update'],
@@ -79,17 +84,28 @@ export const ROLE_PERMISSIONS = {
     communications: ['read', 'create', 'update', 'delete'],
     feedbacks: ['read', 'create', 'update', 'delete'],
     supportTickets: ['read', 'create', 'update', 'delete'],
+    advancePayments: ['read', 'create', 'update', 'delete'],
+    inquiries: ['read', 'create', 'update', 'delete'],
+    warrantyClaims: ['read', 'create', 'update', 'delete'],
+    quotations: ['read', 'create', 'update', 'delete', 'convert'],
+    website: ['read', 'update'],
   },
   'Inventory Manager': {
     products: ['read', 'create', 'update', 'delete'],
     inventory: ['read', 'create', 'update', 'delete'],
     orders: ['read', 'create', 'update', 'delete'],
+    warrantyClaims: ['read', 'create', 'update'],
+    website: ['read', 'update'],
   },
   'Sales Executive': {
     customers: ['read', 'create', 'update', 'delete'],
     orders: ['read', 'create', 'update', 'delete'],
     invoices: ['read', 'create'],
     warranties: ['read', 'create'],
+    advancePayments: ['read', 'create'],
+    inquiries: ['read', 'create', 'update'],
+    warrantyClaims: ['read', 'create'],
+    quotations: ['read', 'create', 'update'],
   },
   'HR Manager': {
     employees: ['read', 'create', 'update', 'delete'],
@@ -101,6 +117,8 @@ export const ROLE_PERMISSIONS = {
   'Service Staff': {
     supportTickets: ['read', 'create', 'update'],
     feedbacks: ['read', 'create'],
+    inquiries: ['read', 'create'],
+    warrantyClaims: ['read', 'create', 'update'],
   },
 };
 

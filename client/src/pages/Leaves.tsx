@@ -249,7 +249,7 @@ export default function Leaves() {
   if (error) {
     return (
       <div className="space-y-6">
-        <h1 className="text-3xl font-bold">Leave Management</h1>
+        <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">Leave Management</h1>
         <Card className="border-destructive">
           <CardContent className="pt-6">
             <div className="text-center py-8">
@@ -269,7 +269,7 @@ export default function Leaves() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Leave Management</h1>
+        <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">Leave Management</h1>
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
             <Button data-testid="button-create-leave">

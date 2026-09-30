@@ -290,7 +290,7 @@ export default function UserManagement() {
     <div className="container mx-auto p-3 md:p-6">
       <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-2">
+          <h1 className="text-xl font-semibold tracking-tight sm:text-2xl flex items-center gap-2">
             <Shield className="h-6 w-6 md:h-8 md:w-8" />
             User Management
           </h1>

@@ -23,6 +23,8 @@ import { logActivity } from "./utils/activityLogger";
 import { User } from "./models/User";
 import { authenticateUser, createUser, ROLE_PERMISSIONS, sendOTPToMobile, verifyOTP, sendEmployeeOTP, verifyEmployeeOTP } from "./auth";
 import { requireAuth, requireRole, attachUser, requirePermission } from "./middleware";
+import { registerV2Routes } from "./routes/index";
+import { sendCustomerUpdate } from "./services/customerUpdates";
 import { insertCustomerSchema, insertVehicleSchema } from "./schemas";
 import { RegistrationCustomer } from "./models/RegistrationCustomer";
 import { RegistrationVehicle } from "./models/RegistrationVehicle";
@@ -242,7 +244,7 @@ function getInvoiceProductQuantities(items: any[]): Array<{ productId: string; q
   return Array.from(quantities.values());
 }
 
-async function validateInvoiceStock(items: any[]) {
+export async function validateInvoiceStock(items: any[]) {
   const stockItems = getInvoiceProductQuantities(items);
   const errors: Array<{ productId: string; name: string; requested: number; available: number }> = [];
 
@@ -270,7 +272,7 @@ async function validateInvoiceStock(items: any[]) {
   return stockItems;
 }
 
-async function applyInvoiceStockAdjustment(invoice: any, userId?: string) {
+export async function applyInvoiceStockAdjustment(invoice: any, userId?: string) {
   if (invoice.stockAdjusted) return;
 
   const stockItems = await validateInvoiceStock(invoice.items || []);
@@ -494,6 +496,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   }
   
   app.use(attachUser);
+
+  // Requirements v2 modules: advance payments, inquiries, warranty claims,
+  // quotations, website publishing and the period-aware dashboard.
+  registerV2Routes(app);
 
   app.get("/api/vehicle-master", async (req, res) => {
     try {
@@ -2338,6 +2344,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Store previous status for loyalty and notification logic
       const previousStatus = visit.status;
       const previousCustomerId = visit.customerId;
+      const previousTotalAmount = Number(visit.totalAmount) || 0;
+      const previousPartNames = (visit.partsUsed || []).map((p: any) => String(p.productId));
 
       // Update fields explicitly to ensure Mongoose tracks changes properly
       if (req.body.status !== undefined) visit.status = req.body.status;
@@ -2405,10 +2413,67 @@ export async function registerRoutes(app: Express): Promise<Server> {
       */
       
       // Notify about service visit status change
+      const customerRecord: any = visit.customerId;
+      const customerName = customerRecord?.fullName || 'Unknown Customer';
+
       if (visit.status && previousStatus !== visit.status) {
         console.log('🔔 [SERVICE UPDATE] Sending status change notification');
-        const customerName = visit.customerId?.name || 'Unknown Customer';
         await notifyServiceVisitStatus(visit, customerName, visit.status);
+      }
+
+      // Requirement 6: automatic WhatsApp updates at important work stages.
+      // Messaging must never fail the update itself.
+      try {
+        const newTotal = Number(visit.totalAmount) || 0;
+        const customerMobile = customerRecord?.mobileNumber;
+        const customerIdString = customerRecord?._id?.toString();
+        const statusChanged = previousStatus !== visit.status;
+
+        const baseContext = {
+          customerName,
+          vehicleNumber: visit.vehicleReg,
+          workDescription: 'your vehicle service',
+          totalAmount: newTotal,
+        };
+
+        if (statusChanged && visit.status === 'working') {
+          await sendCustomerUpdate({
+            kind: 'work_started',
+            to: customerMobile,
+            customerId: customerIdString,
+            handledBy: (req as any).session.userId,
+            context: baseContext,
+          });
+        } else if (statusChanged && visit.status === 'completed') {
+          await sendCustomerUpdate({
+            kind: 'work_completed',
+            to: customerMobile,
+            customerId: customerIdString,
+            handledBy: (req as any).session.userId,
+            context: baseContext,
+          });
+        } else if (!statusChanged && newTotal > previousTotalAmount) {
+          // Extra items added mid-job: tell the customer what was added and
+          // what the revised total now is.
+          const addedParts = (visit.partsUsed || [])
+            .filter((p: any) => !previousPartNames.includes(String(p.productId)))
+            .map((p: any) => ({ name: p.name || 'Additional item', quantity: p.quantity }));
+
+          await sendCustomerUpdate({
+            kind: 'work_updated',
+            to: customerMobile,
+            customerId: customerIdString,
+            handledBy: (req as any).session.userId,
+            context: {
+              ...baseContext,
+              previousAmount: previousTotalAmount,
+              addedAmount: newTotal - previousTotalAmount,
+              addedItems: addedParts,
+            },
+          });
+        }
+      } catch (updateError) {
+        console.error('Customer stage update failed:', updateError);
       }
       
       await logActivity({
@@ -4580,6 +4645,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         !hasMobile &&
         Number(validatedData.estimatedBillAmount || 0) < 1000;
       const normalizedMobile = hasMobile ? validatedData.mobileNumber!.trim() : "0000000000";
+
+      // Requirement 1: OTP verification is optional. Staff choose Yes/No at
+      // registration; No lets the customer be created immediately. Local
+      // bypass and the low-value walk-in rule also skip it.
+      const staffOptedOutOfOtp = validatedData.otpRequired === false;
+      const skipOtp = isLowValueWalkInNoPhone || staffOptedOutOfOtp || bypassWhatsappOtpForLocal || !hasMobile;
+      const otpSkipReason = isLowValueWalkInNoPhone
+        ? "low_value_no_phone"
+        : staffOptedOutOfOtp
+          ? "staff_opted_out"
+          : bypassWhatsappOtpForLocal
+            ? "local_bypass"
+            : !hasMobile
+              ? "low_value_no_phone"
+              : null;
       
       // Check if mobile number already exists
       const existing = await RegistrationCustomer.findOne({ mobileNumber: normalizedMobile });
@@ -4612,9 +4692,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         referenceCode = `CUST-${stateCode}-${String(nextNumber).padStart(6, '0')}`;
       }
       
-      // Generate OTP unless this is an allowed low-value walk-in without phone.
-      const otp = isLowValueWalkInNoPhone ? null : Math.floor(100000 + Math.random() * 900000).toString();
-      const otpExpiresAt = isLowValueWalkInNoPhone ? null : new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+      // Generate an OTP only when verification is actually going to happen.
+      const otp = skipOtp ? null : Math.floor(100000 + Math.random() * 900000).toString();
+      const otpExpiresAt = skipOtp ? null : new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
       
       // Capture who registered the customer (if authenticated)
       const registeredBy = (req as any).user ? (req as any).user.name : null;
@@ -4624,19 +4704,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ...validatedData,
         mobileNumber: normalizedMobile,
         referenceCode,
-        isVerified: isLowValueWalkInNoPhone,
+        isVerified: skipOtp,
+        otpRequired: !skipOtp,
+        otpSkipReason,
         otp,
         otpExpiresAt,
+        otpAttempts: 0,
         registeredBy,
         registeredByRole
       });
-      
-      if (isLowValueWalkInNoPhone) {
+
+      if (skipOtp) {
         return res.json({
           customerId: customer._id.toString(),
+          referenceCode: customer.referenceCode,
           skipOtp: true,
-          skipOtpReason: "low_value_no_phone",
-          message: "Low-value walk-in customer registered without OTP",
+          skipOtpReason: otpSkipReason,
+          isVerified: true,
+          message:
+            otpSkipReason === "staff_opted_out"
+              ? "Customer registered without OTP verification"
+              : otpSkipReason === "low_value_no_phone"
+                ? "Low-value walk-in customer registered without OTP"
+                : "Customer registered without OTP",
         });
       }
 
@@ -4673,6 +4763,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: "Customer not found" });
       }
       
+      if (customer.isVerified) {
+        return res.status(400).json({ error: "Customer is already verified" });
+      }
+
       if (!customer.otp || !customer.otpExpiresAt) {
         return res.status(400).json({ error: "No OTP found for this customer" });
       }
@@ -4680,14 +4774,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (new Date() > customer.otpExpiresAt) {
         return res.status(400).json({ error: "OTP has expired" });
       }
+
+      // Cap guesses so a 6-digit code cannot be brute forced.
+      if ((customer.otpAttempts || 0) >= 5) {
+        return res.status(429).json({
+          error: "Too many incorrect attempts. Please request a new OTP.",
+          code: "OTP_ATTEMPTS_EXCEEDED",
+        });
+      }
       
       if (customer.otp !== otp) {
-        return res.status(400).json({ error: "Invalid OTP" });
+        customer.otpAttempts = (customer.otpAttempts || 0) + 1;
+        await customer.save();
+        return res.status(400).json({
+          error: "Invalid OTP",
+          attemptsRemaining: Math.max(0, 5 - customer.otpAttempts),
+        });
       }
       
       customer.isVerified = true;
       customer.otp = null;
       customer.otpExpiresAt = null;
+      customer.otpAttempts = 0;
       await customer.save();
       
       // Log customer creation activity (after verification)
@@ -6406,16 +6514,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Payment amount exceeds due amount" });
       }
       
-      invoice.paidAmount += totalPaid;
-      invoice.dueAmount -= totalPaid;
-      
-      if (invoice.dueAmount === 0) {
+      const round2 = (n: number) => Math.round((Number(n) || 0) * 100) / 100;
+      invoice.paidAmount = round2(invoice.paidAmount + totalPaid);
+      invoice.dueAmount = round2(invoice.dueAmount - totalPaid);
+
+      // Compare against a paise epsilon: summed part-payments rarely land on
+      // an exact zero in floating point.
+      if (invoice.dueAmount <= 0.01) {
+        invoice.dueAmount = 0;
         invoice.paymentStatus = 'paid';
       } else if (invoice.paidAmount > 0) {
         invoice.paymentStatus = 'partial';
       }
       
       await invoice.save();
+
+      // Requirement 6: confirm the payment to the customer automatically.
+      let whatsappUpdate;
+      try {
+        whatsappUpdate = await sendCustomerUpdate({
+          kind: 'payment_received',
+          to: invoice.customerDetails?.mobileNumber,
+          customerId: invoice.customerId?.toString(),
+          handledBy: userId,
+          context: {
+            customerName: invoice.customerDetails?.fullName || 'Customer',
+            vehicleNumber: invoice.vehicleDetails?.[0]?.vehicleNumber,
+            invoiceNumber: invoice.invoiceNumber,
+            paidAmount: totalPaid,
+            dueAmount: invoice.dueAmount,
+            totalAmount: invoice.totalAmount,
+            paymentMode: paymentsToAdd.length === 1 ? paymentsToAdd[0].paymentMode : undefined,
+          },
+        });
+      } catch (updateError) {
+        console.error('Payment confirmation message failed:', updateError);
+      }
       
       await logActivity({
         userId,
@@ -6428,7 +6562,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ipAddress: req.ip,
       });
       
-      res.json(invoice);
+      res.json({ ...invoice.toObject(), whatsappUpdate });
     } catch (error) {
       console.error('Payment error:', error);
       res.status(500).json({ error: "Failed to add payment" });

@@ -217,11 +217,11 @@ function CustomerVehicleCard({
   );
 
   return (
-    <Card className="overflow-hidden border-2 border-orange-300 dark:border-orange-700" data-testid={`card-customer-vehicle-${customer.id}-${vehicle.id}`}>
+    <Card className="overflow-hidden transition-shadow duration-200 hover:shadow-md" data-testid={`card-customer-vehicle-${customer.id}-${vehicle.id}`}>
       <CardContent className="p-0">
         {/* Vehicle Image */}
         {vehicle.vehiclePhoto && (
-          <div className="w-full h-48 bg-gradient-to-r from-orange-50 to-yellow-50 dark:from-orange-950/30 dark:to-yellow-950/30 flex items-center justify-center border-2 border-orange-300 dark:border-orange-700">
+          <div className="w-full h-48 bg-muted/50 flex items-center justify-center border-b border-border">
             <img 
               src={vehicle.vehiclePhoto} 
               alt={`${vehicle.vehicleBrand} ${vehicle.vehicleModel}`} 
@@ -989,7 +989,7 @@ export default function CustomerRegistrationDashboard() {
       <div>
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold">Customer Registration Dashboard</h1>
+            <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">Customer Registration Dashboard</h1>
             <p className="text-muted-foreground mt-2">
               View and manage all registered customers and their vehicles
             </p>
@@ -1499,7 +1499,7 @@ export default function CustomerRegistrationDashboard() {
                                 <img 
                                   src={vehicle.vehiclePhoto} 
                                   alt={`${vehicle.vehicleBrand} ${vehicle.vehicleModel}`} 
-                                  className="w-24 h-24 object-contain rounded-md border-2 border-orange-300 dark:border-orange-700 bg-gradient-to-r from-orange-50 to-yellow-50 dark:from-orange-950/30 dark:to-yellow-950/30 p-1"
+                                  className="w-24 h-24 object-contain rounded-md border border-border bg-muted/50 p-1"
                                   data-testid={`img-vehicle-${vehicle.id}`}
                                 />
                               </div>
