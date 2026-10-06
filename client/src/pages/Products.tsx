@@ -1182,7 +1182,7 @@ export default function Products() {
   if (error) {
     return (
       <div className="space-y-6">
-        <h1 className="text-3xl font-bold">Products & Inventory</h1>
+        <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">Products & Inventory</h1>
         <Card className="border-destructive">
           <CardContent className="pt-6">
             <div className="text-center py-8">
@@ -1202,7 +1202,7 @@ export default function Products() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-3xl font-bold">Products & Inventory</h1>
+        <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">Products & Inventory</h1>
         <div className="flex gap-2 flex-wrap">
           <input
             type="file"

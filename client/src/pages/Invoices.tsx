@@ -319,7 +319,7 @@ export default function Invoices() {
     <div className="p-3 md:p-6 space-y-4 md:space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold" data-testid="heading-invoices">Invoices & Billing</h1>
+          <h1 className="text-xl font-semibold tracking-tight sm:text-2xl" data-testid="heading-invoices">Invoices & Billing</h1>
           <p className="text-sm md:text-base text-muted-foreground">Manage invoices, payments, and billing</p>
         </div>
       </div>

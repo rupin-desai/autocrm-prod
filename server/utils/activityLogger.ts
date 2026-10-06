@@ -6,7 +6,7 @@ interface LogActivityParams {
   userName: string;
   userRole: string;
   action: 'create' | 'update' | 'delete' | 'login' | 'logout' | 'approve' | 'reject' | 'complete' | 'other';
-  resource: 'product' | 'order' | 'customer' | 'employee' | 'inventory' | 'supplier' | 'purchase_order' | 'service_visit' | 'attendance' | 'leave' | 'task' | 'communication' | 'feedback' | 'support_ticket' | 'user' | 'other';
+  resource: 'product' | 'order' | 'customer' | 'employee' | 'inventory' | 'supplier' | 'purchase_order' | 'service_visit' | 'attendance' | 'leave' | 'task' | 'communication' | 'feedback' | 'support_ticket' | 'user' | 'advance_payment' | 'inquiry' | 'warranty_claim' | 'quotation' | 'website' | 'other';
   resourceId?: string;
   description: string;
   details?: any;

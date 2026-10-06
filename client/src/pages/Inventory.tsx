@@ -227,7 +227,7 @@ export default function Inventory() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Inventory Management</h1>
+          <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">Inventory Management</h1>
           <p className="text-muted-foreground mt-1">Track stock movements, returns and stock health</p>
         </div>
         <div className="flex gap-2 flex-wrap">

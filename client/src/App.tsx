@@ -33,6 +33,11 @@ import CustomerRegistrationDashboard from "@/pages/CustomerRegistrationDashboard
 import CarMaster from "@/pages/CarMaster";
 import Invoices from "@/pages/Invoices";
 import SupportFeedback from "@/pages/SupportFeedback";
+import AdvancePayments from "@/pages/AdvancePayments";
+import Inquiries from "@/pages/Inquiries";
+import WarrantyClaims from "@/pages/WarrantyClaims";
+import Quotations from "@/pages/Quotations";
+import WebsiteProducts from "@/pages/WebsiteProducts";
 import { useEffect } from "react";
 import { User } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -59,6 +64,11 @@ const ROUTE_PERMISSIONS: Record<string, { resource: string; action: string } | n
   '/invoices': { resource: 'invoices', action: 'read' },
   '/analytics': { resource: 'reports', action: 'read' },
   '/support': { resource: 'supportTickets', action: 'read' },
+  '/advance-payments': { resource: 'advancePayments', action: 'read' },
+  '/inquiries': { resource: 'inquiries', action: 'read' },
+  '/warranty-claims': { resource: 'warrantyClaims', action: 'read' },
+  '/quotations': { resource: 'quotations', action: 'read' },
+  '/website-products': { resource: 'website', action: 'read' },
 };
 
 function ProtectedRoute({ component: Component }: { component: React.ComponentType }) {
@@ -170,6 +180,21 @@ function Router() {
       <Route path="/support">
         {() => <ProtectedRoute component={SupportFeedback} />}
       </Route>
+      <Route path="/advance-payments">
+        {() => <ProtectedRoute component={AdvancePayments} />}
+      </Route>
+      <Route path="/inquiries">
+        {() => <ProtectedRoute component={Inquiries} />}
+      </Route>
+      <Route path="/warranty-claims">
+        {() => <ProtectedRoute component={WarrantyClaims} />}
+      </Route>
+      <Route path="/quotations">
+        {() => <ProtectedRoute component={Quotations} />}
+      </Route>
+      <Route path="/website-products">
+        {() => <ProtectedRoute component={WebsiteProducts} />}
+      </Route>
     </Switch>
   );
 }
@@ -193,26 +218,31 @@ function AppLayout() {
       <div className="flex h-screen w-full">
         <AppSidebar />
         <div className="flex flex-col flex-1 overflow-hidden">
-          <header className="flex items-center justify-between gap-4 px-6 py-3 border-b border-border bg-background">
+          <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-4 border-b border-border bg-background/80 px-4 backdrop-blur-sm supports-[backdrop-filter]:bg-background/60 sm:px-6">
             <SidebarTrigger data-testid="button-sidebar-toggle" />
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1">
               {user && (
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setLocation('/profile')}
                   data-testid="button-profile"
+                  className="gap-2"
                 >
-                  <User className="h-4 w-4 mr-2" />
-                  {user.name}
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-[10px] font-semibold text-primary">
+                    {user.name?.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)}
+                  </span>
+                  <span className="hidden sm:inline">{user.name}</span>
                 </Button>
               )}
               <NotificationBell />
               <ThemeToggle />
             </div>
           </header>
-          <main className="flex-1 overflow-y-auto p-6">
-            <Router />
+          <main className="flex-1 overflow-y-auto">
+            <div className="mx-auto w-full max-w-[1600px] p-4 sm:p-6">
+              <Router />
+            </div>
           </main>
         </div>
       </div>

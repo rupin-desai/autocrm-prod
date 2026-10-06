@@ -90,7 +90,7 @@ export default function Settings() {
     <div className="container mx-auto max-w-6xl">
       <div className="flex items-center gap-3 mb-6">
         <SettingsIcon className="h-8 w-8" />
-        <h1 className="text-3xl font-bold" data-testid="text-title">Settings</h1>
+        <h1 className="text-xl font-semibold tracking-tight sm:text-2xl" data-testid="text-title">Settings</h1>
       </div>
 
       <Tabs defaultValue="profile" className="space-y-6">

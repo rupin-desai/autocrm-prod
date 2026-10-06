@@ -21,6 +21,7 @@ const activityLogSchema = new mongoose.Schema({
       'inventory', 'supplier', 'purchase_order',
       'service_visit', 'attendance', 'leave', 'task',
       'communication', 'feedback', 'support_ticket', 'user',
+      'advance_payment', 'inquiry', 'warranty_claim', 'quotation', 'website',
       'other'
     ],
     required: true 

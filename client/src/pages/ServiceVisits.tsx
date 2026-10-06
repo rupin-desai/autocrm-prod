@@ -450,7 +450,7 @@ export default function ServiceVisits() {
   if (error) {
     return (
       <div className="space-y-6">
-        <h1 className="text-3xl font-bold">Service Workflow</h1>
+        <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">Service Workflow</h1>
         <Card className="border-destructive">
           <CardContent className="pt-6">
             <div className="text-center py-8">
@@ -470,7 +470,7 @@ export default function ServiceVisits() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Service Workflow</h1>
+        <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">Service Workflow</h1>
         <Dialog open={isServiceDialogOpen} onOpenChange={setIsServiceDialogOpen}>
           <DialogTrigger asChild className="hidden">
             <Button data-testid="button-new-service">
@@ -843,7 +843,7 @@ export default function ServiceVisits() {
                     {selectedService.beforeImages && selectedService.beforeImages.length > 0 ? (
                       <div className="grid grid-cols-2 gap-2">
                         {selectedService.beforeImages.map((img: string, idx: number) => (
-                          <div key={idx} className="relative border-2 border-orange-300 dark:border-orange-700 rounded overflow-hidden cursor-pointer hover:opacity-80 transition-opacity" onClick={() => handleImageClick(img)}>
+                          <div key={idx} className="relative border border-border rounded-md overflow-hidden cursor-pointer transition-all duration-150 hover:ring-2 hover:ring-primary/40" onClick={() => handleImageClick(img)}>
                             <img src={img} alt={`Before ${idx + 1}`} className="w-full h-32 object-cover" />
                           </div>
                         ))}
@@ -1018,7 +1018,7 @@ export default function ServiceVisits() {
                   {beforeImages.length > 0 && (
                     <div className="grid grid-cols-2 gap-2 mt-2">
                       {beforeImages.map((img, idx) => (
-                        <div key={idx} className="relative border-2 border-orange-300 dark:border-orange-700 rounded p-1 cursor-pointer hover:opacity-90 transition-opacity" onClick={() => handleImageClick(img)}>
+                        <div key={idx} className="relative border border-border rounded-md p-1 cursor-pointer transition-all duration-150 hover:ring-2 hover:ring-primary/40" onClick={() => handleImageClick(img)}>
                           <img src={img} alt={`Before ${idx + 1}`} className="w-full h-24 object-cover rounded" />
                           <button
                             type="button"
@@ -1049,7 +1049,7 @@ export default function ServiceVisits() {
                     {afterImages.length > 0 && (
                       <div className="grid grid-cols-2 gap-2 mt-2">
                         {afterImages.map((img, idx) => (
-                          <div key={idx} className="relative border-2 border-orange-300 dark:border-orange-700 rounded p-1 cursor-pointer hover:opacity-90 transition-opacity" onClick={() => handleImageClick(img)}>
+                          <div key={idx} className="relative border border-border rounded-md p-1 cursor-pointer transition-all duration-150 hover:ring-2 hover:ring-primary/40" onClick={() => handleImageClick(img)}>
                             <img src={img} alt={`After ${idx + 1}`} className="w-full h-24 object-cover rounded" />
                             <button
                               type="button"

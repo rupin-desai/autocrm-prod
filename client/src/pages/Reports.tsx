@@ -257,7 +257,7 @@ export default function Reports() {
     <div className="space-y-6 p-3 md:p-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold">Reports & Analytics</h1>
+          <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">Reports & Analytics</h1>
           <p className="text-sm md:text-base text-muted-foreground mt-1">Business insights and performance metrics</p>
         </div>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
