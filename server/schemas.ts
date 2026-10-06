@@ -90,6 +90,15 @@ export const updateAdvancePaymentSchema = insertAdvancePaymentSchema
     status: z.enum(['pending', 'adjusted', 'refunded', 'cancelled']).optional(),
   });
 
+export const updateAdvanceReminderSchema = z
+  .object({
+    reminderDays: z.coerce.number().int().min(0).max(365).optional(),
+    reminderEnabled: z.boolean().optional(),
+  })
+  .refine((d) => d.reminderDays !== undefined || d.reminderEnabled !== undefined, {
+    message: 'Nothing to update',
+  });
+
 const inquiryItemSchema = z.object({
   productId: optionalObjectId,
   name: z.string().min(1, "Item name is required"),

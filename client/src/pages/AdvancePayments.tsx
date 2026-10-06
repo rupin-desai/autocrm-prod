@@ -13,9 +13,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { hasPermission, useAuth } from "@/lib/auth";
 import { PeriodFilter, periodToQuery, type PeriodValue } from "@/components/PeriodFilter";
 import { EmptyState, PageHeader, StatTile, TableSkeleton } from "@/components/PageShell";
-import { BellRing, IndianRupee, Plus, Search, Wallet } from "lucide-react";
+import { BellRing, IndianRupee, Pencil, Plus, Search, Wallet } from "lucide-react";
 
 // Requirement 2: Advance Payment Received.
 
@@ -47,6 +48,9 @@ const emptyForm = {
 
 export default function AdvancePayments() {
   const { toast } = useToast();
+  const { user } = useAuth();
+  const canUpdate = hasPermission(user, "advancePayments", "update");
+  const [reminderEdit, setReminderEdit] = useState<{ id: string; customerName: string; days: string } | null>(null);
   const [period, setPeriod] = useState<PeriodValue>({ period: "month" });
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -123,6 +127,24 @@ export default function AdvancePayments() {
     },
     onError: (error: any) =>
       toast({ title: "Error", description: error.message || "Failed to update", variant: "destructive" }),
+  });
+
+  const reminderMutation = useMutation({
+    mutationFn: async ({ id, days }: { id: string; days: string }) => {
+      const reminderDays = Number(days);
+      if (!Number.isInteger(reminderDays) || reminderDays < 0 || reminderDays > 365) {
+        throw new Error("Enter a whole number of days between 0 and 365");
+      }
+      const res = await apiRequest("PATCH", `/api/advance-payments/${id}/reminder`, { reminderDays });
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/advance-payments"] });
+      setReminderEdit(null);
+      toast({ title: "Reminder updated" });
+    },
+    onError: (error: any) =>
+      toast({ title: "Error", description: error.message || "Failed to update reminder", variant: "destructive" }),
   });
 
   const items = data?.items || [];
@@ -244,13 +266,29 @@ export default function AdvancePayments() {
                             {overdue && <BellRing className="h-3.5 w-3.5" />}
                             {shortDate(a.reminderDate)}
                           </span>
-                          <div className="text-xs text-muted-foreground">{a.reminderDays} days</div>
+                          <div className="text-xs text-muted-foreground inline-flex items-center gap-1">
+                            {a.reminderDays} days
+                            {a.status === "pending" && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-5 w-5"
+                                title="Change reminder days"
+                                onClick={() =>
+                                  setReminderEdit({ id: a._id, customerName: a.customerName, days: String(a.reminderDays) })
+                                }
+                                data-testid={`button-edit-reminder-${a._id}`}
+                              >
+                                <Pencil className="h-3 w-3" />
+                              </Button>
+                            )}
+                          </div>
                         </TableCell>
                         <TableCell>
                           <Badge className={STATUS_STYLES[a.status]} variant="secondary">{a.status}</Badge>
                         </TableCell>
                         <TableCell>
-                          {a.status === "pending" && (
+                          {a.status === "pending" && canUpdate && (
                             <Select onValueChange={(status) => statusMutation.mutate({ id: a._id, status })}>
                               <SelectTrigger className="w-[130px] h-8" data-testid={`select-status-${a._id}`}>
                                 <SelectValue placeholder="Change" />
@@ -272,6 +310,39 @@ export default function AdvancePayments() {
           )}
         </CardContent>
       </Card>
+
+      <Dialog open={!!reminderEdit} onOpenChange={(open) => !open && setReminderEdit(null)}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Change Reminder</DialogTitle>
+            <DialogDescription>
+              Remind about {reminderEdit?.customerName}'s advance this many days after it was received.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            <Label htmlFor="edit-reminder-days">Reminder after (days)</Label>
+            <Input
+              id="edit-reminder-days"
+              type="number"
+              min={0}
+              max={365}
+              value={reminderEdit?.days ?? ""}
+              onChange={(e) => reminderEdit && setReminderEdit({ ...reminderEdit, days: e.target.value })}
+              data-testid="input-edit-reminder-days"
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setReminderEdit(null)}>Cancel</Button>
+            <Button
+              onClick={() => reminderEdit && reminderMutation.mutate({ id: reminderEdit.id, days: reminderEdit.days })}
+              disabled={reminderMutation.isPending}
+              data-testid="button-save-reminder"
+            >
+              {reminderMutation.isPending ? "Saving..." : "Save"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-2xl dialog-scroll">

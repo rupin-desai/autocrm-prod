@@ -72,6 +72,7 @@ const mainMenuItems: MenuItem[] = [
   { title: "Car Master", url: "/car-master", icon: Car, permission: { resource: "customers", action: "update" }, group: "customer" },
   { title: "Service Visits", url: "/visits", icon: ClipboardList, permission: { resource: "orders", action: "read" }, group: "service" },
   { title: "Support & Feedback", url: "/support", icon: Headset, permission: { resource: "supportTickets", action: "read" }, group: "support" },
+  { title: "Communications", url: "/communications", icon: MessageSquare, permission: { resource: "communications", action: "read" }, group: "support" },
   { title: "Customer Inquiries", url: "/inquiries", icon: ClipboardList, permission: { resource: "inquiries", action: "read" }, group: "customer" },
   { title: "Quotations", url: "/quotations", icon: FileSpreadsheet, permission: { resource: "quotations", action: "read" }, group: "invoice" },
   { title: "Invoices", url: "/invoices", icon: Receipt, permission: { resource: "invoices", action: "read" }, group: "invoice" },

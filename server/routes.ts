@@ -6170,10 +6170,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const oldStatus = invoice.paymentStatus;
+      const settledAmount = Math.round((Number(invoice.dueAmount) || 0) * 100) / 100;
       invoice.paymentStatus = paymentStatus;
-      
+
       // Update paid and due amounts based on the status
       if (paymentStatus === 'paid') {
+        // Record the settled balance in the payments[] ledger, which the
+        // dashboard's UPI/Cash/Card figures are built from.
+        if (oldStatus !== 'paid' && settledAmount > 0) {
+          invoice.payments.push({
+            amount: settledAmount,
+            paymentMode: paymentMethod || invoice.paymentMethod || 'Cash',
+            notes: 'Marked as paid',
+            recordedBy: userId,
+            transactionDate: new Date(),
+          } as any);
+        }
         invoice.paidAmount = invoice.totalAmount;
         invoice.dueAmount = 0;
         // Save payment method when marking as paid
@@ -6186,9 +6198,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Clear payment method when marking as unpaid
         invoice.paymentMethod = undefined;
       }
-      
+
       await invoice.save();
-      
+
+      // Requirement 6: confirm the payment to the customer automatically.
+      if (paymentStatus === 'paid' && oldStatus !== 'paid' && settledAmount > 0) {
+        try {
+          await sendCustomerUpdate({
+            kind: 'payment_received',
+            to: invoice.customerDetails?.mobileNumber,
+            customerId: invoice.customerId?.toString(),
+            handledBy: userId,
+            context: {
+              customerName: invoice.customerDetails?.fullName || 'Customer',
+              vehicleNumber: invoice.vehicleDetails?.[0]?.vehicleNumber,
+              invoiceNumber: invoice.invoiceNumber,
+              paidAmount: settledAmount,
+              dueAmount: 0,
+              totalAmount: invoice.totalAmount,
+              paymentMode: paymentMethod || invoice.paymentMethod,
+            },
+          });
+        } catch (updateError) {
+          console.error('Payment confirmation message failed:', updateError);
+        }
+      }
+
       await logActivity({
         userId,
         userName,

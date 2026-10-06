@@ -391,9 +391,22 @@ export default function CustomerRegistrationDashboard() {
   const [districtFilter, setDistrictFilter] = useState("all");
   const [stateFilter, setStateFilter] = useState("all");
   const [verifiedFilter, setVerifiedFilter] = useState("all");
-  const [sortOption, setSortOption] = useState<"all" | "latest" | "last10" | "dateRange">("all");
-  const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
-  const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
+  // The dashboard links here with ?from=YYYY-MM-DD&to=YYYY-MM-DD to open the
+  // list filtered to the period it was showing.
+  const [initialRange] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    const parse = (v: string | null) => {
+      if (!v || !/^\d{4}-\d{2}-\d{2}$/.test(v)) return undefined;
+      const [y, m, d] = v.split("-").map(Number);
+      return new Date(y, m - 1, d);
+    };
+    const from = parse(params.get("from"));
+    const to = parse(params.get("to"));
+    return from && to ? { from, to } : undefined;
+  });
+  const [sortOption, setSortOption] = useState<"all" | "latest" | "last10" | "dateRange">(initialRange ? "dateRange" : "all");
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(initialRange?.from);
+  const [dateTo, setDateTo] = useState<Date | undefined>(initialRange?.to);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);

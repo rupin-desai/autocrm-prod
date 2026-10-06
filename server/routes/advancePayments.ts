@@ -3,7 +3,7 @@ import { AdvancePayment } from '../models/AdvancePayment';
 import { RegistrationCustomer } from '../models/RegistrationCustomer';
 import { RegistrationVehicle } from '../models/RegistrationVehicle';
 import { requireAuth, requirePermission } from '../middleware';
-import { insertAdvancePaymentSchema, updateAdvancePaymentSchema } from '../schemas';
+import { insertAdvancePaymentSchema, updateAdvancePaymentSchema, updateAdvanceReminderSchema } from '../schemas';
 import { logActivity } from '../utils/activityLogger';
 import { resolveDateRange } from '../utils/dateRange';
 import { sendCustomerUpdate } from '../services/customerUpdates';
@@ -179,7 +179,48 @@ export function registerAdvancePaymentRoutes(app: Express) {
     }
   });
 
-  app.delete('/api/advance-payments/:id', requireAuth, requirePermission('advancePayments', 'delete'), async (req, res) => {
+  // Reminder window only. Open to anyone who can record an advance, so a
+  // salesman can change the reminder days without being able to edit the
+  // amount or status.
+  app.patch('/api/advance-payments/:id/reminder', requireAuth, requirePermission('advancePayments', 'create'), async (req, res) => {
+    try {
+      const data = updateAdvanceReminderSchema.parse(req.body);
+      const user = sessionUser(req);
+
+      const advance = await AdvancePayment.findById(req.params.id);
+      if (!advance) return res.status(404).json({ error: 'Advance payment not found' });
+
+      if (advance.status !== 'pending') {
+        return res.status(400).json({ error: `This advance is ${advance.status}; its reminder can no longer be changed` });
+      }
+
+      const previousDays = advance.reminderDays;
+      if (data.reminderDays !== undefined) advance.reminderDays = data.reminderDays;
+      if (data.reminderEnabled !== undefined) advance.reminderEnabled = data.reminderEnabled;
+      // Re-arm so the new date fires even if the old one already did.
+      advance.reminderSentAt = undefined;
+
+      await advance.save();
+
+      await logActivity({
+        userId: user.userId,
+        userName: user.userName,
+        userRole: user.userRole,
+        action: 'update',
+        resource: 'advance_payment',
+        resourceId: advance._id.toString(),
+        description: `Changed advance reminder for ${advance.customerName} from ${previousDays} to ${advance.reminderDays} days`,
+        details: data,
+        ipAddress: req.ip,
+      });
+
+      res.json(advance);
+    } catch (error) {
+      handleRouteError(res, error, 'Failed to update reminder');
+    }
+  });
+
+  app.delete('/api/advance-payments/:id',requireAuth, requirePermission('advancePayments', 'delete'), async (req, res) => {
     try {
       const user = sessionUser(req);
       const advance = await AdvancePayment.findById(req.params.id);

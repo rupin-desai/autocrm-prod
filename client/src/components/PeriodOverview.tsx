@@ -23,6 +23,12 @@ import {
 const money = (n: number) =>
   `₹${(Number(n) || 0).toLocaleString("en-IN", { maximumFractionDigits: 0 })}`;
 
+const localDay = (iso: string) => {
+  const d = new Date(iso);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+};
+
 function Delta({ value }: { value: number | null | undefined }) {
   if (value === null || value === undefined) return null;
   const up = value >= 0;
@@ -118,6 +124,11 @@ export function PeriodOverview() {
     }));
   }, [analytics]);
 
+  // Open the customer list already filtered to this period's window.
+  const registrationLink = data?.range
+    ? `/registration-dashboard?from=${localDay(data.range.from)}&to=${localDay(data.range.to)}`
+    : "/registration-dashboard";
+
   return (
     <Card>
       <CardHeader className="pb-3">
@@ -197,7 +208,7 @@ export function PeriodOverview() {
             <h3 className="text-sm font-medium">In this period</h3>
             <div className="space-y-2 text-sm">
               {[
-                { label: "Customers added", value: data?.customers?.added ?? 0, to: "/registration-dashboard" },
+                { label: "Customers added", value: data?.customers?.added ?? 0, to: registrationLink },
                 { label: "Customers visited", value: data?.customers?.visited ?? 0, to: "/visits" },
                 { label: "Verified", value: analytics?.totals?.verified ?? 0 },
                 { label: "Unverified", value: analytics?.totals?.unverified ?? 0 },
