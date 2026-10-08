@@ -58,7 +58,7 @@ const customerFormSchema = z.object({
   walkInNoPhone: z.boolean().default(false),
   estimatedBillAmount: z.string().optional(),
   // Requirement 1: OTP verification is optional, chosen per registration.
-  otpRequired: z.boolean().default(true),
+  otpRequired: z.boolean().default(false),
 }).refine((data) => {
   if (data.referralSource === "Other" && !data.customReferralSource) {
     return false;
@@ -192,7 +192,7 @@ export default function CustomerRegistration() {
       customReferralSource: "",
       referralPersonName: "",
       walkInNoPhone: false,
-      otpRequired: true,
+      otpRequired: false,
       estimatedBillAmount: "",
     },
   });

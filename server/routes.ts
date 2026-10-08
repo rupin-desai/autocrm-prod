@@ -4646,10 +4646,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         Number(validatedData.estimatedBillAmount || 0) < 1000;
       const normalizedMobile = hasMobile ? validatedData.mobileNumber!.trim() : "0000000000";
 
-      // Requirement 1: OTP verification is optional. Staff choose Yes/No at
-      // registration; No lets the customer be created immediately. Local
-      // bypass and the low-value walk-in rule also skip it.
-      const staffOptedOutOfOtp = validatedData.otpRequired === false;
+      // Requirement 1: OTP verification is opt-in. An OTP is sent only when
+      // staff tick "Verify with OTP"; otherwise, including when the field is
+      // missing, the customer is created immediately. Local bypass and the
+      // low-value walk-in rule also skip it.
+      const staffOptedOutOfOtp = validatedData.otpRequired !== true;
       const skipOtp = isLowValueWalkInNoPhone || staffOptedOutOfOtp || bypassWhatsappOtpForLocal || !hasMobile;
       const otpSkipReason = isLowValueWalkInNoPhone
         ? "low_value_no_phone"

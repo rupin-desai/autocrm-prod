@@ -15,7 +15,8 @@ export const insertCustomerSchema = z.object({
   walkInNoPhone: z.boolean().optional().default(false),
   estimatedBillAmount: z.coerce.number().optional(),
   // Requirement 1: OTP is not compulsory. Staff answer Yes/No at registration.
-  otpRequired: z.boolean().optional().default(true),
+  // OTP is opt-in: only an explicit true sends one.
+  otpRequired: z.boolean().optional().default(false),
 }).refine((data) => {
   const mobile = (data.mobileNumber || "").trim();
   if (data.walkInNoPhone) {
