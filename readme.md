@@ -2,14 +2,18 @@
 
 ## Deploying a production build
 
-Build the client and server bundle from the repository root:
+### 1. Local terminal (your Mac)
+
+Open a terminal in the repository root. Do not SSH yet. Build the client and
+server bundle:
 
 ```bash
 npm run build
 ```
 
-Upload the assets first, then the HTML entry point and server bundle. Replace
-`<SSH_USER>` and `<SERVER_HOST>` with the deployment SSH credentials.
+From that same local terminal, upload the assets first, then the HTML entry
+point and server bundle. Replace `<SSH_USER>` and `<SERVER_HOST>` with the
+deployment SSH credentials.
 
 ```bash
 scp -r ./dist/public/assets <SSH_USER>@<SERVER_HOST>:/var/www/AutoCarV12/dist/public/
@@ -17,14 +21,24 @@ scp ./dist/public/index.html <SSH_USER>@<SERVER_HOST>:/var/www/AutoCarV12/dist/p
 scp ./dist/index.js <SSH_USER>@<SERVER_HOST>:/var/www/AutoCarV12/dist/index.js
 ```
 
-Connect to the server and restart the PM2 process:
+### 2. Server terminal (SSH session)
+
+After the uploads finish, SSH into the server from the local terminal:
 
 ```bash
 ssh <SSH_USER>@<SERVER_HOST>
+```
+
+Once the prompt changes to the server (for example, `[root@server ~]#`), run:
+
+```bash
 pm2 restart autocarv7
 ```
 
-Verify that the live domain returns the current bundle name:
+### 3. Local terminal (your Mac)
+
+Back in a local terminal, verify that the live domain returns the current
+bundle name:
 
 ```bash
 grep -o 'index-[^"]*\.js' dist/public/index.html
