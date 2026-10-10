@@ -170,14 +170,18 @@ export function InvoiceGenerationDialog({ open, onOpenChange, serviceVisit }: In
         hasInMap: freshProductMap.has(productId?.toString()),
       });
       
+      // The job card price is what was agreed (e.g. the quoted rate); fall
+      // back to the live catalogue price only when none was recorded.
+      const unitPrice = Number(part.price) > 0 ? Number(part.price) : (freshData?.price || 0);
       const item = {
-        type: 'product' as const,
+        // Parts outside the catalogue carry no stock, so bill them as a service line.
+        type: (productId ? 'product' : 'service') as 'product' | 'service',
         productId: productId,
-        name: freshData?.name || part.productId?.name || 'Product',
+        name: part.name || freshData?.name || part.productId?.productName || 'Product',
         isLabourCharge: false,
         quantity: part.quantity || 1,
-        unitPrice: freshData?.price || part.price || 0,
-        total: (part.quantity || 1) * (freshData?.price || part.price || 0),
+        unitPrice,
+        total: (part.quantity || 1) * unitPrice,
         hasGst: false,
         gstPercentage: 18,
         gstAmount: 0,
@@ -300,8 +304,8 @@ export function InvoiceGenerationDialog({ open, onOpenChange, serviceVisit }: In
       onOpenChange(false);
       form.reset();
     },
-    onError: () => {
-      toast({ title: "Failed to create invoice", variant: "destructive" });
+    onError: (error: any) => {
+      toast({ title: "Failed to create invoice", description: error?.message, variant: "destructive" });
     },
   });
 

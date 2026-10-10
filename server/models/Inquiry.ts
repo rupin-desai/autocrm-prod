@@ -43,6 +43,7 @@ const inquirySchema = new mongoose.Schema({
   reminderEnabled: { type: Boolean, default: true },
 
   quotationId: { type: mongoose.Schema.Types.ObjectId, ref: 'Quotation' },
+  serviceVisitId: { type: mongoose.Schema.Types.ObjectId, ref: 'ServiceVisit' },
 
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
 }, { timestamps: true });

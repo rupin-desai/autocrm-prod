@@ -10,11 +10,19 @@ const serviceVisitSchema = new mongoose.Schema({
   },
   handlerIds: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   notes: String,
+  // Parts planned for / fitted on this job. productId is optional so parts
+  // quoted or inquired about outside the catalogue can still be tracked.
   partsUsed: [{
     productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
-    quantity: Number,
-    price: Number,
+    name: String,
+    quantity: { type: Number, default: 1, min: 1 },
+    price: { type: Number, default: 0, min: 0 },
   }],
+  // Where the parts list came from, so the job can be traced end to end.
+  partsSource: { type: String, enum: ['quotation', 'inquiry', 'vehicle', 'manual'] },
+  quotationId: { type: mongoose.Schema.Types.ObjectId, ref: 'Quotation' },
+  inquiryId: { type: mongoose.Schema.Types.ObjectId, ref: 'Inquiry' },
+  invoiceId: { type: mongoose.Schema.Types.ObjectId, ref: 'Invoice' },
   stageTimestamps: {
     inquired: Date,
     working: Date,

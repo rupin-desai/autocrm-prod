@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { ServiceWorkflowCard } from "@/components/ServiceWorkflowCard";
 import { InvoiceGenerationDialog } from "@/components/InvoiceGenerationDialog";
+import { ServicePartsEditor, partsSignature, toServicePart, type PartsLink, type ServicePart } from "@/components/ServicePartsEditor";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,6 +20,30 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useAuth, hasPermission } from "@/lib/auth";
 
+const formatINR = (amount: number) =>
+  new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(amount);
+
+const refId = (value: any): string | null => (value ? String(value._id || value) : null);
+
+const linkOf = (service: any): PartsLink => ({
+  partsSource: service?.partsSource || null,
+  quotationId: refId(service?.quotationId),
+  inquiryId: refId(service?.inquiryId),
+});
+
+const sameLink = (a: PartsLink, b: PartsLink) =>
+  (a.partsSource || null) === (b.partsSource || null) &&
+  (a.quotationId || null) === (b.quotationId || null) &&
+  (a.inquiryId || null) === (b.inquiryId || null);
+
+// A visit counts as billed while its invoice is live (not rejected/cancelled).
+const billedInvoice = (service: any) => {
+  const invoice = service?.invoiceId;
+  if (!invoice) return null;
+  if (typeof invoice === 'object' && ['rejected', 'cancelled'].includes(invoice.status)) return null;
+  return invoice;
+};
+
 export default function ServiceVisits() {
   const { toast } = useToast();
   const { user } = useAuth();
@@ -34,6 +59,8 @@ export default function ServiceVisits() {
   const [selectedHandlers, setSelectedHandlers] = useState<string[]>([]);
   const [beforeImages, setBeforeImages] = useState<string[]>([]);
   const [afterImages, setAfterImages] = useState<string[]>([]);
+  const [parts, setParts] = useState<ServicePart[]>([]);
+  const [partsLink, setPartsLink] = useState<PartsLink>({ partsSource: null });
   const [customerVehicles, setCustomerVehicles] = useState<any[]>([]);
   const [isLoadingVehicles, setIsLoadingVehicles] = useState(false);
   const [serviceForm, setServiceForm] = useState({
@@ -83,9 +110,22 @@ export default function ServiceVisits() {
   });
 
   const updateServiceMutation = useMutation({
-    mutationFn: async ({ id, status, beforeImages, afterImages, handlerIds }: { id: string; status: string; beforeImages?: string[]; afterImages?: string[]; handlerIds?: string[] }) => {
-      console.log('🚀 [FRONTEND] Sending update request:', { id, status, beforeImages: beforeImages?.length, afterImages: afterImages?.length, handlerIds });
-      const response = await apiRequest('PATCH', `/api/service-visits/${id}`, { status, beforeImages, afterImages, handlerIds });
+    mutationFn: async ({ id, status, beforeImages, afterImages, handlerIds, parts, partsLink }: { id: string; status: string; beforeImages?: string[]; afterImages?: string[]; handlerIds?: string[]; parts?: ServicePart[]; partsLink?: PartsLink }) => {
+      console.log('🚀 [FRONTEND] Sending update request:', { id, status, beforeImages: beforeImages?.length, afterImages: afterImages?.length, handlerIds, parts: parts?.length });
+      const response = await apiRequest('PATCH', `/api/service-visits/${id}`, {
+        status,
+        beforeImages,
+        afterImages,
+        handlerIds,
+        ...(parts && {
+          partsUsed: parts.map(({ productId, name, quantity, price }) => ({ productId, name, quantity, price })),
+        }),
+        ...(partsLink && {
+          partsSource: partsLink.partsSource,
+          quotationId: partsLink.quotationId,
+          inquiryId: partsLink.inquiryId,
+        }),
+      });
       const data = await response.json();
       console.log('✅ [FRONTEND] Update response received:', data);
       console.log('🔍 [DEBUG] Handler IDs in response:', data.handlerIds);
@@ -104,6 +144,8 @@ export default function ServiceVisits() {
       setSelectedHandlers(updatedVisit.handlerIds?.map((h: any) => h._id || h) || []);
       setBeforeImages(updatedVisit.beforeImages || []);
       setAfterImages(updatedVisit.afterImages || []);
+      setParts((updatedVisit.partsUsed || []).map(toServicePart));
+      setPartsLink(linkOf(updatedVisit));
       
       setIsEditDialogOpen(false);
       
@@ -215,6 +257,8 @@ export default function ServiceVisits() {
     setSelectedHandlers(service.handlerIds?.map((h: any) => h._id || h) || []);
     setBeforeImages(service.beforeImages || []);
     setAfterImages(service.afterImages || []);
+    setParts((service.partsUsed || []).map(toServicePart));
+    setPartsLink(linkOf(service));
     setIsEditDialogOpen(true);
   };
 
@@ -261,11 +305,15 @@ export default function ServiceVisits() {
     
     const originalHandlers = selectedService.handlerIds?.map((h: any) => h._id || h) || [];
     const handlersChanged = JSON.stringify(selectedHandlers.sort()) !== JSON.stringify(originalHandlers.sort());
+    const partsChanged =
+      partsSignature(parts) !== partsSignature((selectedService.partsUsed || []).map(toServicePart)) ||
+      !sameLink(partsLink, linkOf(selectedService));
     
     if (selectedStatus === selectedService.status && 
         JSON.stringify(beforeImages) === JSON.stringify(selectedService.beforeImages || []) &&
         JSON.stringify(afterImages) === JSON.stringify(selectedService.afterImages || []) &&
-        !handlersChanged) {
+        !handlersChanged &&
+        !partsChanged) {
       toast({
         title: "No Changes",
         description: "No changes detected",
@@ -280,6 +328,7 @@ export default function ServiceVisits() {
       beforeImages,
       afterImages,
       handlerIds: selectedHandlers,
+      ...(partsChanged && { parts, partsLink }),
     });
   };
 
@@ -692,6 +741,7 @@ export default function ServiceVisits() {
                           startTime={formatDistance(new Date(service.createdAt), new Date(), { addSuffix: true })}
                           totalAmount={service.totalAmount}
                           partsCount={service.partsUsed?.length || 0}
+                          partNames={(service.partsUsed || []).map((p: any) => toServicePart(p).name)}
                           notes={service.notes}
                           onView={() => handleViewService(service)}
                           onEdit={() => handleEditService(service)}
@@ -791,21 +841,57 @@ export default function ServiceVisits() {
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Total Amount:</span>
                         <span className="font-medium">
-                          {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(selectedService.totalAmount)}
+                          {formatINR(selectedService.totalAmount)}
                         </span>
-                      </div>
-                    )}
-                    {selectedService.partsUsed && selectedService.partsUsed.length > 0 && (
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Parts Used:</span>
-                        <span className="font-medium">{selectedService.partsUsed.length}</span>
                       </div>
                     )}
                   </div>
                 </div>
               </div>
 
-              {selectedService.status === 'completed' && (selectedService.invoiceNumber || selectedService.invoiceDate) && (
+              <div className="space-y-2">
+                <div className="flex flex-wrap items-baseline justify-between gap-2">
+                  <Label className="text-sm font-medium">Parts to fit</Label>
+                  {selectedService.partsSource && (
+                    <span className="text-xs text-muted-foreground">
+                      From {selectedService.partsSource === 'vehicle' ? 'registration' : selectedService.partsSource === 'manual' ? 'manual entry' : selectedService.partsSource}
+                    </span>
+                  )}
+                </div>
+                {selectedService.partsUsed && selectedService.partsUsed.length > 0 ? (
+                  <div className="border rounded-md overflow-x-auto">
+                    <table className="w-full text-sm" data-testid="view-parts">
+                      <thead className="bg-muted/40 text-xs text-muted-foreground">
+                        <tr>
+                          <th className="text-left font-medium px-3 py-2">Part</th>
+                          <th className="text-right font-medium px-3 py-2">Qty</th>
+                          <th className="text-right font-medium px-3 py-2">Price</th>
+                          <th className="text-right font-medium px-3 py-2">Amount</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {selectedService.partsUsed.map((raw: any, idx: number) => {
+                          const part = toServicePart(raw);
+                          return (
+                            <tr key={idx} className="border-t">
+                              <td className="px-3 py-2">{part.name}</td>
+                              <td className="px-3 py-2 text-right tabular-nums">{part.quantity}</td>
+                              <td className="px-3 py-2 text-right tabular-nums">{formatINR(part.price)}</td>
+                              <td className="px-3 py-2 text-right tabular-nums">{formatINR(part.quantity * part.price)}</td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground italic">
+                    No parts added yet. Use Edit Service to load them from the quotation or inquiry.
+                  </p>
+                )}
+              </div>
+
+              {billedInvoice(selectedService) && (selectedService.invoiceNumber || selectedService.invoiceDate) && (
                 <div className="p-4 bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-lg">
                   <Label className="text-sm font-medium text-green-900 dark:text-green-100">Invoice Details</Label>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
@@ -872,7 +958,7 @@ export default function ServiceVisits() {
 
               <div className="flex flex-col md:flex-row justify-between gap-2 pt-4 border-t">
                 <div className="flex gap-2 flex-wrap">
-                  {selectedService?.status === 'completed' && hasPermission(user, 'invoices', 'create') && (
+                  {selectedService?.status === 'completed' && !billedInvoice(selectedService) && hasPermission(user, 'invoices', 'create') && (
                     <Button
                       variant="default"
                       onClick={() => {
@@ -1005,6 +1091,17 @@ export default function ServiceVisits() {
                   </p>
                 )}
               </div>
+
+              <ServicePartsEditor
+                visitId={selectedService._id}
+                parts={parts}
+                link={partsLink}
+                onChange={(nextParts, nextLink) => {
+                  setParts(nextParts);
+                  setPartsLink(nextLink);
+                }}
+                disabled={updateServiceMutation.isPending || deleteServiceMutation.isPending}
+              />
 
               <div className={`grid ${selectedStatus === 'completed' ? 'grid-cols-2' : 'grid-cols-1'} gap-6`}>
                 <div className="space-y-2">

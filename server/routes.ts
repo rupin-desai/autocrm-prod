@@ -25,7 +25,11 @@ import { authenticateUser, createUser, ROLE_PERMISSIONS, sendOTPToMobile, verify
 import { requireAuth, requireRole, attachUser, requirePermission } from "./middleware";
 import { registerV2Routes } from "./routes/index";
 import { sendCustomerUpdate } from "./services/customerUpdates";
-import { insertCustomerSchema, insertVehicleSchema } from "./schemas";
+import { ZodError } from "zod";
+import { insertCustomerSchema, insertVehicleSchema, updateServiceVisitPartsSchema } from "./schemas";
+import { LIVE_INVOICE_STATUSES, buildPartsPlan, findLiveVisitInvoice, linkVisitSources, normalizeSelectedParts, partsTotal } from "./services/serviceVisitParts";
+import { Quotation } from "./models/Quotation";
+import { Inquiry } from "./models/Inquiry";
 import { RegistrationCustomer } from "./models/RegistrationCustomer";
 import { RegistrationVehicle } from "./models/RegistrationVehicle";
 import { VehicleMasterBrand } from "./models/VehicleMaster";
@@ -38,35 +42,6 @@ import { sendWhatsAppOTP, sendWhatsAppWelcome } from "./services/whatsapp";
 import { generateDailyReportData, formatDailyReportHTML, sendDailyReportEmail } from "./utils/emailReports";
 import { isLocalMirrorMode } from "./localMirror";
 import { VEHICLE_DATA } from "@shared/vehicleData";
-
-// Helper function to normalize selectedParts to ensure consistent format
-function normalizeSelectedParts(selectedParts: any): Array<{ partId: string; quantity: number }> {
-  if (!selectedParts || !Array.isArray(selectedParts)) {
-    return [];
-  }
-  
-  return selectedParts
-    .filter(part => part) // Remove falsy values
-    .map(part => {
-      // If it's already in the new format {partId, quantity}
-      if (typeof part === 'object' && part.partId) {
-        return {
-          partId: part.partId,
-          quantity: part.quantity || 1
-        };
-      }
-      // If it's in the old format (string)
-      if (typeof part === 'string') {
-        return {
-          partId: part,
-          quantity: 1
-        };
-      }
-      // Invalid format, skip
-      return null;
-    })
-    .filter((part): part is { partId: string; quantity: number } => part !== null);
-}
 
 // Helper function to build consistent product response with proper field mappings
 function buildProductResponse(product: any) {
@@ -2022,6 +1997,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .populate('customerId')
         .populate('handlerIds')
         .populate('partsUsed.productId')
+        .populate('invoiceId', 'invoiceNumber status')
         .sort({ createdAt: -1 });
       res.json(visits);
     } catch (error) {
@@ -2057,13 +2033,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Catalogue lookup for the job card parts editor. Gated on service-visit
+  // access rather than product access so service desk roles can use it.
+  app.get("/api/service-visits/part-search", requireAuth, requirePermission('orders', 'update'), async (req, res) => {
+    try {
+      const search = String(req.query.q || "").trim();
+      const query: any = { status: { $ne: 'discontinued' } };
+      if (search) {
+        const regex = new RegExp(escapeRegex(search), "i");
+        query.$or = [{ productName: regex }, { brand: regex }, { model: regex }, { barcode: regex }];
+      }
+      const products = await Product.find(query)
+        .sort({ productName: 1 })
+        .limit(25)
+        .lean() as any[];
+      res.json(products.map((p) => ({
+        productId: String(p._id),
+        name: p.productName,
+        brand: p.brand,
+        model: p.model,
+        price: Number(p.sellingPrice) || 0,
+        stockQty: Number(p.stockQty) || 0,
+      })));
+    } catch (error) {
+      res.status(500).json({ error: "Failed to search parts" });
+    }
+  });
+
   // Get completed services for manual invoice creation (must come before :id routes)
   app.get("/api/service-visits/completed", requireAuth, async (req, res) => {
     try {
       const completed = await ServiceVisit.find({ status: 'completed' })
         .populate('customerId')
-        .lean();
-      res.json(completed);
+        .lean() as any[];
+
+      // Leave out jobs that already have a live invoice.
+      const invoiceIds = completed.map((v) => v.invoiceId).filter(Boolean);
+      const billed = new Set(
+        invoiceIds.length
+          ? (await Invoice.find({ _id: { $in: invoiceIds }, status: { $in: LIVE_INVOICE_STATUSES } }, { _id: 1 }).lean())
+              .map((inv: any) => String(inv._id))
+          : [],
+      );
+      res.json(completed.filter((v) => !v.invoiceId || !billed.has(String(v.invoiceId))));
     } catch (error) {
       console.error('Error fetching completed services:', error);
       res.status(500).json({ error: "Failed to fetch completed services" });
@@ -2134,6 +2146,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           console.log('========================================\n');
           return res.json({ products: suggestedProducts });
         }
+
+        // The job card has only non-catalogue parts: it is still the source of
+        // truth, so don't add registration parts on top of it.
+        return res.json({ products: [] });
       }
 
       console.log('🔄 No partsUsed, falling back to vehicle selectedParts');
@@ -2273,6 +2289,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Parts to fit on this visit: what is already on the job card, plus the
+  // quotation / inquiry / registration parts it can be loaded from.
+  app.get("/api/service-visits/:id/parts-plan", requireAuth, requirePermission('orders', 'read'), async (req, res) => {
+    try {
+      const plan = await buildPartsPlan(req.params.id);
+      if (!plan) {
+        return res.status(404).json({ error: "Service visit not found" });
+      }
+      res.json(plan);
+    } catch (error) {
+      console.error('Parts plan error:', error);
+      res.status(500).json({ error: "Failed to load parts for service visit" });
+    }
+  });
+
   app.patch("/api/service-visits/:id", requireAuth, requirePermission('orders', 'update'), async (req, res) => {
     try {
       // Truncate base64 images for cleaner logging
@@ -2345,7 +2376,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const previousStatus = visit.status;
       const previousCustomerId = visit.customerId;
       const previousTotalAmount = Number(visit.totalAmount) || 0;
-      const previousPartNames = (visit.partsUsed || []).map((p: any) => String(p.productId));
+      // Catalogue parts are keyed by product, others by name.
+      const partKey = (p: any) => (p.productId ? `id:${p.productId}` : `name:${String(p.name || '').toLowerCase()}`);
+      const previousPartKeys = (visit.partsUsed || []).map(partKey);
+      const partsUpdate = updateServiceVisitPartsSchema.parse(req.body);
 
       // Update fields explicitly to ensure Mongoose tracks changes properly
       if (req.body.status !== undefined) visit.status = req.body.status;
@@ -2356,8 +2390,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
         visit.handlerIds = req.body.handlerIds;
         visit.markModified('handlerIds'); // Explicitly mark as modified for Mongoose
       }
-      if (req.body.partsUsed !== undefined) visit.partsUsed = req.body.partsUsed;
-      if (req.body.totalAmount !== undefined) visit.totalAmount = req.body.totalAmount;
+      if (partsUpdate.partsUsed !== undefined) {
+        visit.partsUsed = partsUpdate.partsUsed.map((p) => ({
+          productId: p.productId || undefined,
+          name: p.name,
+          quantity: p.quantity,
+          price: p.price,
+        }));
+        // The total follows the parts list; it is never taken from the client.
+        visit.totalAmount = partsTotal(partsUpdate.partsUsed);
+      } else if (req.body.totalAmount !== undefined) {
+        visit.totalAmount = req.body.totalAmount;
+      }
+      if (partsUpdate.partsSource !== undefined) visit.partsSource = partsUpdate.partsSource || undefined;
+      await linkVisitSources(visit, {
+        quotationId: partsUpdate.quotationId,
+        inquiryId: partsUpdate.inquiryId,
+      });
       
       console.log('💾 [SERVICE UPDATE] Saving with new data:', {
         newStatus: visit.status,
@@ -2383,6 +2432,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       
       await visit.populate('handlerIds');
+      await visit.populate('invoiceId', 'invoiceNumber status');
 
       console.log('✅ [SERVICE UPDATE] Saved successfully:', {
         status: visit.status,
@@ -2452,11 +2502,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
             handledBy: (req as any).session.userId,
             context: baseContext,
           });
-        } else if (!statusChanged && newTotal > previousTotalAmount) {
+        } else if (
+          !statusChanged &&
+          newTotal > previousTotalAmount &&
+          (visit.status === 'working' || visit.status === 'waiting')
+        ) {
           // Extra items added mid-job: tell the customer what was added and
           // what the revised total now is.
           const addedParts = (visit.partsUsed || [])
-            .filter((p: any) => !previousPartNames.includes(String(p.productId)))
+            .filter((p: any) => !previousPartKeys.includes(partKey(p)))
             .map((p: any) => ({ name: p.name || 'Additional item', quantity: p.quantity }));
 
           await sendCustomerUpdate({
@@ -2499,6 +2553,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(visit);
     } catch (error) {
       console.error('❌ [SERVICE UPDATE] Error:', error);
+      if (error instanceof ZodError) {
+        return res.status(400).json({
+          error: 'Invalid parts list',
+          details: error.errors.map((e) => ({ path: e.path.join('.'), message: e.message })),
+        });
+      }
+      const statusCode = (error as any)?.statusCode;
+      if (statusCode === 404 || statusCode === 409) {
+        return res.status(statusCode).json({ error: (error as any).message });
+      }
       res.status(400).json({ error: "Failed to update service visit" });
     }
   });
@@ -5731,6 +5795,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (serviceVisit.status !== 'completed') {
         return res.status(400).json({ error: "Can only generate invoice for completed service visits" });
       }
+
+      // One live invoice per job: the visit may already be billed directly or
+      // through its converted quotation.
+      const existingInvoice = await findLiveVisitInvoice(serviceVisit);
+      if (existingInvoice) {
+        return res.status(409).json({
+          error: `This service visit is already billed on invoice ${existingInvoice.invoiceNumber}`,
+          invoiceId: existingInvoice._id,
+        });
+      }
       
       // Fetch only the specific vehicle for this service visit
       const customer = serviceVisit.customerId as any;
@@ -5853,6 +5927,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } catch (stockError) {
         await Invoice.findByIdAndDelete(invoice._id);
         throw stockError;
+      }
+
+      serviceVisit.invoiceId = invoice._id;
+      serviceVisit.invoiceNumber = invoice.invoiceNumber;
+      serviceVisit.invoiceDate = invoice.createdAt || new Date();
+      await serviceVisit.save();
+
+      // The quotation behind this job is now billed; stop it being converted
+      // into a second invoice.
+      if (serviceVisit.quotationId) {
+        await Quotation.updateOne(
+          { _id: serviceVisit.quotationId, status: { $ne: 'converted' } },
+          { $set: { status: 'converted', convertedInvoiceId: invoice._id, convertedAt: new Date(), convertedBy: userId } },
+        );
+      }
+      if (serviceVisit.inquiryId) {
+        await Inquiry.updateOne({ _id: serviceVisit.inquiryId }, { $set: { status: 'converted' } });
       }
       
       // Update coupon usage if applicable
@@ -6631,6 +6722,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       await Invoice.findByIdAndDelete(req.params.id);
+
+      // Free the job card so it can be billed again.
+      if (invoice.serviceVisitId) {
+        await ServiceVisit.updateOne(
+          { _id: invoice.serviceVisitId, invoiceId: invoice._id },
+          { $unset: { invoiceId: 1, invoiceNumber: 1, invoiceDate: 1 } },
+        );
+      }
       
       await logActivity({
         userId,

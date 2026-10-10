@@ -5,6 +5,8 @@ import { Invoice } from '../models/Invoice';
 import { Product } from '../models/Product';
 import { RegistrationCustomer } from '../models/RegistrationCustomer';
 import { RegistrationVehicle } from '../models/RegistrationVehicle';
+import { ServiceVisit } from '../models/ServiceVisit';
+import { findLiveVisitInvoice } from '../services/serviceVisitParts';
 import { requireAuth, requirePermission } from '../middleware';
 import { insertQuotationSchema, updateQuotationSchema } from '../schemas';
 import { logActivity } from '../utils/activityLogger';
@@ -269,6 +271,19 @@ export function registerQuotationRoutes(app: Express) {
       const customer = await RegistrationCustomer.findById(quotation.customerId).lean() as any;
       if (!customer) return res.status(404).json({ error: 'Linked customer no longer exists' });
 
+      // If this quotation is the job card for a service visit that is already
+      // billed, converting it would bill the same work twice.
+      const serviceVisit = quotation.serviceVisitId
+        ? await ServiceVisit.findById(quotation.serviceVisitId)
+        : null;
+      const visitInvoice = await findLiveVisitInvoice(serviceVisit);
+      if (visitInvoice) {
+        return res.status(409).json({
+          error: `The linked service visit is already billed on invoice ${visitInvoice.invoiceNumber}`,
+          invoiceId: visitInvoice._id,
+        });
+      }
+
       // Re-price against the live catalogue: a quotation may be weeks old.
       const items = [] as any[];
       const priceChanges: any[] = [];
@@ -323,6 +338,7 @@ export function registerQuotationRoutes(app: Express) {
 
       const invoice = new Invoice({
         invoiceNumber: await nextDocumentNumber('INV', 'invoice'),
+        serviceVisitId: serviceVisit?._id,
         customerId: customer._id,
         customerDetails: {
           referenceCode: customer.referenceCode,
@@ -372,6 +388,13 @@ export function registerQuotationRoutes(app: Express) {
       } catch (stockError) {
         await Invoice.findByIdAndDelete(invoice._id);
         throw stockError;
+      }
+
+      if (serviceVisit) {
+        serviceVisit.invoiceId = invoice._id;
+        serviceVisit.invoiceNumber = invoice.invoiceNumber;
+        serviceVisit.invoiceDate = new Date();
+        await serviceVisit.save();
       }
 
       quotation.status = 'converted';

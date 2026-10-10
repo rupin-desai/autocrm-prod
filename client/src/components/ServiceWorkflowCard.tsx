@@ -12,6 +12,7 @@ interface ServiceWorkflowCardProps {
   startTime: string;
   totalAmount?: number;
   partsCount?: number;
+  partNames?: string[];
   notes?: string;
   onView?: () => void;
   onEdit?: () => void;
@@ -25,6 +26,7 @@ export function ServiceWorkflowCard({
   startTime,
   totalAmount,
   partsCount,
+  partNames = [],
   notes,
   onView,
   onEdit,
@@ -106,11 +108,18 @@ export function ServiceWorkflowCard({
             <div className="flex items-center gap-2">
               <Package className="h-4 w-4 text-muted-foreground flex-shrink-0" />
               <div className="min-w-0">
-                <p className="text-xs text-muted-foreground">{partsCount} parts</p>
+                <p className="text-xs text-muted-foreground">{partsCount} part{partsCount === 1 ? '' : 's'}</p>
               </div>
             </div>
           )}
         </div>
+
+        {partNames.length > 0 && (
+          <p className="text-xs text-muted-foreground line-clamp-2" title={partNames.join(', ')} data-testid={`text-parts-${vehicleReg}`}>
+            {partNames.slice(0, 3).join(', ')}
+            {partNames.length > 3 && ` +${partNames.length - 3} more`}
+          </p>
+        )}
 
         {totalAmount !== undefined && totalAmount > 0 && (
           <div className="flex items-center gap-2 pt-2 border-t">

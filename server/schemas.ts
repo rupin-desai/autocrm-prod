@@ -171,6 +171,22 @@ export const resolveVendorDispatchSchema = z.object({
   status: z.enum(['returned', 'rejected']).default('returned'),
 });
 
+// Parts on a service visit job card. productId is optional so items quoted
+// or inquired about outside the catalogue can still be tracked.
+export const servicePartSchema = z.object({
+  productId: optionalObjectId,
+  name: z.string().trim().min(1, "Part name is required"),
+  quantity: z.coerce.number().int().min(1).default(1),
+  price: z.coerce.number().min(0).default(0),
+});
+
+export const updateServiceVisitPartsSchema = z.object({
+  partsUsed: z.array(servicePartSchema).optional(),
+  partsSource: z.enum(['quotation', 'inquiry', 'vehicle', 'manual']).optional().nullable(),
+  quotationId: optionalObjectId,
+  inquiryId: optionalObjectId,
+});
+
 const quotationItemSchema = z.object({
   productId: optionalObjectId,
   name: z.string().min(1, "Item name is required"),

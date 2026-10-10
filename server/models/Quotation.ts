@@ -61,6 +61,7 @@ const quotationSchema = new mongoose.Schema({
   convertedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
 
   inquiryId: { type: mongoose.Schema.Types.ObjectId, ref: 'Inquiry' },
+  serviceVisitId: { type: mongoose.Schema.Types.ObjectId, ref: 'ServiceVisit' },
 
   notes: { type: String },
   terms: { type: String },
