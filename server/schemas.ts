@@ -53,6 +53,7 @@ export const insertVehicleSchema = z.object({
   chassisNumber: z.string().optional(),
   selectedParts: z.array(selectedPartSchema).optional(),
   warrantyCards: z.array(warrantyCardSchema).optional(),
+  labourCharges: z.coerce.number().min(0).optional(),
 });
 
 export type InsertCustomer = z.infer<typeof insertCustomerSchema>;

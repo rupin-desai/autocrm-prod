@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { getNextSequence } from './Counter';
 
 const variantSchema = new mongoose.Schema({
   size: String,
@@ -58,8 +59,12 @@ productSchema.index({ category: 1 });
 productSchema.index({ stockQty: 1 });
 productSchema.index({ barcode: 1 });
 
-productSchema.pre('save', function(next) {
+productSchema.pre('save', async function(next) {
   this.status = getProductStockStatus(this.stockQty, this.minStockLevel);
+  // Every part gets a permanent shop barcode (MAW-001000, MAW-001001, ...) for scanning and labels.
+  if (!this.barcode?.trim()) {
+    this.barcode = `MAW-${String(999 + await getNextSequence('productBarcode')).padStart(6, '0')}`;
+  }
   next();
 });
 

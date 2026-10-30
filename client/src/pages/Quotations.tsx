@@ -20,6 +20,7 @@ import { PeriodFilter, periodToQuery, type PeriodValue } from "@/components/Peri
 import { useAuth } from "@/lib/auth";
 import { ArrowRightLeft, FileText, Plus, Search, Send, X } from "lucide-react";
 import { EmptyState, PageHeader, StatTile, TableSkeleton } from "@/components/PageShell";
+import { PartSearchInput } from "@/components/PartSearchInput";
 
 // Requirement 7: Customer Quotation.
 // Nothing here touches sales, stock or accounting until Convert is used.
@@ -106,18 +107,6 @@ export default function Quotations() {
       return res.json();
     },
   });
-
-  const { data: productData } = useQuery<any>({
-    queryKey: ["/api/products", "quotation-picker"],
-    enabled: dialogOpen,
-    queryFn: async () => {
-      const res = await fetch("/api/products?limit=200", { credentials: "include" });
-      if (!res.ok) throw new Error("Failed to load products");
-      return res.json();
-    },
-  });
-
-  const products = Array.isArray(productData) ? productData : productData?.items || [];
 
   // Mirrors the server calculation so the preview matches what will be stored.
   const totals = useMemo(() => {
@@ -484,44 +473,30 @@ export default function Quotations() {
               <div className="space-y-2">
                 {items.map((item, idx) => (
                   <div key={idx} className="grid grid-cols-12 gap-2 items-end border rounded-md p-2">
-                    <div className="col-span-4">
-                      <Label className="text-xs">Item</Label>
-                      <Select
-                        value={item.productId}
-                        onValueChange={(productId) => {
-                          const p = products.find((x: any) => (x._id || x.id) === productId);
+                    <div className="col-span-4 space-y-1">
+                      <Label className="text-xs">Name</Label>
+                      {/* Pick a stock item to fill name and price, or type any name for a custom item. */}
+                      <PartSearchInput
+                        placeholder="Search stock items…"
+                        testId={`input-quote-stock-search-${idx}`}
+                        onPick={(p) => {
                           const next = [...items];
-                          next[idx] = {
-                            ...next[idx],
-                            productId,
-                            name: p?.productName || p?.name || next[idx].name,
-                            rate: String(p?.sellingPrice ?? p?.price ?? next[idx].rate),
-                          };
+                          next[idx] = { ...next[idx], productId: p.productId, name: p.name, rate: String(p.price ?? next[idx].rate) };
                           setItems(next);
                         }}
-                      >
-                        <SelectTrigger data-testid={`select-quote-product-${idx}`}>
-                          <SelectValue placeholder="Pick from catalogue" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {products.map((p: any) => (
-                            <SelectItem key={p._id || p.id} value={p._id || p.id}>
-                              {p.productName || p.name} — ₹{p.sellingPrice ?? p.price}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      />
                       <Input
-                        className="mt-1"
-                        placeholder="or type a custom item / service"
+                        placeholder="Item name (custom entry)"
                         value={item.name}
                         onChange={(e) => {
                           const next = [...items];
-                          next[idx] = { ...next[idx], name: e.target.value };
+                          // Editing the name makes it a custom item, no longer tied to stock.
+                          next[idx] = { ...next[idx], name: e.target.value, productId: "" };
                           setItems(next);
                         }}
                         data-testid={`input-quote-item-${idx}`}
                       />
+                      {item.productId && <p className="text-[11px] text-muted-foreground">Linked to stock item</p>}
                     </div>
                     <div className="col-span-2">
                       <Label className="text-xs">Qty</Label>
@@ -531,7 +506,7 @@ export default function Quotations() {
                       />
                     </div>
                     <div className="col-span-2">
-                      <Label className="text-xs">Rate</Label>
+                      <Label className="text-xs">Price</Label>
                       <Input
                         type="number" min="0" value={item.rate}
                         onChange={(e) => { const n = [...items]; n[idx] = { ...n[idx], rate: e.target.value }; setItems(n); }}

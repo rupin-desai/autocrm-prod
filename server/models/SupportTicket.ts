@@ -16,6 +16,9 @@ const supportTicketSchema = new mongoose.Schema({
     ref: 'RegistrationVehicle' 
   },
   vehicleReg: { type: String },
+  // Required on create (enforced in the route so older tickets stay editable).
+  productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
+  productName: { type: String },
   subject: { 
     type: String, 
     required: true 

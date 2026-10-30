@@ -17,7 +17,6 @@ import {
   FileText,
   CheckSquare,
   CalendarOff,
-  MessageSquare,
   UserPlus,
   ListChecks,
   Receipt,
@@ -25,7 +24,6 @@ import {
   Headset,
   Car,
   Wallet,
-  ShieldCheck,
   Globe,
   FileSpreadsheet,
 } from "lucide-react";
@@ -60,7 +58,8 @@ interface MenuItem {
   title: string;
   url: string;
   icon: React.ComponentType<{ className?: string }>;
-  permission?: { resource: string; action: string };
+  // An array means any one of them shows the item.
+  permission?: { resource: string; action: string } | Array<{ resource: string; action: string }>;
   disabled?: boolean;
   group?: string;
 }
@@ -70,14 +69,12 @@ const mainMenuItems: MenuItem[] = [
   { title: "Register Customer", url: "/register-customer", icon: UserPlus, permission: { resource: "customers", action: "create" }, group: "customer" },
   { title: "Registration Dashboard", url: "/registration-dashboard", icon: ListChecks, permission: { resource: "customers", action: "create" }, group: "customer" },
   { title: "Car Master", url: "/car-master", icon: Car, permission: { resource: "customers", action: "update" }, group: "customer" },
-  { title: "Service Visits", url: "/visits", icon: ClipboardList, permission: { resource: "orders", action: "read" }, group: "service" },
-  { title: "Support & Feedback", url: "/support", icon: Headset, permission: { resource: "supportTickets", action: "read" }, group: "support" },
-  { title: "Communications", url: "/communications", icon: MessageSquare, permission: { resource: "communications", action: "read" }, group: "support" },
+  { title: "Service Visits", url: "/visits", icon: ClipboardList, permission: [{ resource: "orders", action: "read" }, { resource: "serviceVisits", action: "read" }], group: "service" },
+  { title: "Support & Warranty", url: "/support", icon: Headset, permission: [{ resource: "supportTickets", action: "read" }, { resource: "warrantyClaims", action: "read" }], group: "support" },
   { title: "Customer Inquiries", url: "/inquiries", icon: ClipboardList, permission: { resource: "inquiries", action: "read" }, group: "customer" },
   { title: "Quotations", url: "/quotations", icon: FileSpreadsheet, permission: { resource: "quotations", action: "read" }, group: "invoice" },
   { title: "Invoices", url: "/invoices", icon: Receipt, permission: { resource: "invoices", action: "read" }, group: "invoice" },
   { title: "Advance Payments", url: "/advance-payments", icon: Wallet, permission: { resource: "advancePayments", action: "read" }, group: "invoice" },
-  { title: "Warranty Management", url: "/warranty-claims", icon: ShieldCheck, permission: { resource: "warrantyClaims", action: "read" }, group: "service" },
   { title: "Products", url: "/products", icon: Package, permission: { resource: "products", action: "read" }, group: "inventory" },
   { title: "Inventory", url: "/inventory", icon: Warehouse, permission: { resource: "inventory", action: "read" }, group: "inventory" },
   { title: "Orders", url: "/orders", icon: ShoppingCart, permission: { resource: "orders", action: "read" }, group: "inventory" },
@@ -106,8 +103,7 @@ export function AppSidebar() {
   // Helper function to check if user has permission
   const hasPermission = (item: MenuItem) => {
     if (!item.permission) return true; // No permission required
-    const { resource, action } = item.permission;
-    return user?.permissions?.[resource]?.includes(action) || false;
+    return [item.permission].flat().some(({ resource, action }) => user?.permissions?.[resource]?.includes(action));
   };
 
   // Navigation stays neutral so the active item is the only thing that draws

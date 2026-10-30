@@ -15,6 +15,7 @@ import { CheckCircle2, Car, User, MapPin, UploadCloud, PlusCircle, Search, Chevr
 import { getPartsByBrandAndModel } from "@shared/vehicleData";
 import { ScreenshotProtection } from "@/components/ScreenshotProtection";
 import { getVehicleMasterBrands, getVehicleMasterModels, type VehicleMasterResponse } from "@/lib/vehicleMaster";
+import { PartSearchInput } from "@/components/PartSearchInput";
 
 // States in India - predefined list
 const INDIAN_STATES = [
@@ -115,6 +116,7 @@ const vehicleFormSchema = z.object({
   chassisNumber: z.string().optional(),
   selectedParts: z.array(selectedPartSchema).default([]),
   warrantyCards: z.array(warrantyCardSchema).default([]),
+  labourCharges: z.string().optional(),
 }).refine((data) => {
   if (data.isNewVehicle === "true" && !data.chassisNumber) {
     return false;
@@ -164,6 +166,12 @@ export default function CustomerRegistration() {
   const [selectedBrand, setSelectedBrand] = useState<string>("");
   const [selectedModel, setSelectedModel] = useState<string>("");
   const [availableParts, setAvailableParts] = useState<any[]>([]);
+  // Parts picked from the all-parts search; shown alongside the compatible ones.
+  const [extraParts, setExtraParts] = useState<any[]>([]);
+  const partOptions = useMemo(
+    () => [...availableParts, ...extraParts.filter((e) => !availableParts.some((a) => a.id === e.id))],
+    [availableParts, extraParts],
+  );
   const [partSearchTerm, setPartSearchTerm] = useState<string>("");
   const [isProductListExpanded, setIsProductListExpanded] = useState<boolean>(false);
   const { data: vehicleMasterData } = useQuery<VehicleMasterResponse>({
@@ -213,6 +221,7 @@ export default function CustomerRegistration() {
       chassisNumber: "",
       selectedParts: [],
       warrantyCards: [],
+      labourCharges: "",
     },
   });
 
@@ -508,6 +517,7 @@ export default function CustomerRegistration() {
         chassisNumber: data.isNewVehicle === "true" ? data.chassisNumber : undefined,
         selectedParts: data.selectedParts || [],
         warrantyCards: data.warrantyCards || [],
+        labourCharges: data.labourCharges ? Math.max(0, Number(data.labourCharges) || 0) : undefined,
       });
       const result = await response.json();
       
@@ -547,10 +557,12 @@ export default function CustomerRegistration() {
         chassisNumber: "",
         selectedParts: [],
         warrantyCards: [],
+        labourCharges: "",
       });
       setSelectedBrand("");
       setSelectedModel("");
       setAvailableParts([]);
+      setExtraParts([]);
     },
     onError: (error: any) => {
       toast({
@@ -1463,8 +1475,28 @@ export default function CustomerRegistration() {
                               Select parts and quantities needed for this vehicle
                             </p>
                           </div>
+
+                          <div className="mb-3">
+                            <PartSearchInput
+                              placeholder="Search all parts in inventory…"
+                              testId="input-search-all-parts"
+                              onPick={(p) => {
+                                const id = `product-${p.productId}`;
+                                setExtraParts((prev) => prev.some((x) => x.id === id) ? prev : [...prev, {
+                                  id,
+                                  name: p.name,
+                                  category: p.category || p.brand || 'Custom',
+                                  isProduct: true,
+                                  productId: p.productId,
+                                  price: p.price,
+                                  stockQty: p.stockQty,
+                                }]);
+                                if (getPartQuantity(id) === 0) updatePartQuantity(id, 1);
+                              }}
+                            />
+                          </div>
                           
-                          {availableParts.length === 0 ? (
+                          {partOptions.length === 0 ? (
                             <Card className="border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/30">
                               <CardContent className="p-6 text-center">
                                 <p className="text-sm text-amber-900 dark:text-amber-100 font-medium">
@@ -1514,7 +1546,7 @@ export default function CustomerRegistration() {
                                   </Button>
                                 </div>
                                 <div className="grid grid-cols-2 gap-2 max-h-[500px] overflow-y-auto border rounded-lg p-3 bg-muted/20">
-                                  {availableParts
+                                  {partOptions
                                     .filter((part) => {
                                       if (isProductListExpanded) return true;
                                       if (!partSearchTerm) return false;
@@ -1594,7 +1626,7 @@ export default function CustomerRegistration() {
                                     <div className="max-h-[400px] overflow-y-auto space-y-2">
                                       {vehicleForm.watch("selectedParts")?.length > 0 ? (
                                         vehicleForm.watch("selectedParts").map((selectedPart) => {
-                                          const part = availableParts.find(p => p.id === selectedPart.partId);
+                                          const part = partOptions.find(p => p.id === selectedPart.partId);
                                           if (!part) return null;
                                           
                                           return (
@@ -1646,6 +1678,21 @@ export default function CustomerRegistration() {
                       )}
                     />
                   )}
+
+                  <FormField
+                    control={vehicleForm.control}
+                    name="labourCharges"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Labour Charges (₹)</FormLabel>
+                        <FormControl>
+                          <Input type="number" min="0" placeholder="Enter labour / fitting charges" {...field} data-testid="input-labour-charges" />
+                        </FormControl>
+                        <p className="text-xs text-muted-foreground">Entered by sales. Carried to the service visit as fitting charges; not shown to service staff.</p>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
                   <Card className="border-2 border-emerald-200 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-950/50 hover-elevate">
                     <CardHeader className="pb-4">

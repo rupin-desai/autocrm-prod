@@ -119,6 +119,8 @@ export const ROLE_PERMISSIONS = {
     feedbacks: ['read', 'create'],
     inquiries: ['read', 'create'],
     warrantyClaims: ['read', 'create', 'update'],
+    // Read-only job view: work, parts and car. Amounts are stripped server-side.
+    serviceVisits: ['read'],
   },
 };
 
@@ -130,6 +132,12 @@ export function hasPermission(userRole: string, resource: string, action: string
   if (!resourcePermissions) return false;
   
   return resourcePermissions.includes(action);
+}
+
+// Prices, fitting charges and totals are for roles that already work the
+// service desk (orders:read). Labour and anonymous callers never see them.
+export function canSeeCharges(userRole?: string): boolean {
+  return hasPermission(userRole || '', 'orders', 'read');
 }
 
 export async function sendOTPToMobile(mobileNumber: string): Promise<{ success: boolean; error?: string; providerMessageId?: string; statusDesc?: string }> {

@@ -25,6 +25,7 @@ const registrationCustomerSchema = new mongoose.Schema({
   otp: { type: String, default: null },
   otpExpiresAt: { type: Date, default: null },
   otpAttempts: { type: Number, default: 0 },
+  notes: { type: String, default: null },
   registeredBy: { type: String, default: null },
   registeredByRole: { type: String, default: null },
 }, { timestamps: true });

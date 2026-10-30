@@ -10,9 +10,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { Search, CheckCircle, XCircle, Car, User, MapPin, Phone, Mail, Edit, Trash2, CalendarIcon, SortAsc, Store, PlusCircle, UploadCloud, FileText } from "lucide-react";
+import { Search, CheckCircle, XCircle, Car, User, MapPin, Phone, Mail, Edit, Trash2, CalendarIcon, SortAsc, Store, PlusCircle, UploadCloud, FileText, ClipboardList, StickyNote, X } from "lucide-react";
 import { format } from "date-fns";
-import { useAuth } from "@/lib/auth";
+import { useAuth, hasPermission } from "@/lib/auth";
+import { Textarea } from "@/components/ui/textarea";
+import { PartSearchInput } from "@/components/PartSearchInput";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useForm } from "react-hook-form";
@@ -61,6 +63,7 @@ interface Customer {
   pinCode: string;
   referralSource?: string | null;
   isVerified: boolean;
+  notes?: string | null;
   registeredBy?: string | null;
   registeredByRole?: string | null;
   createdAt: Date;
@@ -81,6 +84,8 @@ interface Vehicle {
   isNewVehicle: boolean;
   chassisNumber?: string | null;
   selectedParts: Array<{ partId: string; quantity: number }>;
+  // Only sent to roles allowed to see charges.
+  labourCharges?: number;
   warrantyCard?: string | null;
   warrantyCards?: Array<{
     partId: string;
@@ -432,6 +437,10 @@ export default function CustomerRegistrationDashboard() {
   }, [editingVehicle, vehicleBrands, vehicleSelectedBrand]);
   
   const isAdmin = user?.role === 'Admin' || user?.role === 'Manager';
+  // Sales/admin edit parts and notes on the profile; others only view them.
+  const canEditProfile = hasPermission(user, 'customers', 'update');
+  const canSeeCharges = hasPermission(user, 'orders', 'read');
+  const [noteDraft, setNoteDraft] = useState("");
   
   // Get selected shop from localStorage
   const selectedShopId = localStorage.getItem('selectedShop');
@@ -480,6 +489,61 @@ export default function CustomerRegistrationDashboard() {
     },
     enabled: !!selectedCustomer?.id,
   });
+
+  // Parts the customer asked about in Customer Inquiries.
+  const { data: customerInquiries = [] } = useQuery<any[]>({
+    queryKey: ["/api/inquiries", "customer", selectedCustomer?.id],
+    queryFn: async () => {
+      const response = await fetch(`/api/inquiries?customerId=${selectedCustomer!.id}&limit=50`, { credentials: "include" });
+      if (!response.ok) return [];
+      return (await response.json()).items || [];
+    },
+    enabled: !!selectedCustomer?.id && hasPermission(user, 'inquiries', 'read'),
+  });
+
+  useEffect(() => {
+    setNoteDraft(selectedCustomer?.notes || "");
+  }, [selectedCustomer?.id]);
+
+  const saveNoteMutation = useMutation({
+    mutationFn: async () => {
+      await apiRequest("PATCH", `/api/registration/customers/${selectedCustomer!.id}`, { notes: noteDraft.trim() || null });
+    },
+    onSuccess: () => {
+      setSelectedCustomer((c) => (c ? { ...c, notes: noteDraft.trim() || null } : c));
+      queryClient.invalidateQueries({ queryKey: ["/api/registration/customers"] });
+      toast({ title: "Note saved" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message || "Failed to save note", variant: "destructive" });
+    },
+  });
+
+  const saveVehiclePartsMutation = useMutation({
+    mutationFn: async ({ vehicle, selectedParts }: { vehicle: Vehicle; selectedParts: Vehicle["selectedParts"] }) => {
+      const keep = new Set(selectedParts.map((p) => p.partId));
+      await apiRequest("PATCH", `/api/registration/vehicles/${vehicle.id}`, {
+        selectedParts,
+        warrantyCards: (vehicle.warrantyCards || []).filter((wc) => keep.has(wc.partId)),
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/registration/customers", selectedCustomer?.id, "vehicles"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/registration/vehicles"] });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message || "Failed to update parts", variant: "destructive" });
+    },
+  });
+
+  const addVehiclePart = (vehicle: Vehicle, productId: string) => {
+    const partId = `product-${productId}`;
+    const current = vehicle.selectedParts || [];
+    const selectedParts = current.some((p) => p.partId === partId)
+      ? current.map((p) => (p.partId === partId ? { ...p, quantity: p.quantity + 1 } : p))
+      : [...current, { partId, quantity: 1 }];
+    saveVehiclePartsMutation.mutate({ vehicle, selectedParts });
+  };
 
   // Edit form
   const editForm = useForm<z.infer<typeof editCustomerSchema>>({
@@ -1442,6 +1506,40 @@ export default function CustomerRegistrationDashboard() {
                   </div>
                 </div>
 
+                {/* Note */}
+                <div>
+                  <h3 className="flex items-center gap-2 font-semibold mb-3">
+                    <StickyNote className="w-4 h-4" />
+                    Note
+                  </h3>
+                  {canEditProfile ? (
+                    <div className="space-y-2">
+                      <Textarea
+                        value={noteDraft}
+                        onChange={(e) => setNoteDraft(e.target.value)}
+                        placeholder="Service requested, preferences, follow-up details…"
+                        rows={3}
+                        data-testid="textarea-customer-note"
+                      />
+                      <div className="flex justify-end">
+                        <Button
+                          type="button"
+                          size="sm"
+                          onClick={() => saveNoteMutation.mutate()}
+                          disabled={saveNoteMutation.isPending || noteDraft.trim() === (selectedCustomer.notes || "").trim()}
+                          data-testid="button-save-customer-note"
+                        >
+                          {saveNoteMutation.isPending ? "Saving..." : "Save Note"}
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-sm whitespace-pre-wrap text-muted-foreground" data-testid="text-customer-note">
+                      {selectedCustomer.notes || "No note added"}
+                    </p>
+                  )}
+                </div>
+
                 {/* Address Information */}
                 <div>
                   <h3 className="flex items-center gap-2 font-semibold mb-3">
@@ -1593,6 +1691,7 @@ export default function CustomerRegistrationDashboard() {
                                               {hasWarranty ? "Warranty card uploaded" : "Not uploaded"}
                                             </Badge>
                                           </div>
+                                          <div className="flex items-center gap-1">
                                           {hasWarranty && (
                                             <Button
                                               size="sm"
@@ -1618,12 +1717,46 @@ export default function CustomerRegistrationDashboard() {
                                               View
                                             </Button>
                                           )}
+                                          {canEditProfile && (
+                                            <Button
+                                              size="icon"
+                                              variant="ghost"
+                                              className="h-7 w-7"
+                                              disabled={saveVehiclePartsMutation.isPending}
+                                              onClick={() => saveVehiclePartsMutation.mutate({
+                                                vehicle,
+                                                selectedParts: vehicle.selectedParts.filter((p) => p.partId !== part.partId),
+                                              })}
+                                              aria-label={`Remove ${partName}`}
+                                              data-testid={`button-remove-part-${vehicle.id}-${index}`}
+                                            >
+                                              <X className="w-4 h-4" />
+                                            </Button>
+                                          )}
+                                          </div>
                                         </div>
                                       );
                                       })}
                                     </div>
                                   )}
                                 </div>
+                              )}
+                              {!(vehicle.selectedParts?.length > 0) && (
+                                <p className="text-sm text-muted-foreground">No parts selected yet.</p>
+                              )}
+                              {canEditProfile && (
+                                <PartSearchInput
+                                  placeholder="Add a part — search all parts…"
+                                  testId={`input-add-part-${vehicle.id}`}
+                                  disabled={saveVehiclePartsMutation.isPending}
+                                  onPick={(p) => addVehiclePart(vehicle, p.productId)}
+                                />
+                              )}
+                              {canSeeCharges && Number(vehicle.labourCharges) > 0 && (
+                                <p className="text-sm" data-testid={`text-labour-charges-${vehicle.id}`}>
+                                  <span className="text-muted-foreground">Labour Charges:</span>{" "}
+                                  <span className="font-medium">₹{Number(vehicle.labourCharges).toLocaleString("en-IN")}</span>
+                                </p>
                               )}
                             </div>
                           </div>
@@ -1662,6 +1795,36 @@ export default function CustomerRegistrationDashboard() {
                     </div>
                   )}
                 </div>
+
+                {/* Parts enquired (Customer Inquiries) */}
+                {customerInquiries.length > 0 && (
+                  <div>
+                    <h3 className="flex items-center gap-2 font-semibold mb-3">
+                      <ClipboardList className="w-4 h-4" />
+                      Parts Enquired ({customerInquiries.length} {customerInquiries.length === 1 ? "inquiry" : "inquiries"})
+                    </h3>
+                    <div className="space-y-2">
+                      {customerInquiries.map((inq: any) => (
+                        <div key={inq._id} className="p-2 rounded-md border bg-muted/30 text-sm" data-testid={`inquiry-${inq._id}`}>
+                          <div className="flex flex-wrap items-center gap-2 mb-1">
+                            <span className="font-medium">{inq.inquiryNumber}</span>
+                            <span className="text-xs text-muted-foreground">
+                              {new Date(inq.inquiryDate).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                              {inq.vehicleNumber ? ` • ${inq.vehicleNumber}` : ""}
+                            </span>
+                            <Badge variant="outline" className="text-xs capitalize">{inq.status}</Badge>
+                          </div>
+                          <div className="flex flex-wrap gap-1.5">
+                            {(inq.items || []).map((item: any, i: number) => (
+                              <Badge key={i} variant="secondary" className="text-xs">{item.name} × {item.quantity}</Badge>
+                            ))}
+                          </div>
+                          {inq.notes && <p className="text-xs text-muted-foreground mt-1 whitespace-pre-wrap">{inq.notes}</p>}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </DialogContent>

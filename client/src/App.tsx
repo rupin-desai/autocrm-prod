@@ -12,6 +12,7 @@ import { AuthProvider, useAuth } from "@/lib/auth";
 import Dashboard from "@/pages/Dashboard";
 import Products from "@/pages/Products";
 import Inventory from "@/pages/Inventory";
+import BarcodeInventory from "@/pages/BarcodeInventory";
 import ServiceVisits from "@/pages/ServiceVisits";
 import Orders from "@/pages/Orders";
 import Employees from "@/pages/Employees";
@@ -27,7 +28,6 @@ import ShopSelection from "@/pages/ShopSelection";
 import UserManagement from "@/pages/UserManagement";
 import Tasks from "@/pages/Tasks";
 import Leaves from "@/pages/Leaves";
-import Communications from "@/pages/Communications";
 import CustomerRegistration from "@/pages/CustomerRegistration";
 import CustomerRegistrationDashboard from "@/pages/CustomerRegistrationDashboard";
 import CarMaster from "@/pages/CarMaster";
@@ -42,8 +42,10 @@ import { useEffect } from "react";
 import { User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-// Route to resource permission mapping
-const ROUTE_PERMISSIONS: Record<string, { resource: string; action: string } | null> = {
+type RoutePermission = { resource: string; action: string };
+
+// Route to resource permission mapping. An array means any one of them grants access.
+const ROUTE_PERMISSIONS: Record<string, RoutePermission | RoutePermission[] | null> = {
   '/': null, // Dashboard is accessible to all authenticated users
   '/profile': null, // Profile is accessible to all authenticated users
   '/settings': null, // Settings is accessible to all authenticated users
@@ -52,18 +54,18 @@ const ROUTE_PERMISSIONS: Record<string, { resource: string; action: string } | n
   '/car-master': { resource: 'customers', action: 'update' },
   '/products': { resource: 'products', action: 'read' },
   '/inventory': { resource: 'inventory', action: 'read' },
+  '/barcode-inventory': { resource: 'inventory', action: 'read' },
   '/orders': { resource: 'orders', action: 'read' },
   '/employees': { resource: 'employees', action: 'read' },
   '/attendance': { resource: 'attendance', action: 'read' },
-  '/visits': { resource: 'orders', action: 'read' }, // Service visits use orders permission
+  '/visits': [{ resource: 'orders', action: 'read' }, { resource: 'serviceVisits', action: 'read' }], // labour gets a read-only view
   '/reports': { resource: 'reports', action: 'read' },
   '/users': { resource: 'users', action: 'read' }, // User management is admin-only
   '/tasks': { resource: 'tasks', action: 'read' },
   '/leaves': { resource: 'leaves', action: 'read' },
-  '/communications': { resource: 'communications', action: 'read' },
   '/invoices': { resource: 'invoices', action: 'read' },
   '/analytics': { resource: 'reports', action: 'read' },
-  '/support': { resource: 'supportTickets', action: 'read' },
+  '/support': [{ resource: 'supportTickets', action: 'read' }, { resource: 'warrantyClaims', action: 'read' }],
   '/advance-payments': { resource: 'advancePayments', action: 'read' },
   '/inquiries': { resource: 'inquiries', action: 'read' },
   '/warranty-claims': { resource: 'warrantyClaims', action: 'read' },
@@ -91,8 +93,8 @@ function ProtectedRoute({ component: Component }: { component: React.ComponentTy
       
       // If route requires specific permission, check it
       if (routePermission) {
-        const { resource, action } = routePermission;
-        const hasAccess = user.permissions?.[resource]?.includes(action);
+        const hasAccess = ([] as RoutePermission[]).concat(routePermission)
+          .some(({ resource, action }) => user.permissions?.[resource]?.includes(action));
         
         if (!hasAccess) {
           // Redirect to dashboard if user doesn't have permission
@@ -132,6 +134,9 @@ function Router() {
       <Route path="/inventory">
         {() => <ProtectedRoute component={Inventory} />}
       </Route>
+      <Route path="/barcode-inventory">
+        {() => <ProtectedRoute component={BarcodeInventory} />}
+      </Route>
       <Route path="/visits">
         {() => <ProtectedRoute component={ServiceVisits} />}
       </Route>
@@ -158,9 +163,6 @@ function Router() {
       </Route>
       <Route path="/leaves">
         {() => <ProtectedRoute component={Leaves} />}
-      </Route>
-      <Route path="/communications">
-        {() => <ProtectedRoute component={Communications} />}
       </Route>
       <Route path="/invoices">
         {() => <ProtectedRoute component={Invoices} />}

@@ -21,8 +21,8 @@ import { getNextSequence } from "./models/Counter";
 import { checkAndNotifyLowStock, notifyNewOrder, notifyServiceVisitStatus, notifyPaymentOverdue, notifyPaymentDue } from "./utils/notifications";
 import { logActivity } from "./utils/activityLogger";
 import { User } from "./models/User";
-import { authenticateUser, createUser, ROLE_PERMISSIONS, sendOTPToMobile, verifyOTP, sendEmployeeOTP, verifyEmployeeOTP } from "./auth";
-import { requireAuth, requireRole, attachUser, requirePermission } from "./middleware";
+import { authenticateUser, createUser, ROLE_PERMISSIONS, sendOTPToMobile, verifyOTP, sendEmployeeOTP, verifyEmployeeOTP, canSeeCharges } from "./auth";
+import { requireAuth, requireRole, attachUser, requirePermission, requireAnyPermission } from "./middleware";
 import { registerV2Routes } from "./routes/index";
 import { sendCustomerUpdate } from "./services/customerUpdates";
 import { ZodError } from "zod";
@@ -1990,8 +1990,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Service visits - use 'orders' resource for permissions (Service Staff can read/update)
-  app.get("/api/service-visits", requireAuth, requirePermission('orders', 'read'), async (req, res) => {
+  // Service visits - use 'orders' resource for permissions. Labour (serviceVisits:read)
+  // gets a read-only view with every amount left out.
+  app.get("/api/service-visits", requireAuth, requireAnyPermission(['orders', 'read'], ['serviceVisits', 'read']), async (req, res) => {
     try {
       const visits = await ServiceVisit.find()
         .populate('customerId')
@@ -1999,6 +2000,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .populate('partsUsed.productId')
         .populate('invoiceId', 'invoiceNumber status')
         .sort({ createdAt: -1 });
+      if (!canSeeCharges((req as any).session?.userRole)) {
+        // Whitelist: work, parts to fit and the car. No prices, totals or charges.
+        return res.json(visits.map((v: any) => ({
+          _id: v._id,
+          status: v.status,
+          vehicleReg: v.vehicleReg,
+          notes: v.notes,
+          customerId: v.customerId && { _id: v.customerId._id, fullName: v.customerId.fullName, referenceCode: v.customerId.referenceCode },
+          handlerIds: (v.handlerIds || []).map((h: any) => ({ _id: h?._id, name: h?.name, role: h?.role })),
+          partsUsed: (v.partsUsed || []).map((p: any) => ({ name: p.name || p.productId?.productName, quantity: p.quantity })),
+          partsSource: v.partsSource,
+          beforeImages: v.beforeImages,
+          afterImages: v.afterImages,
+          stageTimestamps: v.stageTimestamps,
+          createdAt: v.createdAt,
+          updatedAt: v.updatedAt,
+        })));
+      }
       res.json(visits);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch service visits" });
@@ -2033,9 +2052,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Catalogue lookup for the job card parts editor. Gated on service-visit
-  // access rather than product access so service desk roles can use it.
-  app.get("/api/service-visits/part-search", requireAuth, requirePermission('orders', 'update'), async (req, res) => {
+  // Catalogue lookup for the job card parts editor, customer profile, quotes and
+  // support tickets. Gated on service-desk / ticket access rather than product
+  // access so sales and service roles can use it. Labour gets no prices.
+  app.get("/api/service-visits/part-search", requireAuth, requireAnyPermission(['orders', 'update'], ['supportTickets', 'create']), async (req, res) => {
     try {
       const search = String(req.query.q || "").trim();
       const query: any = { status: { $ne: 'discontinued' } };
@@ -2047,12 +2067,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .sort({ productName: 1 })
         .limit(25)
         .lean() as any[];
+      const showPrice = canSeeCharges((req as any).session?.userRole);
       res.json(products.map((p) => ({
         productId: String(p._id),
         name: p.productName,
         brand: p.brand,
         model: p.model,
-        price: Number(p.sellingPrice) || 0,
+        category: p.category,
+        ...(showPrice && { price: Number(p.sellingPrice) || 0 }),
         stockQty: Number(p.stockQty) || 0,
       })));
     } catch (error) {
@@ -2376,6 +2398,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const previousStatus = visit.status;
       const previousCustomerId = visit.customerId;
       const previousTotalAmount = Number(visit.totalAmount) || 0;
+      const previousFittingCharges = Number(visit.fittingCharges) || 0;
       // Catalogue parts are keyed by product, others by name.
       const partKey = (p: any) => (p.productId ? `id:${p.productId}` : `name:${String(p.name || '').toLowerCase()}`);
       const previousPartKeys = (visit.partsUsed || []).map(partKey);
@@ -2390,6 +2413,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         visit.handlerIds = req.body.handlerIds;
         visit.markModified('handlerIds'); // Explicitly mark as modified for Mongoose
       }
+      if (req.body.fittingCharges !== undefined) {
+        visit.fittingCharges = Math.max(0, Number(req.body.fittingCharges) || 0);
+      }
       if (partsUpdate.partsUsed !== undefined) {
         visit.partsUsed = partsUpdate.partsUsed.map((p) => ({
           productId: p.productId || undefined,
@@ -2397,8 +2423,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           quantity: p.quantity,
           price: p.price,
         }));
-        // The total follows the parts list; it is never taken from the client.
-        visit.totalAmount = partsTotal(partsUpdate.partsUsed);
+      }
+      if (partsUpdate.partsUsed !== undefined || req.body.fittingCharges !== undefined) {
+        // The total follows parts + fitting charges; it is never taken from the client.
+        visit.totalAmount = Math.round((partsTotal(visit.partsUsed || []) + (Number(visit.fittingCharges) || 0)) * 100) / 100;
       } else if (req.body.totalAmount !== undefined) {
         visit.totalAmount = req.body.totalAmount;
       }
@@ -2512,6 +2540,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const addedParts = (visit.partsUsed || [])
             .filter((p: any) => !previousPartKeys.includes(partKey(p)))
             .map((p: any) => ({ name: p.name || 'Additional item', quantity: p.quantity }));
+          if ((Number(visit.fittingCharges) || 0) > previousFittingCharges) {
+            addedParts.push({ name: 'Fitting charges', quantity: 1 });
+          }
 
           await sendCustomerUpdate({
             kind: 'work_updated',
@@ -3952,6 +3983,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/support-tickets", requireAuth, requirePermission('supportTickets', 'create'), async (req, res) => {
     try {
+      if (!String(req.body.productName || '').trim()) {
+        return res.status(400).json({ error: "Product is required" });
+      }
+
       const ticketSeq = await getNextSequence('supportTicket');
       const ticketNumber = `TKT${String(ticketSeq).padStart(5, '0')}`;
       
@@ -4905,6 +4940,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Add vehicle to customer
   app.post("/api/registration/vehicles", async (req, res) => {
     try {
+      if (!canSeeCharges((req as any).session?.userRole)) delete req.body.labourCharges;
       // Normalize selectedParts to handle both old (string[]) and new ({partId, quantity}[]) formats
       if (req.body.selectedParts) {
         req.body.selectedParts = normalizeSelectedParts(req.body.selectedParts);
@@ -5033,6 +5069,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           vehicleReg,
           status: 'inquired',
           handlerIds: [],
+          fittingCharges: vehicle.labourCharges || 0,
+          totalAmount: vehicle.labourCharges || 0,
           notes: 'Auto-created from post-registration vehicle add'
         });
       }
@@ -5087,6 +5125,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             vehicleReg: vehicle.vehicleNumber || vehicle.vehicleId,
             status: 'inquired',
             handlerIds: [],
+            fittingCharges: vehicle.labourCharges || 0,
+            totalAmount: vehicle.labourCharges || 0,
             notes: 'Auto-created from customer registration'
           });
         }
@@ -5197,6 +5237,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         pinCode: c.pinCode,
         referralSource: c.referralSource,
         isVerified: c.isVerified,
+        notes: c.notes,
         registeredBy: c.registeredBy,
         registeredByRole: c.registeredByRole,
         createdAt: c.createdAt,
@@ -5210,7 +5251,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/registration/customers/:id/vehicles", async (req, res) => {
     try {
       const vehicles = await RegistrationVehicle.find({ customerId: req.params.id });
+      const showCharges = canSeeCharges((req as any).session?.userRole);
       res.json(vehicles.map(v => ({
+        ...(showCharges && { labourCharges: v.labourCharges || 0 }),
         id: v._id.toString(),
         vehicleId: v.vehicleId,
         customerId: v.customerId,
@@ -5264,6 +5307,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch("/api/registration/vehicles/:id", async (req, res) => {
     try {
       const updateData = { ...req.body };
+      if (!canSeeCharges((req as any).session?.userRole)) delete updateData.labourCharges;
       if (updateData.selectedParts) {
         updateData.selectedParts = normalizeSelectedParts(updateData.selectedParts);
       }

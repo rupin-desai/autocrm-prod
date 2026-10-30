@@ -9,6 +9,7 @@ import { registerWarrantyClaimRoutes } from './warrantyClaims';
 import { registerQuotationRoutes } from './quotations';
 import { registerWebsiteRoutes } from './website';
 import { registerDashboardPeriodRoutes } from './dashboardPeriod';
+import { registerBarcodeInventoryRoutes } from './barcodeInventory';
 
 // Modules added for the v2 requirements. Kept out of the main routes.ts so
 // each feature stays readable on its own.
@@ -19,6 +20,7 @@ export function registerV2Routes(app: Express) {
   registerQuotationRoutes(app);
   registerWebsiteRoutes(app);
   registerDashboardPeriodRoutes(app);
+  registerBarcodeInventoryRoutes(app);
   registerReminderRoutes(app);
 }
 

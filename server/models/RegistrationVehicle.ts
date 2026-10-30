@@ -20,6 +20,8 @@ const registrationVehicleSchema = new mongoose.Schema({
     }],
     default: []
   },
+  // Labour charges quoted at registration; seeds the service visit's fitting charges.
+  labourCharges: { type: Number, default: 0, min: 0 },
   warrantyCards: { 
     type: [{
       partId: { type: String, required: true },

@@ -17,10 +17,32 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { formatDistance } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { useAuth } from "@/lib/auth";
+import { useAuth, hasPermission } from "@/lib/auth";
 import { cn } from "@/lib/utils";
+import { PartSearchInput } from "@/components/PartSearchInput";
+import WarrantyClaims from "@/pages/WarrantyClaims";
 
+// Support & Feedback and Warranty Management share one sidebar entry; each
+// tab only appears for users allowed to see it.
 export default function SupportFeedback() {
+  const { user } = useAuth();
+  const canSupport = hasPermission(user, "supportTickets", "read");
+  const canWarranty = hasPermission(user, "warrantyClaims", "read");
+  if (!canSupport) return <WarrantyClaims />;
+  if (!canWarranty) return <SupportTickets />;
+  return (
+    <Tabs defaultValue="support" className="space-y-4">
+      <TabsList>
+        <TabsTrigger value="support" data-testid="tab-support">Support & Feedback</TabsTrigger>
+        <TabsTrigger value="warranty" data-testid="tab-warranty">Warranty Management</TabsTrigger>
+      </TabsList>
+      <TabsContent value="support"><SupportTickets /></TabsContent>
+      <TabsContent value="warranty"><WarrantyClaims /></TabsContent>
+    </Tabs>
+  );
+}
+
+function SupportTickets() {
   const { toast } = useToast();
   const { user } = useAuth();
   const [ticketSearchQuery, setTicketSearchQuery] = useState("");
@@ -32,6 +54,8 @@ export default function SupportFeedback() {
   const [selectedCustomer, setSelectedCustomer] = useState<any>(null);
   const [newTicketForm, setNewTicketForm] = useState({
     customerId: "",
+    productId: "",
+    productName: "",
     subject: "",
     description: "",
     category: "general",
@@ -104,6 +128,8 @@ export default function SupportFeedback() {
       setSelectedCustomer(null);
       setNewTicketForm({
         customerId: "",
+        productId: "",
+        productName: "",
         subject: "",
         description: "",
         category: "general",
@@ -407,6 +433,31 @@ export default function SupportFeedback() {
               )}
 
               <div className="space-y-2">
+                <Label>Product *</Label>
+                {newTicketForm.productName ? (
+                  <div className="flex items-center justify-between gap-2 rounded-md border px-3 py-2 text-sm">
+                    <span className="font-medium" data-testid="text-ticket-product">{newTicketForm.productName}</span>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setNewTicketForm({ ...newTicketForm, productId: "", productName: "" })}
+                      data-testid="button-change-ticket-product"
+                    >
+                      Change
+                    </Button>
+                  </div>
+                ) : (
+                  <PartSearchInput
+                    placeholder="Search the product this ticket is about…"
+                    testId="input-ticket-product"
+                    onPick={(p) => setNewTicketForm({ ...newTicketForm, productId: p.productId, productName: p.name })}
+                    onPickCustom={(name) => setNewTicketForm({ ...newTicketForm, productId: "", productName: name })}
+                  />
+                )}
+              </div>
+
+              <div className="space-y-2">
                 <Label>Subject *</Label>
                 <Input
                   data-testid="input-subject"
@@ -460,8 +511,8 @@ export default function SupportFeedback() {
               </div>
 
               <Button 
-                onClick={() => createTicketMutation.mutate(newTicketForm)}
-                disabled={!newTicketForm.customerId || !newTicketForm.subject || !newTicketForm.description || createTicketMutation.isPending}
+                onClick={() => createTicketMutation.mutate({ ...newTicketForm, productId: newTicketForm.productId || undefined })}
+                disabled={!newTicketForm.customerId || !newTicketForm.productName || !newTicketForm.subject || !newTicketForm.description || createTicketMutation.isPending}
                 className="w-full"
                 data-testid="button-submit-ticket"
               >
@@ -662,6 +713,13 @@ export default function SupportFeedback() {
                   </div>
                 </div>
               </div>
+
+              {selectedTicket.productName && (
+                <div>
+                  <Label className="text-muted-foreground">Product</Label>
+                  <p className="font-medium" data-testid="text-view-ticket-product">{selectedTicket.productName}</p>
+                </div>
+              )}
 
               <div>
                 <Label className="text-muted-foreground">Subject</Label>

@@ -151,19 +151,21 @@ export function ServiceWorkflowCard({
             <Eye className="h-3.5 w-3.5 mr-1.5" />
             View Details
           </Button>
-          <Button 
-            variant="default" 
-            size="sm" 
-            className="flex-1"
-            onClick={(e) => {
-              e.stopPropagation();
-              onEdit?.();
-            }}
-            data-testid={`button-edit-${vehicleReg}`}
-          >
-            <Edit className="h-3.5 w-3.5 mr-1.5" />
-            Edit
-          </Button>
+          {onEdit && (
+            <Button 
+              variant="default" 
+              size="sm" 
+              className="flex-1"
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit();
+              }}
+              data-testid={`button-edit-${vehicleReg}`}
+            >
+              <Edit className="h-3.5 w-3.5 mr-1.5" />
+              Edit
+            </Button>
+          )}
         </div>
       </CardContent>
     </Card>

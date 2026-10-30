@@ -229,13 +229,15 @@ export function InvoiceGenerationDialog({ open, onOpenChange, serviceVisit }: In
     console.log('  Unique Suggested Items:', uniqueSuggestedItems.length);
     console.log('  Total Items:', partsUsedItems.length + uniqueSuggestedItems.length);
 
+    // Fitting charges entered on the service visit pre-fill the labour line.
+    const fittingCharges = Number(serviceVisit?.fittingCharges) || 0;
     const labourChargeItem = {
       type: 'service' as const,
       name: 'Labour Charges',
       isLabourCharge: true,
       quantity: 1,
-      unitPrice: 0,
-      total: 0,
+      unitPrice: fittingCharges,
+      total: fittingCharges,
       hasGst: false,
       gstPercentage: 18,
       gstAmount: 0,
@@ -265,7 +267,7 @@ export function InvoiceGenerationDialog({ open, onOpenChange, serviceVisit }: In
     setCalculatedTotals({
       subtotal,
       discount,
-      taxAmount: 0,
+      taxAmount: items.reduce((sum, item) => sum + (item.hasGst ? item.gstAmount || 0 : 0), 0),
       total,
     });
   }, [items, couponValidation]);
@@ -364,7 +366,7 @@ export function InvoiceGenerationDialog({ open, onOpenChange, serviceVisit }: In
     setCalculatedTotals({
       subtotal,
       discount,
-      taxAmount: 0,
+      taxAmount: currentItems.reduce((sum, item) => sum + (item.hasGst ? item.gstAmount || 0 : 0), 0),
       total,
     });
   };
@@ -376,10 +378,11 @@ export function InvoiceGenerationDialog({ open, onOpenChange, serviceVisit }: In
     const total = item.unitPrice * item.quantity;
     
     if (item.hasGst) {
+      // GST is charged on top of the price and added to the line total.
       const gstPercentage = item.gstPercentage || 18;
-      const gstAmount = total * (gstPercentage / (100 + gstPercentage));
+      const gstAmount = Math.round(total * gstPercentage) / 100;
       form.setValue(`items.${index}.gstAmount`, gstAmount, { shouldDirty: true, shouldTouch: true, shouldValidate: true });
-      form.setValue(`items.${index}.total`, total, { shouldDirty: true, shouldTouch: true, shouldValidate: true });
+      form.setValue(`items.${index}.total`, total + gstAmount, { shouldDirty: true, shouldTouch: true, shouldValidate: true });
     } else {
       form.setValue(`items.${index}.gstAmount`, 0, { shouldDirty: true, shouldTouch: true, shouldValidate: true });
       form.setValue(`items.${index}.total`, total, { shouldDirty: true, shouldTouch: true, shouldValidate: true });
@@ -979,8 +982,15 @@ export function InvoiceGenerationDialog({ open, onOpenChange, serviceVisit }: In
                   <div className="bg-muted p-4 rounded-lg space-y-3">
                     <div className="flex justify-between text-base">
                       <span>Subtotal:</span>
-                      <span className="font-semibold" data-testid="text-subtotal">₹{calculatedTotals.subtotal.toLocaleString()}</span>
+                      <span className="font-semibold" data-testid="text-subtotal">₹{(calculatedTotals.subtotal - calculatedTotals.taxAmount).toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
                     </div>
+
+                    {calculatedTotals.taxAmount > 0 && (
+                      <div className="flex justify-between text-base">
+                        <span>GST:</span>
+                        <span className="font-semibold" data-testid="text-gst-total">+₹{calculatedTotals.taxAmount.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
+                      </div>
+                    )}
                     
                     {calculatedTotals.discount > 0 && (
                       <div className="flex justify-between text-green-600">

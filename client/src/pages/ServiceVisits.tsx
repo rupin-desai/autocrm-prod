@@ -61,6 +61,7 @@ export default function ServiceVisits() {
   const [afterImages, setAfterImages] = useState<string[]>([]);
   const [parts, setParts] = useState<ServicePart[]>([]);
   const [partsLink, setPartsLink] = useState<PartsLink>({ partsSource: null });
+  const [fittingCharges, setFittingCharges] = useState("0");
   const [customerVehicles, setCustomerVehicles] = useState<any[]>([]);
   const [isLoadingVehicles, setIsLoadingVehicles] = useState(false);
   const [serviceForm, setServiceForm] = useState({
@@ -72,6 +73,9 @@ export default function ServiceVisits() {
   });
 
   const canDelete = hasPermission(user, 'orders', 'delete');
+  const canEdit = hasPermission(user, 'orders', 'update');
+  // Labour (serviceVisits:read only) sees work, parts and car; never amounts.
+  const canSeeCharges = hasPermission(user, 'orders', 'read');
 
   const { data: serviceVisits = [], isLoading, error, refetch } = useQuery<any[]>({
     queryKey: ["/api/service-visits"],
@@ -110,13 +114,14 @@ export default function ServiceVisits() {
   });
 
   const updateServiceMutation = useMutation({
-    mutationFn: async ({ id, status, beforeImages, afterImages, handlerIds, parts, partsLink }: { id: string; status: string; beforeImages?: string[]; afterImages?: string[]; handlerIds?: string[]; parts?: ServicePart[]; partsLink?: PartsLink }) => {
+    mutationFn: async ({ id, status, beforeImages, afterImages, handlerIds, parts, partsLink, fittingCharges }: { id: string; status: string; beforeImages?: string[]; afterImages?: string[]; handlerIds?: string[]; parts?: ServicePart[]; partsLink?: PartsLink; fittingCharges?: number }) => {
       console.log('🚀 [FRONTEND] Sending update request:', { id, status, beforeImages: beforeImages?.length, afterImages: afterImages?.length, handlerIds, parts: parts?.length });
       const response = await apiRequest('PATCH', `/api/service-visits/${id}`, {
         status,
         beforeImages,
         afterImages,
         handlerIds,
+        ...(fittingCharges !== undefined && { fittingCharges }),
         ...(parts && {
           partsUsed: parts.map(({ productId, name, quantity, price }) => ({ productId, name, quantity, price })),
         }),
@@ -146,6 +151,7 @@ export default function ServiceVisits() {
       setAfterImages(updatedVisit.afterImages || []);
       setParts((updatedVisit.partsUsed || []).map(toServicePart));
       setPartsLink(linkOf(updatedVisit));
+      setFittingCharges(String(updatedVisit.fittingCharges || 0));
       
       setIsEditDialogOpen(false);
       
@@ -259,6 +265,7 @@ export default function ServiceVisits() {
     setAfterImages(service.afterImages || []);
     setParts((service.partsUsed || []).map(toServicePart));
     setPartsLink(linkOf(service));
+    setFittingCharges(String(service.fittingCharges || 0));
     setIsEditDialogOpen(true);
   };
 
@@ -308,12 +315,15 @@ export default function ServiceVisits() {
     const partsChanged =
       partsSignature(parts) !== partsSignature((selectedService.partsUsed || []).map(toServicePart)) ||
       !sameLink(partsLink, linkOf(selectedService));
+    const nextFitting = Math.max(0, Number(fittingCharges) || 0);
+    const fittingChanged = nextFitting !== (Number(selectedService.fittingCharges) || 0);
     
     if (selectedStatus === selectedService.status && 
         JSON.stringify(beforeImages) === JSON.stringify(selectedService.beforeImages || []) &&
         JSON.stringify(afterImages) === JSON.stringify(selectedService.afterImages || []) &&
         !handlersChanged &&
-        !partsChanged) {
+        !partsChanged &&
+        !fittingChanged) {
       toast({
         title: "No Changes",
         description: "No changes detected",
@@ -329,6 +339,7 @@ export default function ServiceVisits() {
       afterImages,
       handlerIds: selectedHandlers,
       ...(partsChanged && { parts, partsLink }),
+      ...(fittingChanged && { fittingCharges: nextFitting }),
     });
   };
 
@@ -744,7 +755,7 @@ export default function ServiceVisits() {
                           partNames={(service.partsUsed || []).map((p: any) => toServicePart(p).name)}
                           notes={service.notes}
                           onView={() => handleViewService(service)}
-                          onEdit={() => handleEditService(service)}
+                          onEdit={canEdit ? () => handleEditService(service) : undefined}
                         />
                       </div>
                     ))}
@@ -837,6 +848,14 @@ export default function ServiceVisits() {
                       <span className="text-muted-foreground">Started:</span>
                       <span className="font-medium">{formatDistance(new Date(selectedService.createdAt), new Date(), { addSuffix: true })}</span>
                     </div>
+                    {canSeeCharges && Number(selectedService.fittingCharges) > 0 && (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Fitting Charges:</span>
+                        <span className="font-medium" data-testid="view-fitting-charges">
+                          {formatINR(selectedService.fittingCharges)}
+                        </span>
+                      </div>
+                    )}
                     {selectedService.totalAmount !== undefined && selectedService.totalAmount > 0 && (
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Total Amount:</span>
@@ -865,8 +884,12 @@ export default function ServiceVisits() {
                         <tr>
                           <th className="text-left font-medium px-3 py-2">Part</th>
                           <th className="text-right font-medium px-3 py-2">Qty</th>
-                          <th className="text-right font-medium px-3 py-2">Price</th>
-                          <th className="text-right font-medium px-3 py-2">Amount</th>
+                          {canSeeCharges && (
+                            <>
+                              <th className="text-right font-medium px-3 py-2">Price</th>
+                              <th className="text-right font-medium px-3 py-2">Amount</th>
+                            </>
+                          )}
                         </tr>
                       </thead>
                       <tbody>
@@ -876,8 +899,12 @@ export default function ServiceVisits() {
                             <tr key={idx} className="border-t">
                               <td className="px-3 py-2">{part.name}</td>
                               <td className="px-3 py-2 text-right tabular-nums">{part.quantity}</td>
-                              <td className="px-3 py-2 text-right tabular-nums">{formatINR(part.price)}</td>
-                              <td className="px-3 py-2 text-right tabular-nums">{formatINR(part.quantity * part.price)}</td>
+                              {canSeeCharges && (
+                                <>
+                                  <td className="px-3 py-2 text-right tabular-nums">{formatINR(part.price)}</td>
+                                  <td className="px-3 py-2 text-right tabular-nums">{formatINR(part.quantity * part.price)}</td>
+                                </>
+                              )}
                             </tr>
                           );
                         })}
@@ -886,7 +913,7 @@ export default function ServiceVisits() {
                   </div>
                 ) : (
                   <p className="text-sm text-muted-foreground italic">
-                    No parts added yet. Use Edit Service to load them from the quotation or inquiry.
+                    No parts added yet.{canEdit && ' Use Edit Service to load them from the quotation or inquiry.'}
                   </p>
                 )}
               </div>
@@ -981,17 +1008,19 @@ export default function ServiceVisits() {
                   >
                     Close
                   </Button>
-                  <Button
-                    onClick={() => {
-                      setIsViewDialogOpen(false);
-                      handleEditService(selectedService);
-                    }}
-                    data-testid="button-edit-from-view"
-                    className="flex-1 md:flex-none"
-                  >
-                    <Edit className="h-4 w-4 mr-2" />
-                    Edit Service
-                  </Button>
+                  {canEdit && (
+                    <Button
+                      onClick={() => {
+                        setIsViewDialogOpen(false);
+                        handleEditService(selectedService);
+                      }}
+                      data-testid="button-edit-from-view"
+                      className="flex-1 md:flex-none"
+                    >
+                      <Edit className="h-4 w-4 mr-2" />
+                      Edit Service
+                    </Button>
+                  )}
                 </div>
               </div>
             </div>
@@ -1102,6 +1131,22 @@ export default function ServiceVisits() {
                 }}
                 disabled={updateServiceMutation.isPending || deleteServiceMutation.isPending}
               />
+
+              {canSeeCharges && (
+                <div className="space-y-2 max-w-xs">
+                  <Label htmlFor="fittingCharges">Fitting Charges (₹)</Label>
+                  <Input
+                    id="fittingCharges"
+                    type="number"
+                    min="0"
+                    value={fittingCharges}
+                    onChange={(e) => setFittingCharges(e.target.value)}
+                    disabled={updateServiceMutation.isPending || deleteServiceMutation.isPending}
+                    data-testid="input-fitting-charges"
+                  />
+                  <p className="text-xs text-muted-foreground">Added to the job total and to the invoice as labour charges. Not shown to service staff.</p>
+                </div>
+              )}
 
               <div className={`grid ${selectedStatus === 'completed' ? 'grid-cols-2' : 'grid-cols-1'} gap-6`}>
                 <div className="space-y-2">

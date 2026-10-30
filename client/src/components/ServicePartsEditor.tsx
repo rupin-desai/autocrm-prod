@@ -3,9 +3,9 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Package, Plus, Search, X, FileText, ClipboardList, Car, AlertTriangle } from "lucide-react";
+import { Package, Plus, X, FileText, ClipboardList, Car, AlertTriangle } from "lucide-react";
+import { PartSearchInput, type PartSearchResult } from "@/components/PartSearchInput";
 
 export interface ServicePart {
   productId?: string;
@@ -81,8 +81,6 @@ export function partsSignature(parts: ServicePart[]) {
 }
 
 export function ServicePartsEditor({ visitId, parts, link, onChange, disabled }: ServicePartsEditorProps) {
-  const [search, setSearch] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [customName, setCustomName] = useState("");
   const [isAddingCustom, setIsAddingCustom] = useState(false);
   const autoLoadedFor = useRef<string | null>(null);
@@ -90,19 +88,6 @@ export function ServicePartsEditor({ visitId, parts, link, onChange, disabled }:
   const { data: plan, isLoading } = useQuery<PartsPlan>({
     queryKey: ["/api/service-visits", visitId, "parts-plan"],
     staleTime: 0,
-  });
-
-  useEffect(() => {
-    const id = window.setTimeout(() => setDebouncedSearch(search.trim()), 250);
-    return () => window.clearTimeout(id);
-  }, [search]);
-
-  const { data: searchResults = [], isFetching: isSearching } = useQuery<any[]>({
-    queryKey: ["/api/service-visits/part-search", debouncedSearch],
-    queryFn: () =>
-      fetch(`/api/service-visits/part-search?q=${encodeURIComponent(debouncedSearch)}`, { credentials: "include" })
-        .then((res) => (res.ok ? res.json() : [])),
-    enabled: debouncedSearch.length > 0,
   });
 
   const linkFor = (source: SourceOption): PartsLink => {
@@ -147,18 +132,16 @@ export function ServicePartsEditor({ visitId, parts, link, onChange, disabled }:
     onChange(parts.filter((_, i) => i !== index), link);
   };
 
-  const addProduct = (product: any) => {
+  const addProduct = (product: PartSearchResult) => {
     const existing = parts.findIndex((p) => p.productId === product.productId);
     if (existing >= 0) {
       onChange(parts.map((p, i) => (i === existing ? { ...p, quantity: p.quantity + 1 } : p)), manualLink());
     } else {
       onChange(
-        [...parts, { productId: product.productId, name: product.name, quantity: 1, price: product.price, stockQty: product.stockQty }],
+        [...parts, { productId: product.productId, name: product.name, quantity: 1, price: product.price ?? 0, stockQty: product.stockQty }],
         manualLink(),
       );
     }
-    setSearch("");
-    setDebouncedSearch("");
   };
 
   const addCustom = () => {
@@ -332,49 +315,7 @@ export function ServicePartsEditor({ visitId, parts, link, onChange, disabled }:
       )}
 
       <div className="flex flex-col sm:flex-row gap-2">
-        <div className="relative flex-1">
-          <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Add part from inventory…"
-            className="pl-9"
-            disabled={disabled}
-            data-testid="input-part-search"
-          />
-          {debouncedSearch && (
-            <div className="absolute z-20 mt-1 w-full rounded-md border bg-popover shadow-md max-h-60 overflow-y-auto">
-              {isSearching && searchResults.length === 0 ? (
-                <p className="text-sm text-muted-foreground px-3 py-2">Searching…</p>
-              ) : searchResults.length === 0 ? (
-                <p className="text-sm text-muted-foreground px-3 py-2">No matching products</p>
-              ) : (
-                searchResults.map((product: any) => (
-                  <button
-                    key={product.productId}
-                    type="button"
-                    className="w-full text-left px-3 py-2 hover:bg-muted flex items-center justify-between gap-3"
-                    onClick={() => addProduct(product)}
-                    data-testid={`option-part-${product.productId}`}
-                  >
-                    <span className="min-w-0">
-                      <span className="block text-sm font-medium truncate">{product.name}</span>
-                      <span className="block text-xs text-muted-foreground truncate">
-                        {[product.brand, product.model].filter(Boolean).join(" · ")}
-                      </span>
-                    </span>
-                    <span className="text-right flex-shrink-0">
-                      <span className="block text-sm tabular-nums">{formatCurrency(product.price)}</span>
-                      <Badge variant={product.stockQty > 0 ? "secondary" : "destructive"} className="text-[10px]">
-                        {product.stockQty > 0 ? `${product.stockQty} in stock` : "Out of stock"}
-                      </Badge>
-                    </span>
-                  </button>
-                ))
-              )}
-            </div>
-          )}
-        </div>
+        <PartSearchInput onPick={addProduct} placeholder="Add part from inventory…" disabled={disabled} />
         {isAddingCustom ? (
           <div className="flex gap-2 flex-1">
             <Input

@@ -29,6 +29,8 @@ const serviceVisitSchema = new mongoose.Schema({
     waiting: Date,
     completed: Date,
   },
+  // Labour / fitting charges entered by sales; part of totalAmount.
+  fittingCharges: { type: Number, default: 0, min: 0 },
   totalAmount: { type: Number, default: 0 },
   beforeImages: [{ type: String }],
   afterImages: [{ type: String }],

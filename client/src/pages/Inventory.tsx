@@ -1,8 +1,9 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { ArrowDownCircle, ArrowUpCircle, Package, Plus, Search, Trash2, Undo2 } from "lucide-react";
 import { DataTable } from "@/components/DataTable";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -33,6 +34,40 @@ import {
 } from "@/components/ui/alert-dialog";
 
 type TxType = "IN" | "OUT" | "RETURN" | "ADJUSTMENT";
+
+const BATCH_SIZE = 24;
+
+// Renders a category's stock items in batches, loading the next batch when
+// the end of the list scrolls into view.
+function LazyItems<T>({ items, render }: { items: T[]; render: (item: T) => React.ReactNode }) {
+  const [shown, setShown] = useState(BATCH_SIZE);
+  const sentinel = useRef<HTMLDivElement>(null);
+
+  useEffect(() => setShown(BATCH_SIZE), [items]);
+
+  useEffect(() => {
+    const el = sentinel.current;
+    if (!el || shown >= items.length) return;
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) setShown((n) => n + BATCH_SIZE);
+    }, { rootMargin: "200px" });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [shown, items.length]);
+
+  return (
+    <>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        {items.slice(0, shown).map(render)}
+      </div>
+      {shown < items.length && (
+        <div ref={sentinel} className="py-4 text-center text-xs text-muted-foreground">
+          Loading more… ({shown} of {items.length})
+        </div>
+      )}
+    </>
+  );
+}
 
 export default function Inventory() {
   const { toast } = useToast();
@@ -194,6 +229,17 @@ export default function Inventory() {
     });
     return s;
   }, [products, category, searchTerm, sortBy]);
+
+  // Category -> stock items, keeping the chosen sort order inside each group.
+  const productsByCategory = useMemo(() => {
+    const groups = new Map<string, any[]>();
+    for (const p of visibleProducts) {
+      const key = p.category || "Uncategorized";
+      groups.set(key, [...(groups.get(key) || []), p]);
+    }
+    return Array.from(groups.entries()).sort(([a], [b]) => a.localeCompare(b));
+  }, [visibleProducts]);
+  const isFiltering = Boolean(searchTerm.trim()) || category !== "all";
 
   const visibleTransactions = useMemo(() => {
     const q = searchTerm.toLowerCase();
@@ -474,30 +520,46 @@ export default function Inventory() {
               {visibleProducts.length === 0 ? (
                 <p className="text-muted-foreground text-center py-10">No products found</p>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                  {visibleProducts.map((p: any) => {
-                    const stock = safeN(p.stockQty);
-                    const min = safeN(p.minStockLevel);
-                    return (
-                      <Card key={p._id} className="overflow-hidden">
-                        <CardHeader className="pb-3">
-                          <CardTitle className="min-w-0 text-base leading-snug break-words line-clamp-3">
-                            {p.productName || p.name || p.model || "Unknown"}
-                          </CardTitle>
-                          <p className="min-w-0 text-sm text-muted-foreground break-words">{p.brand}</p>
-                        </CardHeader>
-                        <CardContent className="space-y-2 text-sm">
-                          <div className="grid grid-cols-[auto_minmax(0,1fr)] gap-3">
-                            <span className="text-muted-foreground">Category</span>
-                            <span className="min-w-0 text-right break-words">{p.category || "-"}</span>
-                          </div>
-                          <div className="flex justify-between"><span className="text-muted-foreground">Stock</span><span className={stock <= min ? "text-red-600 font-semibold" : "text-green-600 font-semibold"}>{stock}</span></div>
-                          <div className="flex justify-between"><span className="text-muted-foreground">Price</span><span>₹{safeN(p.sellingPrice).toLocaleString("en-IN")}</span></div>
-                        </CardContent>
-                      </Card>
-                    );
-                  })}
-                </div>
+                // Collapsed categories render nothing; open them to load their stock items.
+                <Accordion
+                  key={isFiltering ? `filter-${searchTerm}-${category}` : "browse"}
+                  type="multiple"
+                  defaultValue={isFiltering ? productsByCategory.map(([c]) => c) : []}
+                >
+                  {productsByCategory.map(([cat, items]) => (
+                    <AccordionItem key={cat} value={cat}>
+                      <AccordionTrigger className="hover:no-underline" data-testid={`category-${cat}`}>
+                        <span className="flex items-center gap-2">
+                          {cat}
+                          <Badge variant="secondary">{items.length}</Badge>
+                        </span>
+                      </AccordionTrigger>
+                      <AccordionContent className="pt-2">
+                        <LazyItems
+                          items={items}
+                          render={(p: any) => {
+                            const stock = safeN(p.stockQty);
+                            const min = safeN(p.minStockLevel);
+                            return (
+                              <Card key={p._id} className="overflow-hidden">
+                                <CardHeader className="pb-3">
+                                  <CardTitle className="min-w-0 text-base leading-snug break-words line-clamp-3">
+                                    {p.productName || p.name || p.model || "Unknown"}
+                                  </CardTitle>
+                                  <p className="min-w-0 text-sm text-muted-foreground break-words">{p.brand}</p>
+                                </CardHeader>
+                                <CardContent className="space-y-2 text-sm">
+                                  <div className="flex justify-between"><span className="text-muted-foreground">Stock</span><span className={stock <= min ? "text-red-600 font-semibold" : "text-green-600 font-semibold"}>{stock}</span></div>
+                                  <div className="flex justify-between"><span className="text-muted-foreground">Price</span><span>₹{safeN(p.sellingPrice).toLocaleString("en-IN")}</span></div>
+                                </CardContent>
+                              </Card>
+                            );
+                          }}
+                        />
+                      </AccordionContent>
+                    </AccordionItem>
+                  ))}
+                </Accordion>
               )}
             </CardContent>
           </Card>
