@@ -26,6 +26,23 @@ type CartLine = { product: any; quantity: string; override: boolean };
 const n = (v: unknown) => Number(v) || 0;
 const isLow = (p: any) => n(p.stockQty) <= n(p.minStockLevel);
 
+// Shared by the summary cards and the parts list, so a card's count always matches the list it opens.
+const stockFilters: Record<string, (p: any) => boolean> = {
+  all: () => true,
+  in: (p) => n(p.stockQty) > 0,
+  low: (p) => n(p.stockQty) > 0 && isLow(p),
+  out: (p) => n(p.stockQty) <= 0,
+};
+
+// A USB scanner types wherever the cursor is, so closing a dialog must hand focus back to the visible scanner box.
+const returnFocusToScanner = (event: Event) => {
+  const scanner = ["IN", "OUT"].map((type) => document.getElementById(`scanner-${type}`)).find((el) => el?.offsetParent);
+  if (scanner) {
+    event.preventDefault();
+    scanner.focus();
+  }
+};
+
 function refreshStockQueries() {
   queryClient.invalidateQueries({ queryKey: ["/api/products"] });
   queryClient.invalidateQueries({ queryKey: ["/api/products/low-stock"] });
@@ -43,17 +60,26 @@ function StockBadge({ product }: { product: any }) {
 export default function BarcodeInventory() {
   const { data: products = [], isLoading } = useQuery<any[]>({ queryKey: ["/api/products"] });
   const [newPartOpen, setNewPartOpen] = useState(false);
+  const [scannedCode, setScannedCode] = useState("");
   const [historyProduct, setHistoryProduct] = useState<any>(null);
   // Set by the Stock IN desk so a freshly created part lands in its cart.
   const [createdPart, setCreatedPart] = useState<any>(null);
+  const [tab, setTab] = useState("in");
+  const [partsView, setPartsView] = useState({ stock: "all", key: 0 });
 
   const categories = useMemo(() => Array.from(new Set(products.map((p) => p.category).filter(Boolean))).sort() as string[], [products]);
   const stats = useMemo(() => ({
     parts: products.length,
     units: products.reduce((sum, p) => sum + Math.max(0, n(p.stockQty)), 0),
-    low: products.filter((p) => n(p.stockQty) > 0 && isLow(p)).length,
-    out: products.filter((p) => n(p.stockQty) <= 0).length,
+    low: products.filter(stockFilters.low).length,
+    out: products.filter(stockFilters.out).length,
   }), [products]);
+
+  // A new key remounts the list, clearing search and category so it shows exactly what the card counted.
+  const openPartsList = (stock: string) => {
+    setPartsView((view) => ({ stock, key: view.key + 1 }));
+    setTab("parts");
+  };
 
   if (isLoading) {
     return (
@@ -71,18 +97,36 @@ export default function BarcodeInventory() {
           <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">Barcode Inventory</h1>
           <p className="text-muted-foreground mt-1">Scan parts in and out, print labels, track every movement</p>
         </div>
-        <Button onClick={() => setNewPartOpen(true)} data-testid="button-add-part"><Plus className="h-4 w-4 mr-2" />Add New Part</Button>
+        <Button onClick={() => { setScannedCode(""); setNewPartOpen(true); }} data-testid="button-add-part"><Plus className="h-4 w-4 mr-2" />Add New Part</Button>
       </div>
 
       <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
-        <KPICard title="Parts" value={stats.parts} icon={Package} color="blue" />
-        <KPICard title="Units in stock" value={stats.units.toLocaleString("en-IN")} icon={Boxes} color="green" />
-        <KPICard title="Low stock" value={stats.low} icon={AlertTriangle} color="yellow" />
-        <KPICard title="Out of stock" value={stats.out} icon={PackageX} color="pink" />
+        {([
+          { stock: "all", title: "Parts", value: stats.parts, icon: Package, color: "blue" },
+          { stock: "in", title: "Units in stock", value: stats.units.toLocaleString("en-IN"), icon: Boxes, color: "green" },
+          { stock: "low", title: "Low stock", value: stats.low, icon: AlertTriangle, color: "yellow" },
+          { stock: "out", title: "Out of stock", value: stats.out, icon: PackageX, color: "pink" },
+        ] as const).map(({ stock, ...card }) => (
+          <button
+            key={stock}
+            type="button"
+            className="h-full rounded-xl text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            onClick={() => openPartsList(stock)}
+          >
+            <KPICard {...card} className="h-full" />
+          </button>
+        ))}
       </div>
 
       {/* Put the cursor in the scanner box so the next scan is not lost after switching tabs */}
-      <Tabs defaultValue="in" className="space-y-4" onValueChange={(tab) => setTimeout(() => document.getElementById(`scanner-${tab.toUpperCase()}`)?.focus(), 0)}>
+      <Tabs
+        value={tab}
+        className="space-y-4"
+        onValueChange={(next) => {
+          setTab(next);
+          setTimeout(() => document.getElementById(`scanner-${next.toUpperCase()}`)?.focus(), 0);
+        }}
+      >
         <TabsList className="w-full justify-start overflow-x-auto">
           <TabsTrigger value="in">Stock IN</TabsTrigger>
           <TabsTrigger value="out">Stock OUT</TabsTrigger>
@@ -90,17 +134,17 @@ export default function BarcodeInventory() {
         </TabsList>
         {/* forceMount keeps each cart alive while switching tabs */}
         <TabsContent value="in" forceMount className="data-[state=inactive]:hidden">
-          <StockDesk type="IN" onUnknown={() => setNewPartOpen(true)} createdPart={createdPart} onHistory={setHistoryProduct} />
+          <StockDesk type="IN" onUnknown={(code) => { setScannedCode(code); setNewPartOpen(true); }} createdPart={createdPart} onHistory={setHistoryProduct} />
         </TabsContent>
         <TabsContent value="out" forceMount className="data-[state=inactive]:hidden">
           <StockDesk type="OUT" onHistory={setHistoryProduct} />
         </TabsContent>
         <TabsContent value="parts">
-          <PartsList products={products} categories={categories} onHistory={setHistoryProduct} />
+          <PartsList key={partsView.key} initialStock={partsView.stock} products={products} categories={categories} onHistory={setHistoryProduct} />
         </TabsContent>
       </Tabs>
 
-      <NewPartDialog open={newPartOpen} onOpenChange={setNewPartOpen} onCreated={setCreatedPart} categories={categories} />
+      <NewPartDialog open={newPartOpen} onOpenChange={setNewPartOpen} onCreated={setCreatedPart} categories={categories} barcode={scannedCode} />
       <MovementHistoryDialog product={historyProduct} onClose={() => setHistoryProduct(null)} />
     </div>
   );
@@ -108,7 +152,7 @@ export default function BarcodeInventory() {
 
 function StockDesk({ type, onUnknown, createdPart, onHistory }: {
   type: StockType;
-  onUnknown?: () => void;
+  onUnknown?: (code: string) => void;
   createdPart?: any;
   onHistory: (product: any) => void;
 }) {
@@ -242,7 +286,7 @@ function StockDesk({ type, onUnknown, createdPart, onHistory }: {
               <AlertTitle>Unknown barcode {unknownCode}</AlertTitle>
               <AlertDescription className="flex flex-wrap items-center gap-3">
                 No part has this barcode.
-                {onUnknown && <Button size="sm" variant="outline" onClick={onUnknown}>Add as new part</Button>}
+                {onUnknown && <Button size="sm" variant="outline" onClick={() => onUnknown(unknownCode)}>Add as new part</Button>}
               </AlertDescription>
             </Alert>
           )}
@@ -340,17 +384,17 @@ function StockDesk({ type, onUnknown, createdPart, onHistory }: {
   );
 }
 
-function PartsList({ products, categories, onHistory }: { products: any[]; categories: string[]; onHistory: (product: any) => void }) {
+function PartsList({ products, categories, onHistory, initialStock }: { products: any[]; categories: string[]; onHistory: (product: any) => void; initialStock: string }) {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
-  const [stockFilter, setStockFilter] = useState("all");
+  const [stockFilter, setStockFilter] = useState(initialStock);
   const [sort, setSort] = useState("name");
 
   const visible = useMemo(() => {
     const term = search.trim().toLowerCase();
     return products
       .filter((p) => category === "all" || p.category === category)
-      .filter((p) => stockFilter === "all" || (stockFilter === "low" ? isLow(p) : n(p.stockQty) <= 0))
+      .filter(stockFilters[stockFilter])
       .filter((p) => !term || [p.productName, p.brand, p.barcode, p.category, ...(p.modelCompatibility || [])]
         .some((v) => String(v || "").toLowerCase().includes(term)))
       .sort((a, b) => sort === "name"
@@ -377,6 +421,7 @@ function PartsList({ products, categories, onHistory }: { products: any[]; categ
             <SelectTrigger className="w-full md:w-[150px]"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All stock</SelectItem>
+              <SelectItem value="in">In stock</SelectItem>
               <SelectItem value="low">Low stock</SelectItem>
               <SelectItem value="out">Out of stock</SelectItem>
             </SelectContent>
@@ -421,11 +466,12 @@ function PartsList({ products, categories, onHistory }: { products: any[]; categ
 
 const emptyPart = { productName: "", brand: "", category: "", modelCompatibility: "", sellingPrice: "", mrp: "", minStockLevel: "" };
 
-function NewPartDialog({ open, onOpenChange, onCreated, categories }: {
+function NewPartDialog({ open, onOpenChange, onCreated, categories, barcode }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onCreated: (product: any) => void;
   categories: string[];
+  barcode: string;
 }) {
   const { toast } = useToast();
   const [form, setForm] = useState(emptyPart);
@@ -434,6 +480,8 @@ function NewPartDialog({ open, onOpenChange, onCreated, categories }: {
   const create = useMutation({
     mutationFn: async () => {
       const res = await apiRequest("POST", "/api/products", {
+        // A label scanned at the desk stays on the part; otherwise the server assigns a MAW code.
+        barcode: barcode || undefined,
         // Existing inventory is all upper case; keep new parts consistent.
         productName: form.productName.trim().toUpperCase(),
         brand: form.brand.trim().toUpperCase(),
@@ -459,10 +507,12 @@ function NewPartDialog({ open, onOpenChange, onCreated, categories }: {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto" onCloseAutoFocus={returnFocusToScanner}>
         <DialogHeader>
           <DialogTitle>Add New Part</DialogTitle>
-          <DialogDescription>A MAW barcode is assigned on save and the label opens for printing. Stock starts at 0. Receive it through Stock IN.</DialogDescription>
+          <DialogDescription>
+            {barcode ? `Barcode ${barcode} is saved on this part` : "A MAW barcode is assigned on save"} and the label opens for printing. Stock starts at 0. Receive it through Stock IN.
+          </DialogDescription>
         </DialogHeader>
         <form
           className="space-y-4"
@@ -523,7 +573,7 @@ function MovementHistoryDialog({ product, onClose }: { product: any; onClose: ()
 
   return (
     <Dialog open={!!product} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto" onCloseAutoFocus={returnFocusToScanner}>
         <DialogHeader>
           <DialogTitle>{product?.productName}</DialogTitle>
           <DialogDescription>{product?.barcode} · every stock change, newest first</DialogDescription>

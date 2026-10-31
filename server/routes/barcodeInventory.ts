@@ -1,7 +1,7 @@
 import type { Express } from 'express';
 import mongoose from 'mongoose';
 import { z } from 'zod';
-import { Product, getProductStockStatus } from '../models/Product';
+import { Product, moveStock } from '../models/Product';
 import { InventoryTransaction } from '../models/InventoryTransaction';
 import { requireAuth, requirePermission } from '../middleware';
 import { checkAndNotifyLowStock } from '../utils/notifications';
@@ -48,15 +48,13 @@ export function registerBarcodeInventoryRoutes(app: Express) {
       const updated: any[] = [];
       try {
         for (const item of items) {
-          // $inc so two counters scanning the same part cannot overwrite each other's count.
-          const product: any = await Product.findByIdAndUpdate(item.productId, { $inc: { stockQty: sign * item.quantity } }, { new: true });
-          if (!product) throw new Error(`Product ${item.productId} disappeared during the update`);
+          // Conditional, so a scan racing the check above cannot take stock negative without an override.
+          const product: any = await moveStock(item.productId, sign * item.quantity, item.override);
+          if (!product) throw new Error(`Product ${item.productId} is gone or no longer has enough stock`);
           updated.push(product);
 
           const newStock = Number(product.stockQty) || 0;
           const previousStock = newStock - sign * item.quantity;
-          product.status = getProductStockStatus(newStock, product.minStockLevel);
-          await Product.updateOne({ _id: product._id }, { status: product.status });
           await InventoryTransaction.create({
             productId: product._id,
             type,

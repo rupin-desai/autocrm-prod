@@ -26,5 +26,12 @@ const inventoryTransactionSchema = new mongoose.Schema({
   notes: { type: String },
 }, { timestamps: true });
 
-export const InventoryTransaction = mongoose.models.InventoryTransaction || 
+export const InventoryTransaction = mongoose.models.InventoryTransaction ||
   mongoose.model('InventoryTransaction', inventoryTransactionSchema);
+
+// Invoices, orders and returns keep their own record of these movements, so deleting the
+// entry would apply the stock change again when that document is later reversed.
+// shortcut: matches the generated reason text because older records have no source field, add one if new generated reasons appear.
+export function isLinkedTransaction(tx: any) {
+  return Boolean(tx.returnId) || /^((Rejected invoice|Deleted invoice|Invoice stock reversal|Invoice) INV|Order ORD-)/.test(tx.reason || '');
+}

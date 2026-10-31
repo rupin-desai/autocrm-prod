@@ -596,7 +596,8 @@ export default function Products() {
         mrp,
         sellingPrice,
         discount,
-        stockQty,
+        // Only when edited, so saving a price cannot overwrite stock that moved after this form opened.
+        ...(stockQty !== Number(selectedProduct.stockQty) ? { stockQty } : {}),
         minStockLevel,
         warranty: finalWarranty,
         images: formData.images.filter(img => img.trim() !== ""),
@@ -606,7 +607,7 @@ export default function Products() {
           color: v.color === 'Other' ? v.colorCustom : v.color
         })).filter(v => v.size || v.color),
       };
-      
+
       updateProductMutation.mutate({
         id: selectedProduct._id,
         data: productData,
@@ -625,10 +626,11 @@ export default function Products() {
     
     const quantity = parseInt(stockFormData.quantity);
     
-    if (isNaN(quantity) || quantity <= 0) {
+    const isAdjustment = stockFormData.type === "ADJUSTMENT";
+    if (isNaN(quantity) || quantity < (isAdjustment ? 0 : 1)) {
       toast({
         title: "Validation Error",
-        description: "Please enter a valid quantity greater than 0",
+        description: isAdjustment ? "Please enter the new stock count, 0 or more" : "Please enter a valid quantity greater than 0",
         variant: "destructive",
       });
       return;
@@ -1486,7 +1488,7 @@ export default function Products() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="stock-quantity">Quantity</Label>
+              <Label htmlFor="stock-quantity">{stockFormData.type === "ADJUSTMENT" ? "New stock count" : "Quantity"}</Label>
               <Input
                 id="stock-quantity"
                 type="number"

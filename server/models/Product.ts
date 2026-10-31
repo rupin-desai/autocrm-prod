@@ -63,9 +63,25 @@ productSchema.pre('save', async function(next) {
   this.status = getProductStockStatus(this.stockQty, this.minStockLevel);
   // Every part gets a permanent shop barcode (MAW-001000, MAW-001001, ...) for scanning and labels.
   if (!this.barcode?.trim()) {
-    this.barcode = `MAW-${String(999 + await getNextSequence('productBarcode')).padStart(6, '0')}`;
+    this.barcode = await nextProductBarcode();
   }
   next();
 });
 
 export const Product = mongoose.models.Product || mongoose.model('Product', productSchema);
+
+export async function nextProductBarcode() {
+  return `MAW-${String(999 + await getNextSequence('productBarcode')).padStart(6, '0')}`;
+}
+
+// $inc is atomic, so concurrent movements cannot overwrite each other. Returns null when the
+// product is missing or a decrease would take stock below 0 (unless allowNegative).
+export async function moveStock(productId: any, delta: number, allowNegative = false) {
+  const filter = delta < 0 && !allowNegative ? { _id: productId, stockQty: { $gte: -delta } } : { _id: productId };
+  const product: any = await Product.findOneAndUpdate(filter, { $inc: { stockQty: delta } }, { new: true });
+  if (product) {
+    product.status = getProductStockStatus(product.stockQty, product.minStockLevel);
+    await Product.updateOne({ _id: product._id }, { status: product.status });
+  }
+  return product;
+}

@@ -24,11 +24,11 @@ export async function createUser(email: string, password: string, name: string, 
 }
 
 export async function authenticateUser(email: string, password: string) {
-  const user = await User.findOne({ email, isActive: true });
+  const user = await User.findOne({ email, isActive: true }).select('+passwordHash');
   if (!user) {
     return null;
   }
-  
+
   const isValid = await verifyPassword(password, user.passwordHash);
   if (!isValid) {
     return null;

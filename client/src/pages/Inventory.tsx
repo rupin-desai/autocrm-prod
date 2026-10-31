@@ -292,7 +292,7 @@ export default function Inventory() {
                   e.preventDefault();
                   const quantity = parseInt(txForm.quantity, 10);
                   const unitCost = parseFloat(txForm.unitCost);
-                  if (!txForm.productId || !txForm.reason || !Number.isFinite(quantity) || quantity <= 0) {
+                  if (!txForm.productId || !txForm.reason || !Number.isFinite(quantity) || quantity < (txForm.type === "ADJUSTMENT" ? 0 : 1)) {
                     toast({ title: "Validation Error", description: "Product, reason and valid quantity are required", variant: "destructive" });
                     return;
                   }
@@ -338,8 +338,8 @@ export default function Inventory() {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label>Quantity *</Label>
-                    <Input type="number" value={txForm.quantity} onChange={(e) => setTxForm((p) => ({ ...p, quantity: e.target.value }))} />
+                    <Label>{txForm.type === "ADJUSTMENT" ? "New stock count *" : "Quantity *"}</Label>
+                    <Input type="number" min={txForm.type === "ADJUSTMENT" ? 0 : 1} value={txForm.quantity} onChange={(e) => setTxForm((p) => ({ ...p, quantity: e.target.value }))} />
                   </div>
                   <div className="space-y-2">
                     <Label>Unit Cost</Label>
@@ -576,10 +576,11 @@ export default function Inventory() {
               { header: "Date", accessor: (r) => date(r.createdAt || r.date) },
               {
                 header: "Action",
-                accessor: (r) => (
+                accessor: (r) => r.canDelete ? (
                   <Button
                     variant="ghost"
                     size="icon"
+                    aria-label="Delete transaction"
                     onClick={(e) => {
                       e.stopPropagation();
                       setTxToDelete(r);
@@ -589,7 +590,7 @@ export default function Inventory() {
                   >
                     <Trash2 className="h-4 w-4 text-red-500" />
                   </Button>
-                ),
+                ) : "-",
               },
             ]}
           />
@@ -646,6 +647,7 @@ export default function Inventory() {
                     <Button
                       size="sm"
                       variant="outline"
+                      disabled={processReturn.isPending}
                       onClick={() => processReturn.mutate({ id: r._id, data: { status: "processed", restockable: r.restockable } })}
                       data-testid={`button-process-${r._id}`}
                     >
@@ -654,6 +656,7 @@ export default function Inventory() {
                     <Button
                       size="sm"
                       variant="destructive"
+                      disabled={processReturn.isPending}
                       onClick={() => processReturn.mutate({ id: r._id, data: { status: "rejected" } })}
                       data-testid={`button-reject-${r._id}`}
                     >
@@ -671,7 +674,7 @@ export default function Inventory() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Transaction</AlertDialogTitle>
-            <AlertDialogDescription>This action cannot be undone.</AlertDialogDescription>
+            <AlertDialogDescription>This reverses the stock change and removes the entry. It cannot be undone.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>

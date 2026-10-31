@@ -2,6 +2,7 @@ import {
   LayoutDashboard,
   Package,
   Warehouse,
+  ScanBarcode,
   Users,
   UserCircle,
   ClipboardList,
@@ -77,6 +78,7 @@ const mainMenuItems: MenuItem[] = [
   { title: "Advance Payments", url: "/advance-payments", icon: Wallet, permission: { resource: "advancePayments", action: "read" }, group: "invoice" },
   { title: "Products", url: "/products", icon: Package, permission: { resource: "products", action: "read" }, group: "inventory" },
   { title: "Inventory", url: "/inventory", icon: Warehouse, permission: { resource: "inventory", action: "read" }, group: "inventory" },
+  { title: "Barcode Stock", url: "/barcode-inventory", icon: ScanBarcode, permission: { resource: "inventory", action: "read" }, group: "inventory" },
   { title: "Orders", url: "/orders", icon: ShoppingCart, permission: { resource: "orders", action: "read" }, group: "inventory" },
   { title: "Website Products", url: "/website-products", icon: Globe, permission: { resource: "website", action: "read" }, group: "inventory" },
 ];

@@ -5,7 +5,8 @@ const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   mobileNumber: { type: String, required: true, unique: true },
-  passwordHash: { type: String, required: true },
+  // select: false keeps it out of every query and populate; login and password reset ask for it with +passwordHash.
+  passwordHash: { type: String, required: true, select: false },
   role: { 
     type: String, 
     enum: ['Admin', 'Manager', 'Inventory Manager', 'Sales Executive', 'HR Manager', 'Service Staff'],
