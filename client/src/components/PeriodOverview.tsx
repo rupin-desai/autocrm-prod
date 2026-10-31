@@ -192,7 +192,7 @@ export function PeriodOverview() {
             {cards.map((c) => (
               <div
                 key={c.title}
-                className="group rounded-lg border border-border bg-card p-4 transition-all duration-200 hover:border-primary/30 hover:shadow-sm"
+                className="group min-h-[108px] rounded-lg border border-border bg-card p-4 transition-all duration-200 hover:border-primary/30 hover:shadow-sm"
                 data-testid={`card-period-${c.title.toLowerCase().replace(/\s/g, "-")}`}
               >
                 <div className="flex items-start justify-between gap-2">

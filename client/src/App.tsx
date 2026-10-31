@@ -424,9 +424,9 @@ function AppLayout() {
       <div className="flex h-screen w-full">
         <AppSidebar />
         <div className="flex flex-col flex-1 overflow-hidden">
-          <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-4 border-b border-border bg-background/80 px-4 backdrop-blur-sm supports-[backdrop-filter]:bg-background/60 sm:px-6">
+          <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-3 border-b border-border bg-background/80 px-3 backdrop-blur-sm supports-[backdrop-filter]:bg-background/60 sm:gap-4 sm:px-6">
             <SidebarTrigger data-testid="button-sidebar-toggle" />
-            <div className="flex items-center gap-1">
+            <div className="flex min-w-0 flex-1 items-center justify-end gap-1 sm:gap-2">
               {user?.permissions?.accounting?.includes("read") && (
                 <AccountingContextSelector />
               )}
@@ -436,7 +436,7 @@ function AppLayout() {
                   size="sm"
                   onClick={() => setLocation("/profile")}
                   data-testid="button-profile"
-                  className="gap-2"
+                  className="max-w-[10rem] gap-2 sm:max-w-none"
                 >
                   <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-[10px] font-semibold text-primary">
                     {user.name
@@ -454,7 +454,7 @@ function AppLayout() {
             </div>
           </header>
           <main className="flex-1 overflow-y-auto">
-            <div className="mx-auto w-full max-w-[1600px] p-4 sm:p-6">
+            <div className="mx-auto w-full max-w-[1680px] p-3 sm:p-6 lg:p-8">
               <Router />
             </div>
           </main>

@@ -38,12 +38,12 @@ export function KPICard({
   return (
     <Card
       className={cn(
-        "group transition-shadow duration-200 hover:shadow-md",
+        "group h-full transition-shadow duration-200 hover:shadow-md",
         className,
       )}
       data-testid={`kpi-${title.toLowerCase().replace(/\s+/g, "-")}`}
     >
-      <CardContent className="p-5">
+      <CardContent className="p-4 sm:p-5">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 space-y-1">
             <p className="truncate text-xs font-medium uppercase tracking-wide text-muted-foreground">
