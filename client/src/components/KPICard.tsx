@@ -25,7 +25,14 @@ const accentClasses: Record<string, string> = {
   pink: "bg-pink-500/10 text-pink-600 dark:text-pink-400",
 };
 
-export function KPICard({ title, value, icon: Icon, trend, className, color = "blue" }: KPICardProps) {
+export function KPICard({
+  title,
+  value,
+  icon: Icon,
+  trend,
+  className,
+  color = "blue",
+}: KPICardProps) {
   const TrendIcon = trend?.isPositive ? TrendingUp : TrendingDown;
 
   return (
@@ -58,8 +65,11 @@ export function KPICard({ title, value, icon: Icon, trend, className, color = "b
                 )}
               >
                 <TrendIcon className="h-3.5 w-3.5" />
-                {trend.isPositive ? "+" : ""}{trend.value}%
-                <span className="font-normal text-muted-foreground">vs last month</span>
+                {trend.isPositive ? "+" : ""}
+                {trend.value}%
+                <span className="font-normal text-muted-foreground">
+                  vs last month
+                </span>
               </p>
             )}
           </div>

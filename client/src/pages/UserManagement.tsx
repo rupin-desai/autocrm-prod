@@ -1,19 +1,38 @@
-import { useState } from 'react';
-import { useQuery, useMutation } from '@tanstack/react-query';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
-import { useToast } from '@/hooks/use-toast';
-import { UserPlus, Trash2, Edit, Shield, X, FileText } from 'lucide-react';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
-import { queryClient } from '@/lib/queryClient';
-import { Link } from 'wouter';
-import { ImageCropDialog } from '@/components/ImageCropDialog';
-import { useAuth } from '@/lib/auth';
+import { useState } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
+import { UserPlus, Trash2, Edit, Shield, X, FileText } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { queryClient } from "@/lib/queryClient";
+import { Link } from "wouter";
+import { ImageCropDialog } from "@/components/ImageCropDialog";
+import { useAuth } from "@/lib/auth";
 
 interface User {
   _id: string;
@@ -24,7 +43,14 @@ interface User {
   isActive: boolean;
 }
 
-const roles = ['Admin', 'Manager', 'Inventory Manager', 'Sales Executive', 'HR Manager', 'Service Staff'];
+const roles = [
+  "Admin",
+  "Manager",
+  "Inventory Manager",
+  "Sales Executive",
+  "HR Manager",
+  "Service Staff",
+];
 
 export default function UserManagement() {
   const { toast } = useToast();
@@ -36,11 +62,11 @@ export default function UserManagement() {
   const [imageToCrop, setImageToCrop] = useState<string>("");
 
   // Form states for creating user
-  const [newUserName, setNewUserName] = useState('');
-  const [newUserEmail, setNewUserEmail] = useState('');
-  const [newUserMobile, setNewUserMobile] = useState('');
-  const [newUserPassword, setNewUserPassword] = useState('');
-  const [newUserRole, setNewUserRole] = useState('Service Staff');
+  const [newUserName, setNewUserName] = useState("");
+  const [newUserEmail, setNewUserEmail] = useState("");
+  const [newUserMobile, setNewUserMobile] = useState("");
+  const [newUserPassword, setNewUserPassword] = useState("");
+  const [newUserRole, setNewUserRole] = useState("Service Staff");
 
   // Form states for editing user
   const [formData, setFormData] = useState({
@@ -62,7 +88,7 @@ export default function UserManagement() {
     const files = e.target.files;
     if (!files) return;
 
-    const filePromises = Array.from(files).map(file => {
+    const filePromises = Array.from(files).map((file) => {
       return new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = () => {
@@ -76,7 +102,10 @@ export default function UserManagement() {
 
     try {
       const base64Files = await Promise.all(filePromises);
-      setFormData({ ...formData, documents: [...formData.documents, ...base64Files] });
+      setFormData({
+        ...formData,
+        documents: [...formData.documents, ...base64Files],
+      });
     } catch (error) {
       toast({
         title: "Error",
@@ -89,7 +118,7 @@ export default function UserManagement() {
   const removeDocument = (index: number) => {
     setFormData({
       ...formData,
-      documents: formData.documents.filter((_, i) => i !== index)
+      documents: formData.documents.filter((_, i) => i !== index),
     });
   };
 
@@ -117,41 +146,47 @@ export default function UserManagement() {
   };
 
   const { data: users = [], isLoading } = useQuery<User[]>({
-    queryKey: ['/api/users'],
+    queryKey: ["/api/users"],
   });
 
   const createUserMutation = useMutation({
-    mutationFn: async (data: { name: string; email: string; mobileNumber: string; password: string; role: string }) => {
-      const response = await fetch('/api/users', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
+    mutationFn: async (data: {
+      name: string;
+      email: string;
+      mobileNumber: string;
+      password: string;
+      role: string;
+    }) => {
+      const response = await fetch("/api/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify(data),
       });
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'Failed to create user');
+        throw new Error(error.error || "Failed to create user");
       }
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/users'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/users"] });
       setIsCreateDialogOpen(false);
-      setNewUserName('');
-      setNewUserEmail('');
-      setNewUserMobile('');
-      setNewUserPassword('');
-      setNewUserRole('Service Staff');
+      setNewUserName("");
+      setNewUserEmail("");
+      setNewUserMobile("");
+      setNewUserPassword("");
+      setNewUserRole("Service Staff");
       toast({
-        title: 'User created',
-        description: 'The user has been created successfully.',
+        title: "User created",
+        description: "The user has been created successfully.",
       });
     },
     onError: (error: Error) => {
       toast({
-        title: 'Error',
+        title: "Error",
         description: error.message,
-        variant: 'destructive',
+        variant: "destructive",
       });
     },
   });
@@ -159,31 +194,31 @@ export default function UserManagement() {
   const updateUserMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: any }) => {
       const response = await fetch(`/api/users/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify(data),
       });
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'Failed to update user');
+        throw new Error(error.error || "Failed to update user");
       }
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/users'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/users"] });
       setIsEditDialogOpen(false);
       setSelectedUser(null);
       toast({
-        title: 'User updated',
-        description: 'The user has been updated successfully.',
+        title: "User updated",
+        description: "The user has been updated successfully.",
       });
     },
     onError: (error: Error) => {
       toast({
-        title: 'Error',
+        title: "Error",
         description: error.message,
-        variant: 'destructive',
+        variant: "destructive",
       });
     },
   });
@@ -191,27 +226,27 @@ export default function UserManagement() {
   const deleteUserMutation = useMutation({
     mutationFn: async (id: string) => {
       const response = await fetch(`/api/users/${id}`, {
-        method: 'DELETE',
-        credentials: 'include',
+        method: "DELETE",
+        credentials: "include",
       });
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'Failed to delete user');
+        throw new Error(error.error || "Failed to delete user");
       }
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/users'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/users"] });
       toast({
-        title: 'User deleted',
-        description: 'The user has been deleted successfully.',
+        title: "User deleted",
+        description: "The user has been deleted successfully.",
       });
     },
     onError: (error: Error) => {
       toast({
-        title: 'Error',
+        title: "Error",
         description: error.message,
-        variant: 'destructive',
+        variant: "destructive",
       });
     },
   });
@@ -243,7 +278,7 @@ export default function UserManagement() {
   };
 
   const handleDeleteUser = (id: string) => {
-    if (confirm('Are you sure you want to delete this user?')) {
+    if (confirm("Are you sure you want to delete this user?")) {
       deleteUserMutation.mutate(id);
     }
   };
@@ -253,7 +288,7 @@ export default function UserManagement() {
     setFormData({
       name: user.name,
       email: user.email,
-      phone: user.mobileNumber || '',
+      phone: user.mobileNumber || "",
       role: user.role,
       department: "",
       salary: "",
@@ -269,20 +304,20 @@ export default function UserManagement() {
 
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
-      case 'Admin':
-        return 'bg-red-500';
-      case 'Manager':
-        return 'bg-yellow-500';
-      case 'Inventory Manager':
-        return 'bg-blue-500';
-      case 'Sales Executive':
-        return 'bg-green-500';
-      case 'HR Manager':
-        return 'bg-purple-500';
-      case 'Service Staff':
-        return 'bg-orange-500';
+      case "Admin":
+        return "bg-red-500";
+      case "Manager":
+        return "bg-yellow-500";
+      case "Inventory Manager":
+        return "bg-blue-500";
+      case "Sales Executive":
+        return "bg-green-500";
+      case "HR Manager":
+        return "bg-purple-500";
+      case "Service Staff":
+        return "bg-orange-500";
       default:
-        return 'bg-gray-500';
+        return "bg-gray-500";
     }
   };
 
@@ -295,7 +330,8 @@ export default function UserManagement() {
             User Management
           </h1>
           <p className="text-sm md:text-base text-muted-foreground mt-2">
-            Manage user accounts and permissions. All employees have user accounts.
+            Manage user accounts and permissions. All employees have user
+            accounts.
           </p>
         </div>
         <Link href="/employees" className="w-full md:w-auto">
@@ -324,12 +360,20 @@ export default function UserManagement() {
                   <div className="flex-1">
                     <div className="flex items-center gap-3">
                       <h3 className="font-semibold">{user.name}</h3>
-                      <Badge className={getRoleBadgeColor(user.role)}>{user.role}</Badge>
-                      {!user.isActive && <Badge variant="outline">Inactive</Badge>}
+                      <Badge className={getRoleBadgeColor(user.role)}>
+                        {user.role}
+                      </Badge>
+                      {!user.isActive && (
+                        <Badge variant="outline">Inactive</Badge>
+                      )}
                     </div>
-                    <p className="text-sm text-muted-foreground mt-1">{user.email}</p>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {user.email}
+                    </p>
                     {user.mobileNumber && (
-                      <p className="text-sm text-muted-foreground">📱 {user.mobileNumber}</p>
+                      <p className="text-sm text-muted-foreground">
+                        📱 {user.mobileNumber}
+                      </p>
                     )}
                   </div>
                   <div className="flex items-center gap-2">
@@ -370,7 +414,9 @@ export default function UserManagement() {
                 <Input
                   id="edit-name"
                   value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
                   required
                   data-testid="input-edit-name"
                 />
@@ -381,7 +427,9 @@ export default function UserManagement() {
                   id="edit-email"
                   type="email"
                   value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, email: e.target.value })
+                  }
                   required
                   data-testid="input-edit-email"
                 />
@@ -399,9 +447,9 @@ export default function UserManagement() {
               />
               {formData.photo && (
                 <div className="flex items-center gap-4 mt-2">
-                  <img 
-                    src={formData.photo} 
-                    alt="User preview" 
+                  <img
+                    src={formData.photo}
+                    alt="User preview"
                     className="h-20 w-20 rounded-full object-cover border-2"
                   />
                   <Button
@@ -423,7 +471,9 @@ export default function UserManagement() {
                 <Input
                   id="edit-phone"
                   value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, phone: e.target.value })
+                  }
                   required
                   placeholder="9619523254"
                   data-testid="input-edit-phone"
@@ -436,7 +486,9 @@ export default function UserManagement() {
                 <Label htmlFor="edit-role">Role *</Label>
                 <Select
                   value={formData.role}
-                  onValueChange={(value) => setFormData({ ...formData, role: value })}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, role: value })
+                  }
                   required
                 >
                   <SelectTrigger data-testid="select-edit-role">
@@ -453,7 +505,7 @@ export default function UserManagement() {
               </div>
             </div>
 
-            {formData.role !== 'Admin' && (
+            {formData.role !== "Admin" && (
               <>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
@@ -461,7 +513,9 @@ export default function UserManagement() {
                     <Input
                       id="edit-department"
                       value={formData.department}
-                      onChange={(e) => setFormData({ ...formData, department: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, department: e.target.value })
+                      }
                       placeholder="e.g., Service, Sales"
                       data-testid="input-edit-department"
                     />
@@ -473,7 +527,9 @@ export default function UserManagement() {
                       type="number"
                       step="0.01"
                       value={formData.salary}
-                      onChange={(e) => setFormData({ ...formData, salary: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, salary: e.target.value })
+                      }
                       data-testid="input-edit-salary"
                     />
                   </div>
@@ -485,7 +541,9 @@ export default function UserManagement() {
                     id="edit-joiningDate"
                     type="date"
                     value={formData.joiningDate}
-                    onChange={(e) => setFormData({ ...formData, joiningDate: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, joiningDate: e.target.value })
+                    }
                     data-testid="input-edit-joiningdate"
                   />
                 </div>
@@ -496,7 +554,9 @@ export default function UserManagement() {
                     <Input
                       id="edit-panNumber"
                       value={formData.panNumber}
-                      onChange={(e) => setFormData({ ...formData, panNumber: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, panNumber: e.target.value })
+                      }
                       placeholder="ABCDE1234F"
                       data-testid="input-edit-pan"
                     />
@@ -506,7 +566,12 @@ export default function UserManagement() {
                     <Input
                       id="edit-aadharNumber"
                       value={formData.aadharNumber}
-                      onChange={(e) => setFormData({ ...formData, aadharNumber: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          aadharNumber: e.target.value,
+                        })
+                      }
                       placeholder="1234 5678 9012"
                       data-testid="input-edit-aadhar"
                     />
@@ -525,12 +590,19 @@ export default function UserManagement() {
                   />
                   {formData.documents.length > 0 && (
                     <div className="space-y-2 mt-2">
-                      <p className="text-sm text-muted-foreground">Uploaded files ({formData.documents.length}):</p>
+                      <p className="text-sm text-muted-foreground">
+                        Uploaded files ({formData.documents.length}):
+                      </p>
                       <div className="space-y-1">
                         {formData.documents.map((doc, index) => (
-                          <div key={index} className="flex items-center gap-2 p-2 bg-muted rounded-md">
+                          <div
+                            key={index}
+                            className="flex items-center gap-2 p-2 bg-muted rounded-md"
+                          >
                             <FileText className="h-4 w-4 text-muted-foreground" />
-                            <span className="text-sm flex-1">Document {index + 1}</span>
+                            <span className="text-sm flex-1">
+                              Document {index + 1}
+                            </span>
                             <Button
                               type="button"
                               variant="ghost"
@@ -554,20 +626,23 @@ export default function UserManagement() {
                 <Switch
                   id="is-active"
                   checked={formData.isActive}
-                  onCheckedChange={(checked) => setFormData({ ...formData, isActive: checked })}
+                  onCheckedChange={(checked) =>
+                    setFormData({ ...formData, isActive: checked })
+                  }
                   disabled={
-                    selectedUser?.role === 'Admin' && 
-                    currentUser?.role !== 'Admin'
+                    selectedUser?.role === "Admin" &&
+                    currentUser?.role !== "Admin"
                   }
                   data-testid="switch-active"
                 />
                 <Label htmlFor="is-active">Active</Label>
               </div>
-              {selectedUser?.role === 'Admin' && currentUser?.role !== 'Admin' && (
-                <p className="text-xs text-muted-foreground">
-                  Only Admins can toggle the active status of Admin users
-                </p>
-              )}
+              {selectedUser?.role === "Admin" &&
+                currentUser?.role !== "Admin" && (
+                  <p className="text-xs text-muted-foreground">
+                    Only Admins can toggle the active status of Admin users
+                  </p>
+                )}
             </div>
 
             <div className="flex justify-end gap-2 pt-4">
@@ -579,8 +654,12 @@ export default function UserManagement() {
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={updateUserMutation.isPending} data-testid="button-update">
-                {updateUserMutation.isPending ? 'Updating...' : 'Update User'}
+              <Button
+                type="submit"
+                disabled={updateUserMutation.isPending}
+                data-testid="button-update"
+              >
+                {updateUserMutation.isPending ? "Updating..." : "Update User"}
               </Button>
             </div>
           </form>

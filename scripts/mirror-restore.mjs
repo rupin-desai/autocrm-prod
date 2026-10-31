@@ -17,13 +17,17 @@ assertLocalMongoUri(localUri);
 
 const latestMetaPath = path.join(mirrorDir, "latest.json");
 if (!fs.existsSync(latestMetaPath)) {
-  throw new Error("No local snapshot metadata found. Run npm run mirror:pull first.");
+  throw new Error(
+    "No local snapshot metadata found. Run npm run mirror:pull first.",
+  );
 }
 
 const latestMeta = JSON.parse(fs.readFileSync(latestMetaPath, "utf8"));
 const archivePath = path.resolve(repoRoot, latestMeta.archive);
 if (!fs.existsSync(archivePath)) {
-  throw new Error(`Snapshot archive not found: ${path.relative(repoRoot, archivePath)}`);
+  throw new Error(
+    `Snapshot archive not found: ${path.relative(repoRoot, archivePath)}`,
+  );
 }
 
 const sourceDb = latestMeta.sourceDb;

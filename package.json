@@ -4,7 +4,7 @@
   "type": "module",
   "license": "MIT",
   "scripts": {
-    "dev": "NODE_ENV=development tsx server/index.ts",
+    "dev": "node scripts/dev.mjs",
     "local": "docker compose -f docker/docker-compose.db.yml up -d && npx tsx server/index.ts",
     "mirror:pull": "node scripts/mirror-pull.mjs",
     "mirror:restore": "node scripts/mirror-restore.mjs",

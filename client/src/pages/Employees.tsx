@@ -6,8 +6,21 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Plus, Search, User, X, FileText, ArrowUpDown } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -35,16 +48,24 @@ interface Employee {
   updatedAt?: string;
 }
 
-type SortOption = 'name-asc' | 'name-desc' | 'id-asc' | 'id-desc' | 'role-asc' | 'role-desc';
+type SortOption =
+  | "name-asc"
+  | "name-desc"
+  | "id-asc"
+  | "id-desc"
+  | "role-asc"
+  | "role-desc";
 
 export default function Employees() {
   const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
-  const [sortBy, setSortBy] = useState<SortOption>('name-asc');
+  const [sortBy, setSortBy] = useState<SortOption>("name-asc");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
-  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(
+    null,
+  );
   const [viewingDocument, setViewingDocument] = useState<string | null>(null);
   const [isCropDialogOpen, setIsCropDialogOpen] = useState(false);
   const [imageToCrop, setImageToCrop] = useState<string>("");
@@ -55,8 +76,8 @@ export default function Employees() {
   const [editOtpVerified, setEditOtpVerified] = useState(false);
   const [editOtpCode, setEditOtpCode] = useState("");
   const { toast } = useToast();
-  
-  const isAdmin = user?.role === 'Admin';
+
+  const isAdmin = user?.role === "Admin";
 
   const [formData, setFormData] = useState({
     name: "",
@@ -78,22 +99,22 @@ export default function Employees() {
   };
 
   const validateAadharNumber = (aadhar: string): boolean => {
-    const cleanedAadhar = aadhar.replace(/\s/g, '');
+    const cleanedAadhar = aadhar.replace(/\s/g, "");
     return /^\d{12}$/.test(cleanedAadhar);
   };
 
   const formatAadharNumber = (value: string): string => {
-    const cleaned = value.replace(/\D/g, '');
+    const cleaned = value.replace(/\D/g, "");
     const limited = cleaned.slice(0, 12);
     const parts = limited.match(/.{1,4}/g);
-    return parts ? parts.join(' ') : limited;
+    return parts ? parts.join(" ") : limited;
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
 
-    const filePromises = Array.from(files).map(file => {
+    const filePromises = Array.from(files).map((file) => {
       return new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = () => {
@@ -107,7 +128,10 @@ export default function Employees() {
 
     try {
       const base64Files = await Promise.all(filePromises);
-      setFormData({ ...formData, documents: [...formData.documents, ...base64Files] });
+      setFormData({
+        ...formData,
+        documents: [...formData.documents, ...base64Files],
+      });
     } catch (error) {
       toast({
         title: "Error",
@@ -120,7 +144,7 @@ export default function Employees() {
   const removeDocument = (index: number) => {
     setFormData({
       ...formData,
-      documents: formData.documents.filter((_, i) => i !== index)
+      documents: formData.documents.filter((_, i) => i !== index),
     });
   };
 
@@ -147,17 +171,22 @@ export default function Employees() {
     setFormData({ ...formData, photo: croppedImage });
   };
 
-  const { data: employees = [], isLoading, error, refetch } = useQuery<Employee[]>({
+  const {
+    data: employees = [],
+    isLoading,
+    error,
+    refetch,
+  } = useQuery<Employee[]>({
     queryKey: ["/api/employees"],
   });
 
   const createEmployeeMutation = useMutation({
     mutationFn: async (data: any) => {
-      const response = await apiRequest('POST', '/api/employees', data);
+      const response = await apiRequest("POST", "/api/employees", data);
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/employees'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/employees"] });
       setIsCreateDialogOpen(false);
       resetCreateForm();
       toast({
@@ -176,11 +205,11 @@ export default function Employees() {
 
   const updateEmployeeMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: any }) => {
-      const response = await apiRequest('PATCH', `/api/employees/${id}`, data);
+      const response = await apiRequest("PATCH", `/api/employees/${id}`, data);
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/employees'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/employees"] });
       setIsEditDialogOpen(false);
       setSelectedEmployee(null);
       toast({
@@ -199,11 +228,11 @@ export default function Employees() {
 
   const deleteEmployeeMutation = useMutation({
     mutationFn: async (id: string) => {
-      const response = await apiRequest('DELETE', `/api/employees/${id}`, {});
+      const response = await apiRequest("DELETE", `/api/employees/${id}`, {});
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/employees'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/employees"] });
       toast({
         title: "Success",
         description: "Employee deleted successfully",
@@ -219,8 +248,17 @@ export default function Employees() {
   });
 
   const sendOtpMutation = useMutation({
-    mutationFn: async ({ mobileNumber, purpose }: { mobileNumber: string; purpose: string }) => {
-      const response = await apiRequest('POST', '/api/employees/send-otp', { mobileNumber, purpose });
+    mutationFn: async ({
+      mobileNumber,
+      purpose,
+    }: {
+      mobileNumber: string;
+      purpose: string;
+    }) => {
+      const response = await apiRequest("POST", "/api/employees/send-otp", {
+        mobileNumber,
+        purpose,
+      });
       return response.json();
     },
     onSuccess: () => {
@@ -240,8 +278,20 @@ export default function Employees() {
   });
 
   const verifyOtpMutation = useMutation({
-    mutationFn: async ({ mobileNumber, otp, purpose }: { mobileNumber: string; otp: string; purpose: string }) => {
-      const response = await apiRequest('POST', '/api/employees/verify-otp', { mobileNumber, otp, purpose });
+    mutationFn: async ({
+      mobileNumber,
+      otp,
+      purpose,
+    }: {
+      mobileNumber: string;
+      otp: string;
+      purpose: string;
+    }) => {
+      const response = await apiRequest("POST", "/api/employees/verify-otp", {
+        mobileNumber,
+        otp,
+        purpose,
+      });
       return response.json();
     },
     onSuccess: () => {
@@ -261,8 +311,17 @@ export default function Employees() {
   });
 
   const sendEditOtpMutation = useMutation({
-    mutationFn: async ({ mobileNumber, purpose }: { mobileNumber: string; purpose: string }) => {
-      const response = await apiRequest('POST', '/api/employees/send-otp', { mobileNumber, purpose });
+    mutationFn: async ({
+      mobileNumber,
+      purpose,
+    }: {
+      mobileNumber: string;
+      purpose: string;
+    }) => {
+      const response = await apiRequest("POST", "/api/employees/send-otp", {
+        mobileNumber,
+        purpose,
+      });
       return response.json();
     },
     onSuccess: () => {
@@ -282,8 +341,20 @@ export default function Employees() {
   });
 
   const verifyEditOtpMutation = useMutation({
-    mutationFn: async ({ mobileNumber, otp, purpose }: { mobileNumber: string; otp: string; purpose: string }) => {
-      const response = await apiRequest('POST', '/api/employees/verify-otp', { mobileNumber, otp, purpose });
+    mutationFn: async ({
+      mobileNumber,
+      otp,
+      purpose,
+    }: {
+      mobileNumber: string;
+      otp: string;
+      purpose: string;
+    }) => {
+      const response = await apiRequest("POST", "/api/employees/verify-otp", {
+        mobileNumber,
+        otp,
+        purpose,
+      });
       return response.json();
     },
     onSuccess: () => {
@@ -304,11 +375,12 @@ export default function Employees() {
 
   const handleCreateEmployee = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!otpVerified) {
       toast({
         title: "Verification Required",
-        description: "Please verify the phone number with OTP before creating the employee",
+        description:
+          "Please verify the phone number with OTP before creating the employee",
         variant: "destructive",
       });
       return;
@@ -317,12 +389,13 @@ export default function Employees() {
     if (!formData.photo) {
       toast({
         title: "Photo Required",
-        description: "Please upload employee photo before creating the employee",
+        description:
+          "Please upload employee photo before creating the employee",
         variant: "destructive",
       });
       return;
     }
-    
+
     const payload: any = {
       name: formData.name,
       email: formData.email,
@@ -332,8 +405,8 @@ export default function Employees() {
       photo: formData.photo,
       isActive: true,
     };
-    
-    if (formData.role !== 'Admin') {
+
+    if (formData.role !== "Admin") {
       if (!formData.panNumber || !validatePanNumber(formData.panNumber)) {
         toast({
           title: "Invalid PAN",
@@ -343,7 +416,10 @@ export default function Employees() {
         return;
       }
 
-      if (!formData.aadharNumber || !validateAadharNumber(formData.aadharNumber)) {
+      if (
+        !formData.aadharNumber ||
+        !validateAadharNumber(formData.aadharNumber)
+      ) {
         toast({
           title: "Invalid Aadhar",
           description: "Please enter a valid 12-digit Aadhar number",
@@ -355,7 +431,8 @@ export default function Employees() {
       if (formData.documents.length === 0) {
         toast({
           title: "Documents Required",
-          description: "Please upload at least one document (Aadhar or PAN card)",
+          description:
+            "Please upload at least one document (Aadhar or PAN card)",
           variant: "destructive",
         });
         return;
@@ -367,12 +444,12 @@ export default function Employees() {
       payload.salary = parseFloat(formData.salary);
       payload.joiningDate = formData.joiningDate;
     }
-    
+
     createEmployeeMutation.mutate(payload);
   };
 
   const handleEditEmployee = (employee: Employee) => {
-    if (employee.role === 'Admin' && !isAdmin) {
+    if (employee.role === "Admin" && !isAdmin) {
       toast({
         title: "Access Denied",
         description: "Only Admin users can edit Admin accounts",
@@ -388,7 +465,9 @@ export default function Employees() {
       password: "",
       role: employee.role,
       salary: employee.salary ? employee.salary.toString() : "",
-      joiningDate: employee.joiningDate ? employee.joiningDate.split('T')[0] : "",
+      joiningDate: employee.joiningDate
+        ? employee.joiningDate.split("T")[0]
+        : "",
       panNumber: employee.panNumber || "",
       aadharNumber: employee.aadharNumber || "",
       photo: employee.photo || "",
@@ -403,11 +482,12 @@ export default function Employees() {
   const handleUpdateEmployee = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedEmployee) return;
-    
+
     if (formData.phone !== selectedEmployee.contact && !editOtpVerified) {
       toast({
         title: "Verification Required",
-        description: "Please verify the new phone number with OTP before updating",
+        description:
+          "Please verify the new phone number with OTP before updating",
         variant: "destructive",
       });
       return;
@@ -416,12 +496,13 @@ export default function Employees() {
     if (!formData.photo) {
       toast({
         title: "Photo Required",
-        description: "Please upload employee photo before updating the employee",
+        description:
+          "Please upload employee photo before updating the employee",
         variant: "destructive",
       });
       return;
     }
-    
+
     const updateData: any = {
       name: formData.name,
       email: formData.email,
@@ -429,8 +510,8 @@ export default function Employees() {
       role: formData.role,
       photo: formData.photo,
     };
-    
-    if (formData.role !== 'Admin') {
+
+    if (formData.role !== "Admin") {
       if (!formData.panNumber || !validatePanNumber(formData.panNumber)) {
         toast({
           title: "Invalid PAN",
@@ -440,7 +521,10 @@ export default function Employees() {
         return;
       }
 
-      if (!formData.aadharNumber || !validateAadharNumber(formData.aadharNumber)) {
+      if (
+        !formData.aadharNumber ||
+        !validateAadharNumber(formData.aadharNumber)
+      ) {
         toast({
           title: "Invalid Aadhar",
           description: "Please enter a valid 12-digit Aadhar number",
@@ -452,7 +536,8 @@ export default function Employees() {
       if (formData.documents.length === 0) {
         toast({
           title: "Documents Required",
-          description: "Please upload at least one document (Aadhar or PAN card)",
+          description:
+            "Please upload at least one document (Aadhar or PAN card)",
           variant: "destructive",
         });
         return;
@@ -464,7 +549,7 @@ export default function Employees() {
       updateData.salary = parseFloat(formData.salary);
       updateData.joiningDate = formData.joiningDate;
     }
-    
+
     updateEmployeeMutation.mutate({
       id: selectedEmployee._id,
       data: updateData,
@@ -480,7 +565,10 @@ export default function Employees() {
       });
       return;
     }
-    sendOtpMutation.mutate({ mobileNumber: formData.phone, purpose: 'employee_verification' });
+    sendOtpMutation.mutate({
+      mobileNumber: formData.phone,
+      purpose: "employee_verification",
+    });
   };
 
   const handleVerifyOtp = () => {
@@ -492,7 +580,11 @@ export default function Employees() {
       });
       return;
     }
-    verifyOtpMutation.mutate({ mobileNumber: formData.phone, otp: otpCode, purpose: 'employee_verification' });
+    verifyOtpMutation.mutate({
+      mobileNumber: formData.phone,
+      otp: otpCode,
+      purpose: "employee_verification",
+    });
   };
 
   const handleSendEditOtp = () => {
@@ -508,7 +600,10 @@ export default function Employees() {
       setEditOtpVerified(true);
       return;
     }
-    sendEditOtpMutation.mutate({ mobileNumber: formData.phone, purpose: 'phone_update' });
+    sendEditOtpMutation.mutate({
+      mobileNumber: formData.phone,
+      purpose: "phone_update",
+    });
   };
 
   const handleVerifyEditOtp = () => {
@@ -520,7 +615,11 @@ export default function Employees() {
       });
       return;
     }
-    verifyEditOtpMutation.mutate({ mobileNumber: formData.phone, otp: editOtpCode, purpose: 'phone_update' });
+    verifyEditOtpMutation.mutate({
+      mobileNumber: formData.phone,
+      otp: editOtpCode,
+      purpose: "phone_update",
+    });
   };
 
   const resetCreateForm = () => {
@@ -548,7 +647,7 @@ export default function Employees() {
   };
 
   const handleDeleteEmployee = (employee: Employee) => {
-    if (employee.role === 'Admin' && !isAdmin) {
+    if (employee.role === "Admin" && !isAdmin) {
       toast({
         title: "Access Denied",
         description: "Only Admin users can delete Admin accounts",
@@ -556,7 +655,7 @@ export default function Employees() {
       });
       return;
     }
-    if (confirm('Are you sure you want to delete this employee?')) {
+    if (confirm("Are you sure you want to delete this employee?")) {
       deleteEmployeeMutation.mutate(employee._id);
     }
   };
@@ -565,32 +664,35 @@ export default function Employees() {
     updateEmployeeMutation.mutate({
       id: employee._id,
       data: {
-        isActive: !employee.isActive
-      }
+        isActive: !employee.isActive,
+      },
     });
   };
 
   const filteredAndSortedEmployees = employees
-    .filter((emp: Employee) =>
-      emp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      emp.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      emp.contact.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (emp.email && emp.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (emp.employeeId && emp.employeeId.toLowerCase().includes(searchTerm.toLowerCase()))
+    .filter(
+      (emp: Employee) =>
+        emp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        emp.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        emp.contact.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (emp.email &&
+          emp.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (emp.employeeId &&
+          emp.employeeId.toLowerCase().includes(searchTerm.toLowerCase())),
     )
     .sort((a, b) => {
       switch (sortBy) {
-        case 'name-asc':
+        case "name-asc":
           return a.name.localeCompare(b.name);
-        case 'name-desc':
+        case "name-desc":
           return b.name.localeCompare(a.name);
-        case 'id-asc':
-          return (a.employeeId || '').localeCompare(b.employeeId || '');
-        case 'id-desc':
-          return (b.employeeId || '').localeCompare(a.employeeId || '');
-        case 'role-asc':
+        case "id-asc":
+          return (a.employeeId || "").localeCompare(b.employeeId || "");
+        case "id-desc":
+          return (b.employeeId || "").localeCompare(a.employeeId || "");
+        case "role-asc":
           return a.role.localeCompare(b.role);
-        case 'role-desc':
+        case "role-desc":
           return b.role.localeCompare(a.role);
         default:
           return 0;
@@ -608,20 +710,20 @@ export default function Employees() {
 
   const getRoleCardColor = (role: string) => {
     switch (role) {
-      case 'Admin':
-        return 'bg-red-50 dark:bg-red-900/30 border-red-200 dark:border-red-700/50';
-      case 'Manager':
-        return 'bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-700/50';
-      case 'Inventory Manager':
-        return 'bg-purple-50 dark:bg-purple-900/30 border-purple-200 dark:border-purple-700/50';
-      case 'Sales Executive':
-        return 'bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-700/50';
-      case 'HR Manager':
-        return 'bg-orange-50 dark:bg-orange-900/30 border-orange-200 dark:border-orange-700/50';
-      case 'Service Staff':
-        return 'bg-cyan-50 dark:bg-cyan-900/30 border-cyan-200 dark:border-cyan-700/50';
+      case "Admin":
+        return "bg-red-50 dark:bg-red-900/30 border-red-200 dark:border-red-700/50";
+      case "Manager":
+        return "bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-700/50";
+      case "Inventory Manager":
+        return "bg-purple-50 dark:bg-purple-900/30 border-purple-200 dark:border-purple-700/50";
+      case "Sales Executive":
+        return "bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-700/50";
+      case "HR Manager":
+        return "bg-orange-50 dark:bg-orange-900/30 border-orange-200 dark:border-orange-700/50";
+      case "Service Staff":
+        return "bg-cyan-50 dark:bg-cyan-900/30 border-cyan-200 dark:border-cyan-700/50";
       default:
-        return 'bg-gray-50 dark:bg-gray-900/30 border-gray-200 dark:border-gray-700/50';
+        return "bg-gray-50 dark:bg-gray-900/30 border-gray-200 dark:border-gray-700/50";
     }
   };
 
@@ -641,14 +743,19 @@ export default function Employees() {
   if (error) {
     return (
       <div className="space-y-6">
-        <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">Employees</h1>
+        <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">
+          Employees
+        </h1>
         <Card className="border-destructive">
           <CardContent className="pt-6">
             <div className="text-center py-8">
               <User className="h-12 w-12 mx-auto text-destructive mb-4" />
-              <h3 className="text-lg font-semibold mb-2">Failed to load employees</h3>
+              <h3 className="text-lg font-semibold mb-2">
+                Failed to load employees
+              </h3>
               <p className="text-muted-foreground mb-4">
-                {(error as Error)?.message || 'An error occurred while fetching employees'}
+                {(error as Error)?.message ||
+                  "An error occurred while fetching employees"}
               </p>
               <Button onClick={() => refetch()}>Retry</Button>
             </div>
@@ -662,8 +769,12 @@ export default function Employees() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">Employees</h1>
-          <p className="text-muted-foreground mt-1 text-sm">All employees have user accounts for system access</p>
+          <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">
+            Employees
+          </h1>
+          <p className="text-muted-foreground mt-1 text-sm">
+            All employees have user accounts for system access
+          </p>
         </div>
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
@@ -686,7 +797,9 @@ export default function Employees() {
                   <Input
                     id="name"
                     value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, name: e.target.value })
+                    }
                     required
                     data-testid="input-employee-name"
                   />
@@ -697,7 +810,9 @@ export default function Employees() {
                     id="email"
                     type="email"
                     value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, email: e.target.value })
+                    }
                     required
                     data-testid="input-employee-email"
                   />
@@ -710,12 +825,16 @@ export default function Employees() {
                   id="password"
                   type="password"
                   value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, password: e.target.value })
+                  }
                   required
                   placeholder="Enter login password"
                   data-testid="input-employee-password"
                 />
-                <p className="text-xs text-muted-foreground">This password will be used for employee login</p>
+                <p className="text-xs text-muted-foreground">
+                  This password will be used for employee login
+                </p>
               </div>
 
               <div className="space-y-2">
@@ -728,12 +847,14 @@ export default function Employees() {
                   required={!formData.photo}
                   data-testid="input-employee-photo"
                 />
-                <p className="text-xs text-muted-foreground">Required: Upload a photo of the employee</p>
+                <p className="text-xs text-muted-foreground">
+                  Required: Upload a photo of the employee
+                </p>
                 {formData.photo && (
                   <div className="flex items-center gap-4 mt-2">
-                    <img 
-                      src={formData.photo} 
-                      alt="Employee preview" 
+                    <img
+                      src={formData.photo}
+                      alt="Employee preview"
                       className="h-20 w-20 rounded-full object-cover border-2"
                     />
                     <Button
@@ -768,10 +889,21 @@ export default function Employees() {
                     <Button
                       type="button"
                       onClick={handleSendOtp}
-                      disabled={!formData.phone || otpSent || otpVerified || sendOtpMutation.isPending}
+                      disabled={
+                        !formData.phone ||
+                        otpSent ||
+                        otpVerified ||
+                        sendOtpMutation.isPending
+                      }
                       data-testid="button-send-otp"
                     >
-                      {sendOtpMutation.isPending ? "Sending..." : otpVerified ? "Verified" : otpSent ? "Sent" : "Send OTP"}
+                      {sendOtpMutation.isPending
+                        ? "Sending..."
+                        : otpVerified
+                          ? "Verified"
+                          : otpSent
+                            ? "Sent"
+                            : "Send OTP"}
                     </Button>
                   </div>
                   {otpSent && !otpVerified && (
@@ -788,19 +920,25 @@ export default function Employees() {
                         disabled={!otpCode || verifyOtpMutation.isPending}
                         data-testid="button-verify-otp"
                       >
-                        {verifyOtpMutation.isPending ? "Verifying..." : "Verify"}
+                        {verifyOtpMutation.isPending
+                          ? "Verifying..."
+                          : "Verify"}
                       </Button>
                     </div>
                   )}
                   {otpVerified && (
-                    <p className="text-sm text-green-600 dark:text-green-400">✓ Phone number verified</p>
+                    <p className="text-sm text-green-600 dark:text-green-400">
+                      ✓ Phone number verified
+                    </p>
                   )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="role">Role *</Label>
                   <Select
                     value={formData.role}
-                    onValueChange={(value) => setFormData({ ...formData, role: value })}
+                    onValueChange={(value) =>
+                      setFormData({ ...formData, role: value })
+                    }
                     required
                   >
                     <SelectTrigger data-testid="select-employee-role">
@@ -809,16 +947,22 @@ export default function Employees() {
                     <SelectContent>
                       {isAdmin && <SelectItem value="Admin">Admin</SelectItem>}
                       <SelectItem value="Manager">Manager</SelectItem>
-                      <SelectItem value="Inventory Manager">Inventory Manager</SelectItem>
-                      <SelectItem value="Sales Executive">Sales Executive</SelectItem>
+                      <SelectItem value="Inventory Manager">
+                        Inventory Manager
+                      </SelectItem>
+                      <SelectItem value="Sales Executive">
+                        Sales Executive
+                      </SelectItem>
                       <SelectItem value="HR Manager">HR Manager</SelectItem>
-                      <SelectItem value="Service Staff">Service Staff</SelectItem>
+                      <SelectItem value="Service Staff">
+                        Service Staff
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
 
-              {formData.role !== 'Admin' && (
+              {formData.role !== "Admin" && (
                 <>
                   <div className="space-y-2">
                     <Label htmlFor="salary">Salary *</Label>
@@ -827,7 +971,9 @@ export default function Employees() {
                       type="number"
                       step="0.01"
                       value={formData.salary}
-                      onChange={(e) => setFormData({ ...formData, salary: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, salary: e.target.value })
+                      }
                       required
                       data-testid="input-employee-salary"
                     />
@@ -839,7 +985,12 @@ export default function Employees() {
                       id="joiningDate"
                       type="date"
                       value={formData.joiningDate}
-                      onChange={(e) => setFormData({ ...formData, joiningDate: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          joiningDate: e.target.value,
+                        })
+                      }
                       required
                       data-testid="input-employee-joiningdate"
                     />
@@ -851,26 +1002,40 @@ export default function Employees() {
                       <Input
                         id="panNumber"
                         value={formData.panNumber}
-                        onChange={(e) => setFormData({ ...formData, panNumber: e.target.value.toUpperCase() })}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            panNumber: e.target.value.toUpperCase(),
+                          })
+                        }
                         placeholder="ABCDE1234F"
                         maxLength={10}
                         required
                         data-testid="input-employee-pan"
                       />
-                      <p className="text-xs text-muted-foreground">Format: 10 alphanumeric characters (e.g., ABCDE1234F)</p>
+                      <p className="text-xs text-muted-foreground">
+                        Format: 10 alphanumeric characters (e.g., ABCDE1234F)
+                      </p>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="aadharNumber">Aadhar Number *</Label>
                       <Input
                         id="aadharNumber"
                         value={formData.aadharNumber}
-                        onChange={(e) => setFormData({ ...formData, aadharNumber: formatAadharNumber(e.target.value) })}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            aadharNumber: formatAadharNumber(e.target.value),
+                          })
+                        }
                         placeholder="1234 5678 9012"
                         maxLength={14}
                         required
                         data-testid="input-employee-aadhar"
                       />
-                      <p className="text-xs text-muted-foreground">Format: 12 digits with spaces (e.g., 1234 5678 9012)</p>
+                      <p className="text-xs text-muted-foreground">
+                        Format: 12 digits with spaces (e.g., 1234 5678 9012)
+                      </p>
                     </div>
                   </div>
 
@@ -885,16 +1050,24 @@ export default function Employees() {
                       data-testid="input-employee-documents"
                     />
                     <p className="text-xs text-orange-600 dark:text-orange-400 font-medium">
-                      Note: Please upload at least one document - Aadhar card or PAN card (Required)
+                      Note: Please upload at least one document - Aadhar card or
+                      PAN card (Required)
                     </p>
                     {formData.documents.length > 0 && (
                       <div className="space-y-2 mt-2">
-                        <p className="text-sm text-muted-foreground">Uploaded files ({formData.documents.length}):</p>
+                        <p className="text-sm text-muted-foreground">
+                          Uploaded files ({formData.documents.length}):
+                        </p>
                         <div className="space-y-1">
                           {formData.documents.map((doc, index) => (
-                            <div key={index} className="flex items-center gap-2 p-2 bg-muted rounded-md">
+                            <div
+                              key={index}
+                              className="flex items-center gap-2 p-2 bg-muted rounded-md"
+                            >
                               <FileText className="h-4 w-4 text-muted-foreground" />
-                              <span className="text-sm flex-1">Document {index + 1}</span>
+                              <span className="text-sm flex-1">
+                                Document {index + 1}
+                              </span>
                               <Button
                                 type="button"
                                 variant="ghost"
@@ -922,12 +1095,14 @@ export default function Employees() {
                 >
                   Cancel
                 </Button>
-                <Button 
-                  type="submit" 
+                <Button
+                  type="submit"
                   disabled={createEmployeeMutation.isPending || !otpVerified}
                   data-testid="button-submit-employee"
                 >
-                  {createEmployeeMutation.isPending ? 'Creating...' : 'Create Employee'}
+                  {createEmployeeMutation.isPending
+                    ? "Creating..."
+                    : "Create Employee"}
                 </Button>
               </div>
             </form>
@@ -946,11 +1121,17 @@ export default function Employees() {
             data-testid="input-search"
           />
         </div>
-        
+
         <div className="flex items-center gap-2 w-full sm:w-auto">
           <ArrowUpDown className="h-4 w-4 text-muted-foreground" />
-          <Select value={sortBy} onValueChange={(value) => setSortBy(value as SortOption)}>
-            <SelectTrigger className="w-full sm:w-[200px]" data-testid="select-sort">
+          <Select
+            value={sortBy}
+            onValueChange={(value) => setSortBy(value as SortOption)}
+          >
+            <SelectTrigger
+              className="w-full sm:w-[200px]"
+              data-testid="select-sort"
+            >
               <SelectValue placeholder="Sort by..." />
             </SelectTrigger>
             <SelectContent>
@@ -968,81 +1149,130 @@ export default function Employees() {
       {filteredAndSortedEmployees.length > 0 ? (
         <div className="space-y-8">
           {/* Admin Section */}
-          {filteredAndSortedEmployees.filter((emp: Employee) => emp.role === 'Admin').length > 0 && (
+          {filteredAndSortedEmployees.filter(
+            (emp: Employee) => emp.role === "Admin",
+          ).length > 0 && (
             <div className="space-y-4">
-              <h2 className="text-2xl font-bold text-red-600 dark:text-red-400">Admin</h2>
+              <h2 className="text-2xl font-bold text-red-600 dark:text-red-400">
+                Admin
+              </h2>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {filteredAndSortedEmployees
-                  .filter((emp: Employee) => emp.role === 'Admin')
+                  .filter((emp: Employee) => emp.role === "Admin")
                   .map((employee: any) => (
-                    <Card key={employee._id} className={`hover-elevate ${getRoleCardColor(employee.role)}`} data-testid={`card-employee-${employee._id}`}>
+                    <Card
+                      key={employee._id}
+                      className={`hover-elevate ${getRoleCardColor(employee.role)}`}
+                      data-testid={`card-employee-${employee._id}`}
+                    >
                       <CardHeader>
                         <div className="flex items-center gap-4">
                           <Avatar className="h-20 w-20">
                             {employee.photo ? (
-                              <img 
-                                src={employee.photo} 
-                                alt={employee.name} 
+                              <img
+                                src={employee.photo}
+                                alt={employee.name}
                                 className="h-full w-full object-cover"
                               />
                             ) : (
-                              <AvatarFallback className="text-2xl">{getInitials(employee.name)}</AvatarFallback>
+                              <AvatarFallback className="text-2xl">
+                                {getInitials(employee.name)}
+                              </AvatarFallback>
                             )}
                           </Avatar>
                           <div className="flex-1">
-                            <CardTitle className="text-lg">{employee.name}</CardTitle>
-                            <p className="text-sm text-muted-foreground">{employee.role}</p>
+                            <CardTitle className="text-lg">
+                              {employee.name}
+                            </CardTitle>
+                            <p className="text-sm text-muted-foreground">
+                              {employee.role}
+                            </p>
                             {employee.employeeId && (
-                              <p className="text-xs text-muted-foreground mt-1" data-testid={`text-employeeid-${employee._id}`}>ID: {employee.employeeId}</p>
+                              <p
+                                className="text-xs text-muted-foreground mt-1"
+                                data-testid={`text-employeeid-${employee._id}`}
+                              >
+                                ID: {employee.employeeId}
+                              </p>
                             )}
                           </div>
                           {employee.isActive ? (
-                            <Badge variant="default" data-testid={`status-active-${employee._id}`}>Active</Badge>
+                            <Badge
+                              variant="default"
+                              data-testid={`status-active-${employee._id}`}
+                            >
+                              Active
+                            </Badge>
                           ) : (
-                            <Badge variant="secondary" data-testid={`status-inactive-${employee._id}`}>Inactive</Badge>
+                            <Badge
+                              variant="secondary"
+                              data-testid={`status-inactive-${employee._id}`}
+                            >
+                              Inactive
+                            </Badge>
                           )}
                         </div>
                       </CardHeader>
                       <CardContent className="space-y-3">
                         <div className="flex items-center justify-between">
                           <div>
-                            <p className="text-xs text-muted-foreground">Status</p>
-                            <p className="text-sm">{employee.isActive ? 'Active' : 'Inactive'}</p>
+                            <p className="text-xs text-muted-foreground">
+                              Status
+                            </p>
+                            <p className="text-sm">
+                              {employee.isActive ? "Active" : "Inactive"}
+                            </p>
                           </div>
                           <div className="flex items-center gap-2">
-                            <Label htmlFor={`toggle-active-${employee._id}`} className="text-xs">
-                              Mark as {employee.isActive ? 'Inactive' : 'Active'}
+                            <Label
+                              htmlFor={`toggle-active-${employee._id}`}
+                              className="text-xs"
+                            >
+                              Mark as{" "}
+                              {employee.isActive ? "Inactive" : "Active"}
                             </Label>
                             <Switch
                               id={`toggle-active-${employee._id}`}
                               checked={employee.isActive}
-                              onCheckedChange={() => handleToggleActive(employee)}
+                              onCheckedChange={() =>
+                                handleToggleActive(employee)
+                              }
                               data-testid={`toggle-active-${employee._id}`}
                             />
                           </div>
                         </div>
                         <div>
-                          <p className="text-xs text-muted-foreground">Contact</p>
+                          <p className="text-xs text-muted-foreground">
+                            Contact
+                          </p>
                           <p className="text-sm">{employee.contact}</p>
                         </div>
                         {employee.email && (
                           <div>
-                            <p className="text-xs text-muted-foreground">Email</p>
+                            <p className="text-xs text-muted-foreground">
+                              Email
+                            </p>
                             <p className="text-sm">{employee.email}</p>
                           </div>
                         )}
                         <div className="flex gap-2 pt-2">
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            className="flex-1" 
-                            onClick={() => handleEditEmployee(employee)} 
-                            disabled={employee.role === 'Admin' && !isAdmin}
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="flex-1"
+                            onClick={() => handleEditEmployee(employee)}
+                            disabled={employee.role === "Admin" && !isAdmin}
                             data-testid={`button-edit-${employee._id}`}
                           >
                             Edit
                           </Button>
-                          <Button variant="outline" size="sm" className="flex-1" onClick={() => handleViewEmployee(employee)} data-testid={`button-view-${employee._id}`}>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="flex-1"
+                            onClick={() => handleViewEmployee(employee)}
+                            data-testid={`button-view-${employee._id}`}
+                          >
                             View Details
                           </Button>
                         </div>
@@ -1054,87 +1284,143 @@ export default function Employees() {
           )}
 
           {/* Employee Section */}
-          {filteredAndSortedEmployees.filter((emp: Employee) => emp.role !== 'Admin').length > 0 && (
+          {filteredAndSortedEmployees.filter(
+            (emp: Employee) => emp.role !== "Admin",
+          ).length > 0 && (
             <div className="space-y-4">
-              <h2 className="text-2xl font-bold text-blue-600 dark:text-blue-400">Employee</h2>
+              <h2 className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                Employee
+              </h2>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {filteredAndSortedEmployees
-                  .filter((emp: Employee) => emp.role !== 'Admin')
+                  .filter((emp: Employee) => emp.role !== "Admin")
                   .map((employee: any) => (
-                    <Card key={employee._id} className={`hover-elevate ${getRoleCardColor(employee.role)}`} data-testid={`card-employee-${employee._id}`}>
+                    <Card
+                      key={employee._id}
+                      className={`hover-elevate ${getRoleCardColor(employee.role)}`}
+                      data-testid={`card-employee-${employee._id}`}
+                    >
                       <CardHeader>
                         <div className="flex items-center gap-4">
                           <Avatar className="h-20 w-20">
                             {employee.photo ? (
-                              <img 
-                                src={employee.photo} 
-                                alt={employee.name} 
+                              <img
+                                src={employee.photo}
+                                alt={employee.name}
                                 className="h-full w-full object-cover"
                               />
                             ) : (
-                              <AvatarFallback className="text-2xl">{getInitials(employee.name)}</AvatarFallback>
+                              <AvatarFallback className="text-2xl">
+                                {getInitials(employee.name)}
+                              </AvatarFallback>
                             )}
                           </Avatar>
                           <div className="flex-1">
-                            <CardTitle className="text-lg">{employee.name}</CardTitle>
-                            <p className="text-sm text-muted-foreground">{employee.role}</p>
+                            <CardTitle className="text-lg">
+                              {employee.name}
+                            </CardTitle>
+                            <p className="text-sm text-muted-foreground">
+                              {employee.role}
+                            </p>
                             {employee.employeeId && (
-                              <p className="text-xs text-muted-foreground mt-1" data-testid={`text-employeeid-${employee._id}`}>ID: {employee.employeeId}</p>
+                              <p
+                                className="text-xs text-muted-foreground mt-1"
+                                data-testid={`text-employeeid-${employee._id}`}
+                              >
+                                ID: {employee.employeeId}
+                              </p>
                             )}
                           </div>
                           {employee.isActive ? (
-                            <Badge variant="default" data-testid={`status-active-${employee._id}`}>Active</Badge>
+                            <Badge
+                              variant="default"
+                              data-testid={`status-active-${employee._id}`}
+                            >
+                              Active
+                            </Badge>
                           ) : (
-                            <Badge variant="secondary" data-testid={`status-inactive-${employee._id}`}>Inactive</Badge>
+                            <Badge
+                              variant="secondary"
+                              data-testid={`status-inactive-${employee._id}`}
+                            >
+                              Inactive
+                            </Badge>
                           )}
                         </div>
                       </CardHeader>
                       <CardContent className="space-y-3">
                         <div className="flex items-center justify-between">
                           <div>
-                            <p className="text-xs text-muted-foreground">Status</p>
-                            <p className="text-sm">{employee.isActive ? 'Active' : 'Inactive'}</p>
+                            <p className="text-xs text-muted-foreground">
+                              Status
+                            </p>
+                            <p className="text-sm">
+                              {employee.isActive ? "Active" : "Inactive"}
+                            </p>
                           </div>
                           <div className="flex items-center gap-2">
-                            <Label htmlFor={`toggle-active-${employee._id}`} className="text-xs">
-                              Mark as {employee.isActive ? 'Inactive' : 'Active'}
+                            <Label
+                              htmlFor={`toggle-active-${employee._id}`}
+                              className="text-xs"
+                            >
+                              Mark as{" "}
+                              {employee.isActive ? "Inactive" : "Active"}
                             </Label>
                             <Switch
                               id={`toggle-active-${employee._id}`}
                               checked={employee.isActive}
-                              onCheckedChange={() => handleToggleActive(employee)}
+                              onCheckedChange={() =>
+                                handleToggleActive(employee)
+                              }
                               data-testid={`toggle-active-${employee._id}`}
                             />
                           </div>
                         </div>
                         <div>
-                          <p className="text-xs text-muted-foreground">Contact</p>
+                          <p className="text-xs text-muted-foreground">
+                            Contact
+                          </p>
                           <p className="text-sm">{employee.contact}</p>
                         </div>
                         {employee.email && (
                           <div>
-                            <p className="text-xs text-muted-foreground">Email</p>
+                            <p className="text-xs text-muted-foreground">
+                              Email
+                            </p>
                             <p className="text-sm">{employee.email}</p>
                           </div>
                         )}
-                        {employee.role !== 'Admin' && (
+                        {employee.role !== "Admin" && (
                           <div>
-                            <p className="text-xs text-muted-foreground">Joining Date</p>
-                            <p className="text-sm">{format(new Date(employee.joiningDate), 'dd MMM, yyyy')}</p>
+                            <p className="text-xs text-muted-foreground">
+                              Joining Date
+                            </p>
+                            <p className="text-sm">
+                              {format(
+                                new Date(employee.joiningDate),
+                                "dd MMM, yyyy",
+                              )}
+                            </p>
                           </div>
                         )}
                         <div className="flex gap-2 pt-2">
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            className="flex-1" 
-                            onClick={() => handleEditEmployee(employee)} 
-                            disabled={employee.role === 'Admin' && !isAdmin}
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="flex-1"
+                            onClick={() => handleEditEmployee(employee)}
+                            disabled={employee.role === "Admin" && !isAdmin}
                             data-testid={`button-edit-${employee._id}`}
                           >
                             Edit
                           </Button>
-                          <Button variant="outline" size="sm" className="flex-1" onClick={() => handleViewEmployee(employee)} data-testid={`button-view-${employee._id}`}>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="flex-1"
+                            onClick={() => handleViewEmployee(employee)}
+                            data-testid={`button-view-${employee._id}`}
+                          >
                             View Details
                           </Button>
                         </div>
@@ -1148,12 +1434,16 @@ export default function Employees() {
       ) : employees.length > 0 ? (
         <div className="text-center py-12">
           <User className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-          <p className="text-muted-foreground">No employees match your search criteria</p>
+          <p className="text-muted-foreground">
+            No employees match your search criteria
+          </p>
         </div>
       ) : (
         <div className="text-center py-12">
           <User className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-          <p className="text-muted-foreground">No employees found. Add your first employee to get started.</p>
+          <p className="text-muted-foreground">
+            No employees found. Add your first employee to get started.
+          </p>
         </div>
       )}
 
@@ -1162,9 +1452,7 @@ export default function Employees() {
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Edit Employee</DialogTitle>
-            <DialogDescription>
-              Update employee information
-            </DialogDescription>
+            <DialogDescription>Update employee information</DialogDescription>
           </DialogHeader>
           <form onSubmit={handleUpdateEmployee} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
@@ -1173,7 +1461,9 @@ export default function Employees() {
                 <Input
                   id="edit-name"
                   value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
                   required
                 />
               </div>
@@ -1183,7 +1473,9 @@ export default function Employees() {
                   id="edit-email"
                   type="email"
                   value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, email: e.target.value })
+                  }
                   required
                 />
               </div>
@@ -1198,12 +1490,14 @@ export default function Employees() {
                 onChange={handlePhotoUpload}
                 required={!formData.photo}
               />
-              <p className="text-xs text-muted-foreground">Required: Upload a photo of the employee</p>
+              <p className="text-xs text-muted-foreground">
+                Required: Upload a photo of the employee
+              </p>
               {formData.photo && (
                 <div className="flex items-center gap-4 mt-2">
-                  <img 
-                    src={formData.photo} 
-                    alt="Employee preview" 
+                  <img
+                    src={formData.photo}
+                    alt="Employee preview"
                     className="h-20 w-20 rounded-full object-cover border-2"
                   />
                   <Button
@@ -1237,39 +1531,66 @@ export default function Employees() {
                   <Button
                     type="button"
                     onClick={handleSendEditOtp}
-                    disabled={!formData.phone || editOtpSent || (selectedEmployee && formData.phone === selectedEmployee.contact) || sendEditOtpMutation.isPending}
+                    disabled={
+                      !formData.phone ||
+                      editOtpSent ||
+                      (selectedEmployee &&
+                        formData.phone === selectedEmployee.contact) ||
+                      sendEditOtpMutation.isPending
+                    }
                     data-testid="button-send-edit-otp"
                   >
-                    {sendEditOtpMutation.isPending ? "Sending..." : editOtpVerified || (selectedEmployee && formData.phone === selectedEmployee.contact) ? "Verified" : editOtpSent ? "Sent" : "Send OTP"}
+                    {sendEditOtpMutation.isPending
+                      ? "Sending..."
+                      : editOtpVerified ||
+                          (selectedEmployee &&
+                            formData.phone === selectedEmployee.contact)
+                        ? "Verified"
+                        : editOtpSent
+                          ? "Sent"
+                          : "Send OTP"}
                   </Button>
                 </div>
-                {editOtpSent && !editOtpVerified && selectedEmployee && formData.phone !== selectedEmployee.contact && (
-                  <div className="flex gap-2 mt-2">
-                    <Input
-                      placeholder="Enter OTP"
-                      value={editOtpCode}
-                      onChange={(e) => setEditOtpCode(e.target.value)}
-                      data-testid="input-edit-otp-code"
-                    />
-                    <Button
-                      type="button"
-                      onClick={handleVerifyEditOtp}
-                      disabled={!editOtpCode || verifyEditOtpMutation.isPending}
-                      data-testid="button-verify-edit-otp"
-                    >
-                      {verifyEditOtpMutation.isPending ? "Verifying..." : "Verify"}
-                    </Button>
-                  </div>
-                )}
-                {(editOtpVerified || (selectedEmployee && formData.phone === selectedEmployee.contact)) && (
-                  <p className="text-sm text-green-600 dark:text-green-400">✓ Phone number verified</p>
+                {editOtpSent &&
+                  !editOtpVerified &&
+                  selectedEmployee &&
+                  formData.phone !== selectedEmployee.contact && (
+                    <div className="flex gap-2 mt-2">
+                      <Input
+                        placeholder="Enter OTP"
+                        value={editOtpCode}
+                        onChange={(e) => setEditOtpCode(e.target.value)}
+                        data-testid="input-edit-otp-code"
+                      />
+                      <Button
+                        type="button"
+                        onClick={handleVerifyEditOtp}
+                        disabled={
+                          !editOtpCode || verifyEditOtpMutation.isPending
+                        }
+                        data-testid="button-verify-edit-otp"
+                      >
+                        {verifyEditOtpMutation.isPending
+                          ? "Verifying..."
+                          : "Verify"}
+                      </Button>
+                    </div>
+                  )}
+                {(editOtpVerified ||
+                  (selectedEmployee &&
+                    formData.phone === selectedEmployee.contact)) && (
+                  <p className="text-sm text-green-600 dark:text-green-400">
+                    ✓ Phone number verified
+                  </p>
                 )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="edit-role">Role *</Label>
                 <Select
                   value={formData.role}
-                  onValueChange={(value) => setFormData({ ...formData, role: value })}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, role: value })
+                  }
                   required
                 >
                   <SelectTrigger>
@@ -1278,15 +1599,19 @@ export default function Employees() {
                   <SelectContent>
                     {isAdmin && <SelectItem value="Admin">Admin</SelectItem>}
                     <SelectItem value="Manager">Manager</SelectItem>
-                    <SelectItem value="Inventory Manager">Inventory Manager</SelectItem>
-                    <SelectItem value="Sales Executive">Sales Executive</SelectItem>
+                    <SelectItem value="Inventory Manager">
+                      Inventory Manager
+                    </SelectItem>
+                    <SelectItem value="Sales Executive">
+                      Sales Executive
+                    </SelectItem>
                     <SelectItem value="HR Manager">HR Manager</SelectItem>
                     <SelectItem value="Service Staff">Service Staff</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
-            {formData.role !== 'Admin' && (
+            {formData.role !== "Admin" && (
               <>
                 <div className="space-y-2">
                   <Label htmlFor="edit-salary">Salary *</Label>
@@ -1295,7 +1620,9 @@ export default function Employees() {
                     type="number"
                     step="0.01"
                     value={formData.salary}
-                    onChange={(e) => setFormData({ ...formData, salary: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, salary: e.target.value })
+                    }
                     required
                   />
                 </div>
@@ -1305,7 +1632,9 @@ export default function Employees() {
                     id="edit-joiningDate"
                     type="date"
                     value={formData.joiningDate}
-                    onChange={(e) => setFormData({ ...formData, joiningDate: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, joiningDate: e.target.value })
+                    }
                     required
                   />
                 </div>
@@ -1315,28 +1644,44 @@ export default function Employees() {
                     <Input
                       id="edit-panNumber"
                       value={formData.panNumber}
-                      onChange={(e) => setFormData({ ...formData, panNumber: e.target.value.toUpperCase() })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          panNumber: e.target.value.toUpperCase(),
+                        })
+                      }
                       placeholder="ABCDE1234F"
                       maxLength={10}
                       required
                     />
-                    <p className="text-xs text-muted-foreground">Format: 10 alphanumeric characters (e.g., ABCDE1234F)</p>
+                    <p className="text-xs text-muted-foreground">
+                      Format: 10 alphanumeric characters (e.g., ABCDE1234F)
+                    </p>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="edit-aadharNumber">Aadhar Number *</Label>
                     <Input
                       id="edit-aadharNumber"
                       value={formData.aadharNumber}
-                      onChange={(e) => setFormData({ ...formData, aadharNumber: formatAadharNumber(e.target.value) })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          aadharNumber: formatAadharNumber(e.target.value),
+                        })
+                      }
                       placeholder="1234 5678 9012"
                       maxLength={14}
                       required
                     />
-                    <p className="text-xs text-muted-foreground">Format: 12 digits with spaces (e.g., 1234 5678 9012)</p>
+                    <p className="text-xs text-muted-foreground">
+                      Format: 12 digits with spaces (e.g., 1234 5678 9012)
+                    </p>
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="edit-documents">Upload Documents (PDF) *</Label>
+                  <Label htmlFor="edit-documents">
+                    Upload Documents (PDF) *
+                  </Label>
                   <Input
                     id="edit-documents"
                     type="file"
@@ -1345,16 +1690,24 @@ export default function Employees() {
                     onChange={handleFileUpload}
                   />
                   <p className="text-xs text-orange-600 dark:text-orange-400 font-medium">
-                    Note: Please upload at least one document - Aadhar card or PAN card (Required)
+                    Note: Please upload at least one document - Aadhar card or
+                    PAN card (Required)
                   </p>
                   {formData.documents.length > 0 && (
                     <div className="space-y-2 mt-2">
-                      <p className="text-sm text-muted-foreground">Uploaded files ({formData.documents.length}):</p>
+                      <p className="text-sm text-muted-foreground">
+                        Uploaded files ({formData.documents.length}):
+                      </p>
                       <div className="space-y-1">
                         {formData.documents.map((doc, index) => (
-                          <div key={index} className="flex items-center gap-2 p-2 bg-muted rounded-md">
+                          <div
+                            key={index}
+                            className="flex items-center gap-2 p-2 bg-muted rounded-md"
+                          >
                             <FileText className="h-4 w-4 text-muted-foreground" />
-                            <span className="text-sm flex-1">Document {index + 1}</span>
+                            <span className="text-sm flex-1">
+                              Document {index + 1}
+                            </span>
                             <Button
                               type="button"
                               variant="ghost"
@@ -1379,12 +1732,19 @@ export default function Employees() {
               >
                 Cancel
               </Button>
-              <Button 
-                type="submit" 
-                disabled={updateEmployeeMutation.isPending || (!!selectedEmployee && formData.phone !== selectedEmployee.contact && !editOtpVerified)}
+              <Button
+                type="submit"
+                disabled={
+                  updateEmployeeMutation.isPending ||
+                  (!!selectedEmployee &&
+                    formData.phone !== selectedEmployee.contact &&
+                    !editOtpVerified)
+                }
                 data-testid="button-update-employee"
               >
-                {updateEmployeeMutation.isPending ? 'Updating...' : 'Update Employee'}
+                {updateEmployeeMutation.isPending
+                  ? "Updating..."
+                  : "Update Employee"}
               </Button>
             </div>
           </form>
@@ -1402,43 +1762,65 @@ export default function Employees() {
               <div className="flex items-center gap-4">
                 <Avatar className="h-16 w-16">
                   {selectedEmployee.photo ? (
-                    <img 
-                      src={selectedEmployee.photo} 
-                      alt={selectedEmployee.name} 
+                    <img
+                      src={selectedEmployee.photo}
+                      alt={selectedEmployee.name}
                       className="h-full w-full object-cover"
                     />
                   ) : (
-                    <AvatarFallback className="text-2xl">{getInitials(selectedEmployee.name)}</AvatarFallback>
+                    <AvatarFallback className="text-2xl">
+                      {getInitials(selectedEmployee.name)}
+                    </AvatarFallback>
                   )}
                 </Avatar>
                 <div>
-                  <h3 className="text-xl font-semibold">{selectedEmployee.name}</h3>
-                  <p className="text-muted-foreground">{selectedEmployee.role}</p>
+                  <h3 className="text-xl font-semibold">
+                    {selectedEmployee.name}
+                  </h3>
+                  <p className="text-muted-foreground">
+                    {selectedEmployee.role}
+                  </p>
                   {selectedEmployee.employeeId && (
-                    <p className="text-sm text-muted-foreground mt-1" data-testid="text-view-employeeid">ID: {selectedEmployee.employeeId}</p>
+                    <p
+                      className="text-sm text-muted-foreground mt-1"
+                      data-testid="text-view-employeeid"
+                    >
+                      ID: {selectedEmployee.employeeId}
+                    </p>
                   )}
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-xs text-muted-foreground">Contact</p>
-                  <p className="text-sm font-medium">{selectedEmployee.contact}</p>
+                  <p className="text-sm font-medium">
+                    {selectedEmployee.contact}
+                  </p>
                 </div>
                 {selectedEmployee.email && (
                   <div>
                     <p className="text-xs text-muted-foreground">Email</p>
-                    <p className="text-sm font-medium">{selectedEmployee.email}</p>
+                    <p className="text-sm font-medium">
+                      {selectedEmployee.email}
+                    </p>
                   </div>
                 )}
                 {selectedEmployee.salary && (
                   <div>
                     <p className="text-xs text-muted-foreground">Salary</p>
-                    <p className="text-sm font-medium">₹{selectedEmployee.salary.toLocaleString()}</p>
+                    <p className="text-sm font-medium">
+                      ₹{selectedEmployee.salary.toLocaleString()}
+                    </p>
                   </div>
                 )}
                 <div>
                   <p className="text-xs text-muted-foreground">Joining Date</p>
-                  <p className="text-sm font-medium">{format(new Date(selectedEmployee.joiningDate), 'dd MMM, yyyy')}</p>
+                  <p className="text-sm font-medium">
+                    {format(
+                      new Date(selectedEmployee.joiningDate),
+                      "dd MMM, yyyy",
+                    )}
+                  </p>
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">Status</p>
@@ -1448,46 +1830,64 @@ export default function Employees() {
                     <Badge variant="secondary">Inactive</Badge>
                   )}
                 </div>
-                {selectedEmployee.role !== 'Admin' && selectedEmployee.panNumber && (
-                  <div>
-                    <p className="text-xs text-muted-foreground">PAN Number</p>
-                    <p className="text-sm font-medium">{selectedEmployee.panNumber}</p>
-                  </div>
-                )}
-                {selectedEmployee.role !== 'Admin' && selectedEmployee.aadharNumber && (
-                  <div>
-                    <p className="text-xs text-muted-foreground">Aadhar Number</p>
-                    <p className="text-sm font-medium">{selectedEmployee.aadharNumber}</p>
-                  </div>
-                )}
+                {selectedEmployee.role !== "Admin" &&
+                  selectedEmployee.panNumber && (
+                    <div>
+                      <p className="text-xs text-muted-foreground">
+                        PAN Number
+                      </p>
+                      <p className="text-sm font-medium">
+                        {selectedEmployee.panNumber}
+                      </p>
+                    </div>
+                  )}
+                {selectedEmployee.role !== "Admin" &&
+                  selectedEmployee.aadharNumber && (
+                    <div>
+                      <p className="text-xs text-muted-foreground">
+                        Aadhar Number
+                      </p>
+                      <p className="text-sm font-medium">
+                        {selectedEmployee.aadharNumber}
+                      </p>
+                    </div>
+                  )}
               </div>
-              {selectedEmployee.role !== 'Admin' && selectedEmployee.documents && selectedEmployee.documents.length > 0 && (
-                <div className="space-y-2">
-                  <p className="text-xs text-muted-foreground">Documents</p>
-                  <div className="space-y-1">
-                    {selectedEmployee.documents.map((doc, index) => (
-                      <Button
-                        key={index}
-                        variant="outline"
-                        size="sm"
-                        className="w-full justify-start"
-                        onClick={() => setViewingDocument(doc)}
-                      >
-                        <FileText className="h-4 w-4 mr-2" />
-                        Document {index + 1}
-                      </Button>
-                    ))}
+              {selectedEmployee.role !== "Admin" &&
+                selectedEmployee.documents &&
+                selectedEmployee.documents.length > 0 && (
+                  <div className="space-y-2">
+                    <p className="text-xs text-muted-foreground">Documents</p>
+                    <div className="space-y-1">
+                      {selectedEmployee.documents.map((doc, index) => (
+                        <Button
+                          key={index}
+                          variant="outline"
+                          size="sm"
+                          className="w-full justify-start"
+                          onClick={() => setViewingDocument(doc)}
+                        >
+                          <FileText className="h-4 w-4 mr-2" />
+                          Document {index + 1}
+                        </Button>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
               <div className="flex justify-end gap-2 pt-4">
-                <Button variant="outline" onClick={() => setIsViewDialogOpen(false)}>
+                <Button
+                  variant="outline"
+                  onClick={() => setIsViewDialogOpen(false)}
+                >
                   Close
                 </Button>
-                <Button variant="destructive" onClick={() => {
-                  setIsViewDialogOpen(false);
-                  handleDeleteEmployee(selectedEmployee);
-                }}>
+                <Button
+                  variant="destructive"
+                  onClick={() => {
+                    setIsViewDialogOpen(false);
+                    handleDeleteEmployee(selectedEmployee);
+                  }}
+                >
                   Delete Employee
                 </Button>
               </div>
@@ -1497,7 +1897,10 @@ export default function Employees() {
       </Dialog>
 
       {/* Document Viewer Dialog */}
-      <Dialog open={!!viewingDocument} onOpenChange={() => setViewingDocument(null)}>
+      <Dialog
+        open={!!viewingDocument}
+        onOpenChange={() => setViewingDocument(null)}
+      >
         <DialogContent className="max-w-4xl max-h-[90vh]">
           <DialogHeader>
             <DialogTitle>Document Viewer</DialogTitle>

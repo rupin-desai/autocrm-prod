@@ -8,13 +8,45 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { BellRing, PackageCheck, Plus, Search, Send, ShieldCheck } from "lucide-react";
-import { EmptyState, PageHeader, StatTile, TableSkeleton } from "@/components/PageShell";
+import {
+  BellRing,
+  PackageCheck,
+  Plus,
+  Search,
+  Send,
+  ShieldCheck,
+} from "lucide-react";
+import {
+  EmptyState,
+  PageHeader,
+  StatTile,
+  TableSkeleton,
+} from "@/components/PageShell";
 
 // Requirement 5: Warranty Management.
 // Two tabs over one record: what we hold for the customer, and what is out
@@ -22,10 +54,14 @@ import { EmptyState, PageHeader, StatTile, TableSkeleton } from "@/components/Pa
 
 const STATUS_STYLES: Record<string, string> = {
   received: "bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-200",
-  with_vendor: "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200",
-  returned_from_vendor: "bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-200",
-  resolved: "bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-200",
-  delivered_to_customer: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200",
+  with_vendor:
+    "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200",
+  returned_from_vendor:
+    "bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-200",
+  resolved:
+    "bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-200",
+  delivered_to_customer:
+    "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200",
   cancelled: "bg-muted text-muted-foreground",
 };
 
@@ -40,7 +76,13 @@ const NEXT_STATUS: Record<string, string[]> = {
 
 const label = (s: string) => s.replace(/_/g, " ");
 const shortDate = (d?: string) =>
-  d ? new Date(d).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "-";
+  d
+    ? new Date(d).toLocaleDateString("en-IN", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      })
+    : "-";
 
 const emptyIntake = {
   customerId: "",
@@ -88,7 +130,9 @@ export default function WarrantyClaims() {
   const { data, isLoading } = useQuery<any>({
     queryKey: ["/api/warranty-claims", claimsQuery],
     queryFn: async () => {
-      const res = await fetch(`/api/warranty-claims?${claimsQuery}`, { credentials: "include" });
+      const res = await fetch(`/api/warranty-claims?${claimsQuery}`, {
+        credentials: "include",
+      });
       if (!res.ok) throw new Error("Failed to load warranty claims");
       return res.json();
     },
@@ -98,7 +142,9 @@ export default function WarrantyClaims() {
     queryKey: ["/api/warranty-claims/vendor-items", tab],
     enabled: tab === "vendor",
     queryFn: async () => {
-      const res = await fetch("/api/warranty-claims/vendor-items", { credentials: "include" });
+      const res = await fetch("/api/warranty-claims/vendor-items", {
+        credentials: "include",
+      });
       if (!res.ok) throw new Error("Failed to load vendor items");
       return res.json();
     },
@@ -110,7 +156,9 @@ export default function WarrantyClaims() {
     queryFn: async () => {
       const params = new URLSearchParams({ period: "year", limit: "25" });
       if (customerSearch.trim()) params.set("search", customerSearch.trim());
-      const res = await fetch(`/api/dashboard/customer-search?${params}`, { credentials: "include" });
+      const res = await fetch(`/api/dashboard/customer-search?${params}`, {
+        credentials: "include",
+      });
       if (!res.ok) throw new Error("Failed to load customers");
       return res.json();
     },
@@ -118,12 +166,15 @@ export default function WarrantyClaims() {
 
   const refresh = () => {
     queryClient.invalidateQueries({ queryKey: ["/api/warranty-claims"] });
-    queryClient.invalidateQueries({ queryKey: ["/api/warranty-claims/vendor-items"] });
+    queryClient.invalidateQueries({
+      queryKey: ["/api/warranty-claims/vendor-items"],
+    });
   };
 
   const intakeMutation = useMutation({
     mutationFn: async () => {
-      if (!intake.customerId && !intake.customerName.trim()) throw new Error("Select or name a customer");
+      if (!intake.customerId && !intake.customerName.trim())
+        throw new Error("Select or name a customer");
       if (!intake.itemName.trim()) throw new Error("Item name is required");
       if (!intake.problem.trim()) throw new Error("Describe the problem");
 
@@ -140,38 +191,59 @@ export default function WarrantyClaims() {
       refresh();
       setIntakeOpen(false);
       setIntake(emptyIntake);
-      toast({ title: "Item received", description: `Claim ${claim.claimNumber} created` });
+      toast({
+        title: "Item received",
+        description: `Claim ${claim.claimNumber} created`,
+      });
     },
     onError: (error: any) =>
-      toast({ title: "Error", description: error.message || "Failed to receive item", variant: "destructive" }),
+      toast({
+        title: "Error",
+        description: error.message || "Failed to receive item",
+        variant: "destructive",
+      }),
   });
 
   const dispatchMutation = useMutation({
     mutationFn: async () => {
-      if (!dispatch.vendorName.trim()) throw new Error("Vendor name is required");
+      if (!dispatch.vendorName.trim())
+        throw new Error("Vendor name is required");
       if (!dispatch.itemName.trim()) throw new Error("Item name is required");
 
-      const res = await apiRequest("POST", `/api/warranty-claims/${dispatchFor._id}/vendor-dispatch`, {
-        ...dispatch,
-        expectedReturnDate: dispatch.expectedReturnDate || undefined,
-        quantity: Number(dispatch.quantity),
-        reminderDays: Number(dispatch.reminderDays),
-      });
+      const res = await apiRequest(
+        "POST",
+        `/api/warranty-claims/${dispatchFor._id}/vendor-dispatch`,
+        {
+          ...dispatch,
+          expectedReturnDate: dispatch.expectedReturnDate || undefined,
+          quantity: Number(dispatch.quantity),
+          reminderDays: Number(dispatch.reminderDays),
+        },
+      );
       return res.json();
     },
     onSuccess: () => {
       refresh();
       setDispatchFor(null);
       setDispatch(emptyDispatch);
-      toast({ title: "Sent to vendor", description: "The item is now tracked as with the vendor" });
+      toast({
+        title: "Sent to vendor",
+        description: "The item is now tracked as with the vendor",
+      });
     },
     onError: (error: any) =>
-      toast({ title: "Error", description: error.message || "Failed to record dispatch", variant: "destructive" }),
+      toast({
+        title: "Error",
+        description: error.message || "Failed to record dispatch",
+        variant: "destructive",
+      }),
   });
 
   const statusMutation = useMutation({
     mutationFn: async ({ id, status }: { id: string; status: string }) => {
-      const res = await apiRequest("PATCH", `/api/warranty-claims/${id}`, { status });
+      const res = await apiRequest("PATCH", `/api/warranty-claims/${id}`, {
+        status,
+      });
       return res.json();
     },
     onSuccess: () => {
@@ -179,15 +251,23 @@ export default function WarrantyClaims() {
       toast({ title: "Updated", description: "Claim status changed" });
     },
     onError: (error: any) =>
-      toast({ title: "Error", description: error.message || "Failed to update", variant: "destructive" }),
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update",
+        variant: "destructive",
+      }),
   });
 
   const returnMutation = useMutation({
     mutationFn: async ({ claimId, dispatchId, status, resolution }: any) => {
-      const res = await apiRequest("PATCH", `/api/warranty-claims/${claimId}/vendor-dispatch/${dispatchId}`, {
-        status,
-        resolution,
-      });
+      const res = await apiRequest(
+        "PATCH",
+        `/api/warranty-claims/${claimId}/vendor-dispatch/${dispatchId}`,
+        {
+          status,
+          resolution,
+        },
+      );
       return res.json();
     },
     onSuccess: () => {
@@ -195,7 +275,11 @@ export default function WarrantyClaims() {
       toast({ title: "Updated", description: "Vendor item updated" });
     },
     onError: (error: any) =>
-      toast({ title: "Error", description: error.message || "Failed to update", variant: "destructive" }),
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update",
+        variant: "destructive",
+      }),
   });
 
   const claims = data?.items || [];
@@ -209,7 +293,10 @@ export default function WarrantyClaims() {
         title="Warranty Management"
         description="Items taken in from customers and sent out to vendors, tracked until they are returned."
         actions={
-          <Button onClick={() => setIntakeOpen(true)} data-testid="button-receive-item">
+          <Button
+            onClick={() => setIntakeOpen(true)}
+            data-testid="button-receive-item"
+          >
             <Plus className="h-4 w-4 mr-2" />
             Receive Item
           </Button>
@@ -217,12 +304,32 @@ export default function WarrantyClaims() {
       />
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {([
-          { key: "received", title: "With us", tone: "accent" as const, icon: PackageCheck },
-          { key: "with_vendor", title: "With vendor", tone: "warning" as const, icon: Send },
-          { key: "resolved", title: "Resolved", tone: "positive" as const, icon: ShieldCheck },
-          { key: "delivered_to_customer", title: "Delivered", tone: "neutral" as const, icon: PackageCheck },
-        ]).map((s) => (
+        {[
+          {
+            key: "received",
+            title: "With us",
+            tone: "accent" as const,
+            icon: PackageCheck,
+          },
+          {
+            key: "with_vendor",
+            title: "With vendor",
+            tone: "warning" as const,
+            icon: Send,
+          },
+          {
+            key: "resolved",
+            title: "Resolved",
+            tone: "positive" as const,
+            icon: ShieldCheck,
+          },
+          {
+            key: "delivered_to_customer",
+            title: "Delivered",
+            tone: "neutral" as const,
+            icon: PackageCheck,
+          },
+        ].map((s) => (
           <StatTile
             key={s.key}
             label={s.title}
@@ -236,8 +343,12 @@ export default function WarrantyClaims() {
 
       <Tabs value={tab} onValueChange={setTab}>
         <TabsList>
-          <TabsTrigger value="customer" data-testid="tab-customer-warranty">Customer Warranty</TabsTrigger>
-          <TabsTrigger value="vendor" data-testid="tab-vendor-warranty">Vendor Warranty</TabsTrigger>
+          <TabsTrigger value="customer" data-testid="tab-customer-warranty">
+            Customer Warranty
+          </TabsTrigger>
+          <TabsTrigger value="vendor" data-testid="tab-vendor-warranty">
+            Vendor Warranty
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="customer" className="mt-4">
@@ -245,19 +356,27 @@ export default function WarrantyClaims() {
             <CardContent className="pt-6 space-y-4">
               <div className="flex flex-wrap items-end gap-3">
                 <div className="min-w-[180px]">
-                  <Label className="text-xs text-muted-foreground">Status</Label>
+                  <Label className="text-xs text-muted-foreground">
+                    Status
+                  </Label>
                   <Select value={statusFilter} onValueChange={setStatusFilter}>
-                    <SelectTrigger data-testid="select-wc-status"><SelectValue /></SelectTrigger>
+                    <SelectTrigger data-testid="select-wc-status">
+                      <SelectValue />
+                    </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All</SelectItem>
                       {Object.keys(STATUS_STYLES).map((s) => (
-                        <SelectItem key={s} value={s} className="capitalize">{label(s)}</SelectItem>
+                        <SelectItem key={s} value={s} className="capitalize">
+                          {label(s)}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="flex-1 min-w-[240px]">
-                  <Label className="text-xs text-muted-foreground">Search</Label>
+                  <Label className="text-xs text-muted-foreground">
+                    Search
+                  </Label>
                   <div className="relative">
                     <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                     <Input
@@ -279,7 +398,11 @@ export default function WarrantyClaims() {
                   title="No warranty items received"
                   description="Items you take in from customers will be tracked here until they go back."
                   action={
-                    <Button variant="outline" size="sm" onClick={() => setIntakeOpen(true)}>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setIntakeOpen(true)}
+                    >
                       <Plus className="h-4 w-4 mr-2" /> Receive Item
                     </Button>
                   }
@@ -303,37 +426,77 @@ export default function WarrantyClaims() {
                     <TableBody>
                       {claims.map((c: any) => {
                         const overdue =
-                          !["delivered_to_customer", "cancelled"].includes(c.status) &&
-                          c.reminderDate && new Date(c.reminderDate) <= new Date();
+                          !["delivered_to_customer", "cancelled"].includes(
+                            c.status,
+                          ) &&
+                          c.reminderDate &&
+                          new Date(c.reminderDate) <= new Date();
                         return (
-                          <TableRow key={c._id} data-testid={`row-claim-${c._id}`}>
-                            <TableCell className="font-mono text-xs">{c.claimNumber}</TableCell>
+                          <TableRow
+                            key={c._id}
+                            data-testid={`row-claim-${c._id}`}
+                          >
+                            <TableCell className="font-mono text-xs">
+                              {c.claimNumber}
+                            </TableCell>
                             <TableCell>
-                              <div className="font-medium">{c.customerName}</div>
-                              <div className="text-xs text-muted-foreground">{c.vehicleNumber || c.customerMobile}</div>
+                              <div className="font-medium">
+                                {c.customerName}
+                              </div>
+                              <div className="text-xs text-muted-foreground">
+                                {c.vehicleNumber || c.customerMobile}
+                              </div>
                             </TableCell>
                             <TableCell>{c.itemName}</TableCell>
                             <TableCell>{c.quantity}</TableCell>
-                            <TableCell className="max-w-[220px] truncate text-sm" title={c.problem}>{c.problem}</TableCell>
-                            <TableCell className="text-sm">{shortDate(c.receivedDate)}</TableCell>
+                            <TableCell
+                              className="max-w-[220px] truncate text-sm"
+                              title={c.problem}
+                            >
+                              {c.problem}
+                            </TableCell>
                             <TableCell className="text-sm">
-                              <span className={overdue ? "text-red-600 font-medium inline-flex items-center gap-1" : ""}>
-                                {overdue && <BellRing className="h-3.5 w-3.5" />}
+                              {shortDate(c.receivedDate)}
+                            </TableCell>
+                            <TableCell className="text-sm">
+                              <span
+                                className={
+                                  overdue
+                                    ? "text-red-600 font-medium inline-flex items-center gap-1"
+                                    : ""
+                                }
+                              >
+                                {overdue && (
+                                  <BellRing className="h-3.5 w-3.5" />
+                                )}
                                 {shortDate(c.reminderDate)}
                               </span>
                             </TableCell>
                             <TableCell>
-                              <Badge className={STATUS_STYLES[c.status]} variant="secondary">{label(c.status)}</Badge>
+                              <Badge
+                                className={STATUS_STYLES[c.status]}
+                                variant="secondary"
+                              >
+                                {label(c.status)}
+                              </Badge>
                             </TableCell>
                             <TableCell>
                               <div className="flex gap-1">
-                                {!["delivered_to_customer", "cancelled"].includes(c.status) && (
+                                {![
+                                  "delivered_to_customer",
+                                  "cancelled",
+                                ].includes(c.status) && (
                                   <Button
                                     size="sm"
                                     variant="outline"
                                     onClick={() => {
                                       setDispatchFor(c);
-                                      setDispatch({ ...emptyDispatch, itemName: c.itemName, quantity: String(c.quantity), problem: c.problem });
+                                      setDispatch({
+                                        ...emptyDispatch,
+                                        itemName: c.itemName,
+                                        quantity: String(c.quantity),
+                                        problem: c.problem,
+                                      });
                                     }}
                                     data-testid={`button-send-vendor-${c._id}`}
                                   >
@@ -341,11 +504,26 @@ export default function WarrantyClaims() {
                                   </Button>
                                 )}
                                 {NEXT_STATUS[c.status]?.length > 0 && (
-                                  <Select onValueChange={(status) => statusMutation.mutate({ id: c._id, status })}>
-                                    <SelectTrigger className="w-[120px] h-8"><SelectValue placeholder="Status" /></SelectTrigger>
+                                  <Select
+                                    onValueChange={(status) =>
+                                      statusMutation.mutate({
+                                        id: c._id,
+                                        status,
+                                      })
+                                    }
+                                  >
+                                    <SelectTrigger className="w-[120px] h-8">
+                                      <SelectValue placeholder="Status" />
+                                    </SelectTrigger>
                                     <SelectContent>
                                       {NEXT_STATUS[c.status].map((s) => (
-                                        <SelectItem key={s} value={s} className="capitalize">{label(s)}</SelectItem>
+                                        <SelectItem
+                                          key={s}
+                                          value={s}
+                                          className="capitalize"
+                                        >
+                                          {label(s)}
+                                        </SelectItem>
                                       ))}
                                     </SelectContent>
                                   </Select>
@@ -392,26 +570,54 @@ export default function WarrantyClaims() {
                     </TableHeader>
                     <TableBody>
                       {vendorItems.map((row: any) => (
-                        <TableRow key={row.dispatch._id} data-testid={`row-vendor-${row.dispatch._id}`}>
-                          <TableCell className="font-mono text-xs">{row.claimNumber}</TableCell>
+                        <TableRow
+                          key={row.dispatch._id}
+                          data-testid={`row-vendor-${row.dispatch._id}`}
+                        >
+                          <TableCell className="font-mono text-xs">
+                            {row.claimNumber}
+                          </TableCell>
                           <TableCell>
-                            <div className="font-medium">{row.dispatch.vendorName}</div>
-                            <div className="text-xs text-muted-foreground">{row.dispatch.vendorContact || ""}</div>
+                            <div className="font-medium">
+                              {row.dispatch.vendorName}
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              {row.dispatch.vendorContact || ""}
+                            </div>
                           </TableCell>
                           <TableCell>{row.dispatch.itemName}</TableCell>
                           <TableCell>{row.dispatch.quantity}</TableCell>
-                          <TableCell className="text-sm">{shortDate(row.dispatch.givenDate)}</TableCell>
+                          <TableCell className="text-sm">
+                            {shortDate(row.dispatch.givenDate)}
+                          </TableCell>
                           <TableCell className="max-w-[260px] text-sm">
-                            <div className="truncate" title={row.dispatch.problem}>{row.dispatch.problem}</div>
+                            <div
+                              className="truncate"
+                              title={row.dispatch.problem}
+                            >
+                              {row.dispatch.problem}
+                            </div>
                             {row.dispatch.narration && (
-                              <div className="text-xs text-muted-foreground truncate" title={row.dispatch.narration}>
+                              <div
+                                className="text-xs text-muted-foreground truncate"
+                                title={row.dispatch.narration}
+                              >
                                 {row.dispatch.narration}
                               </div>
                             )}
                           </TableCell>
-                          <TableCell className="text-sm">{shortDate(row.dispatch.returnedDate)}</TableCell>
+                          <TableCell className="text-sm">
+                            {shortDate(row.dispatch.returnedDate)}
+                          </TableCell>
                           <TableCell>
-                            <Badge variant="secondary" className={row.dispatch.status === "with_vendor" ? STATUS_STYLES.with_vendor : STATUS_STYLES.resolved}>
+                            <Badge
+                              variant="secondary"
+                              className={
+                                row.dispatch.status === "with_vendor"
+                                  ? STATUS_STYLES.with_vendor
+                                  : STATUS_STYLES.resolved
+                              }
+                            >
                               {label(row.dispatch.status)}
                             </Badge>
                           </TableCell>
@@ -430,7 +636,8 @@ export default function WarrantyClaims() {
                                 }
                                 data-testid={`button-mark-returned-${row.dispatch._id}`}
                               >
-                                <PackageCheck className="h-3.5 w-3.5 mr-1" /> Received
+                                <PackageCheck className="h-3.5 w-3.5 mr-1" />{" "}
+                                Received
                               </Button>
                             )}
                           </TableCell>
@@ -450,7 +657,9 @@ export default function WarrantyClaims() {
         <DialogContent className="max-w-2xl dialog-scroll">
           <DialogHeader>
             <DialogTitle>Receive Warranty Item from Customer</DialogTitle>
-            <DialogDescription>Record the item, the problem and when to follow up.</DialogDescription>
+            <DialogDescription>
+              Record the item, the problem and when to follow up.
+            </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4">
@@ -465,7 +674,9 @@ export default function WarrantyClaims() {
               <Select
                 value={intake.customerId}
                 onValueChange={(customerId) => {
-                  const c = (customerData?.items || []).find((x: any) => x._id === customerId);
+                  const c = (customerData?.items || []).find(
+                    (x: any) => x._id === customerId,
+                  );
                   setIntake({
                     ...intake,
                     customerId,
@@ -479,7 +690,9 @@ export default function WarrantyClaims() {
                 </SelectTrigger>
                 <SelectContent>
                   {(customerData?.items || []).map((c: any) => (
-                    <SelectItem key={c._id} value={c._id}>{c.fullName} — {c.mobileNumber}</SelectItem>
+                    <SelectItem key={c._id} value={c._id}>
+                      {c.fullName} — {c.mobileNumber}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -488,43 +701,102 @@ export default function WarrantyClaims() {
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <Label>Customer name *</Label>
-                <Input value={intake.customerName} onChange={(e) => setIntake({ ...intake, customerName: e.target.value })} data-testid="input-wc-name" />
+                <Input
+                  value={intake.customerName}
+                  onChange={(e) =>
+                    setIntake({ ...intake, customerName: e.target.value })
+                  }
+                  data-testid="input-wc-name"
+                />
               </div>
               <div>
                 <Label>Vehicle number</Label>
-                <Input value={intake.vehicleNumber} onChange={(e) => setIntake({ ...intake, vehicleNumber: e.target.value })} />
+                <Input
+                  value={intake.vehicleNumber}
+                  onChange={(e) =>
+                    setIntake({ ...intake, vehicleNumber: e.target.value })
+                  }
+                />
               </div>
               <div>
                 <Label>Problem item name *</Label>
-                <Input value={intake.itemName} onChange={(e) => setIntake({ ...intake, itemName: e.target.value })} data-testid="input-wc-item" />
+                <Input
+                  value={intake.itemName}
+                  onChange={(e) =>
+                    setIntake({ ...intake, itemName: e.target.value })
+                  }
+                  data-testid="input-wc-item"
+                />
               </div>
               <div>
                 <Label>Quantity *</Label>
-                <Input type="number" min="1" value={intake.quantity} onChange={(e) => setIntake({ ...intake, quantity: e.target.value })} data-testid="input-wc-qty" />
+                <Input
+                  type="number"
+                  min="1"
+                  value={intake.quantity}
+                  onChange={(e) =>
+                    setIntake({ ...intake, quantity: e.target.value })
+                  }
+                  data-testid="input-wc-qty"
+                />
               </div>
               <div>
                 <Label>Received date *</Label>
-                <Input type="date" value={intake.receivedDate} onChange={(e) => setIntake({ ...intake, receivedDate: e.target.value })} data-testid="input-wc-received" />
+                <Input
+                  type="date"
+                  value={intake.receivedDate}
+                  onChange={(e) =>
+                    setIntake({ ...intake, receivedDate: e.target.value })
+                  }
+                  data-testid="input-wc-received"
+                />
               </div>
               <div>
                 <Label>Reminder after (days)</Label>
-                <Input type="number" min="0" value={intake.reminderDays} onChange={(e) => setIntake({ ...intake, reminderDays: e.target.value })} data-testid="input-wc-reminder" />
+                <Input
+                  type="number"
+                  min="0"
+                  value={intake.reminderDays}
+                  onChange={(e) =>
+                    setIntake({ ...intake, reminderDays: e.target.value })
+                  }
+                  data-testid="input-wc-reminder"
+                />
               </div>
             </div>
 
             <div>
               <Label>Problem description *</Label>
-              <Textarea value={intake.problem} onChange={(e) => setIntake({ ...intake, problem: e.target.value })} rows={2} data-testid="input-wc-problem" />
+              <Textarea
+                value={intake.problem}
+                onChange={(e) =>
+                  setIntake({ ...intake, problem: e.target.value })
+                }
+                rows={2}
+                data-testid="input-wc-problem"
+              />
             </div>
             <div>
               <Label>Notes</Label>
-              <Textarea value={intake.notes} onChange={(e) => setIntake({ ...intake, notes: e.target.value })} rows={2} />
+              <Textarea
+                value={intake.notes}
+                onChange={(e) =>
+                  setIntake({ ...intake, notes: e.target.value })
+                }
+                rows={2}
+              />
             </div>
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIntakeOpen(false)}>Cancel</Button>
-            <Button onClick={() => intakeMutation.mutate()} disabled={intakeMutation.isPending} data-testid="button-save-claim">
+            <Button variant="outline" onClick={() => setIntakeOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={() => intakeMutation.mutate()}
+              disabled={intakeMutation.isPending}
+              data-testid="button-save-claim"
+            >
               {intakeMutation.isPending ? "Saving..." : "Receive Item"}
             </Button>
           </DialogFooter>
@@ -532,7 +804,10 @@ export default function WarrantyClaims() {
       </Dialog>
 
       {/* Send to vendor */}
-      <Dialog open={!!dispatchFor} onOpenChange={(open) => !open && setDispatchFor(null)}>
+      <Dialog
+        open={!!dispatchFor}
+        onOpenChange={(open) => !open && setDispatchFor(null)}
+      >
         <DialogContent className="max-w-2xl dialog-scroll">
           <DialogHeader>
             <DialogTitle>Give Item to Vendor</DialogTitle>
@@ -545,43 +820,99 @@ export default function WarrantyClaims() {
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <Label>Vendor name *</Label>
-                <Input value={dispatch.vendorName} onChange={(e) => setDispatch({ ...dispatch, vendorName: e.target.value })} data-testid="input-vendor-name" />
+                <Input
+                  value={dispatch.vendorName}
+                  onChange={(e) =>
+                    setDispatch({ ...dispatch, vendorName: e.target.value })
+                  }
+                  data-testid="input-vendor-name"
+                />
               </div>
               <div>
                 <Label>Vendor contact</Label>
-                <Input value={dispatch.vendorContact} onChange={(e) => setDispatch({ ...dispatch, vendorContact: e.target.value })} />
+                <Input
+                  value={dispatch.vendorContact}
+                  onChange={(e) =>
+                    setDispatch({ ...dispatch, vendorContact: e.target.value })
+                  }
+                />
               </div>
               <div>
                 <Label>Item name *</Label>
-                <Input value={dispatch.itemName} onChange={(e) => setDispatch({ ...dispatch, itemName: e.target.value })} data-testid="input-vendor-item" />
+                <Input
+                  value={dispatch.itemName}
+                  onChange={(e) =>
+                    setDispatch({ ...dispatch, itemName: e.target.value })
+                  }
+                  data-testid="input-vendor-item"
+                />
               </div>
               <div>
                 <Label>Quantity *</Label>
-                <Input type="number" min="1" value={dispatch.quantity} onChange={(e) => setDispatch({ ...dispatch, quantity: e.target.value })} />
+                <Input
+                  type="number"
+                  min="1"
+                  value={dispatch.quantity}
+                  onChange={(e) =>
+                    setDispatch({ ...dispatch, quantity: e.target.value })
+                  }
+                />
               </div>
               <div>
                 <Label>Date given *</Label>
-                <Input type="date" value={dispatch.givenDate} onChange={(e) => setDispatch({ ...dispatch, givenDate: e.target.value })} data-testid="input-vendor-date" />
+                <Input
+                  type="date"
+                  value={dispatch.givenDate}
+                  onChange={(e) =>
+                    setDispatch({ ...dispatch, givenDate: e.target.value })
+                  }
+                  data-testid="input-vendor-date"
+                />
               </div>
               <div>
                 <Label>Expected return</Label>
-                <Input type="date" value={dispatch.expectedReturnDate} onChange={(e) => setDispatch({ ...dispatch, expectedReturnDate: e.target.value })} />
+                <Input
+                  type="date"
+                  value={dispatch.expectedReturnDate}
+                  onChange={(e) =>
+                    setDispatch({
+                      ...dispatch,
+                      expectedReturnDate: e.target.value,
+                    })
+                  }
+                />
               </div>
               <div>
                 <Label>Reminder after (days)</Label>
-                <Input type="number" min="0" value={dispatch.reminderDays} onChange={(e) => setDispatch({ ...dispatch, reminderDays: e.target.value })} data-testid="input-vendor-reminder" />
+                <Input
+                  type="number"
+                  min="0"
+                  value={dispatch.reminderDays}
+                  onChange={(e) =>
+                    setDispatch({ ...dispatch, reminderDays: e.target.value })
+                  }
+                  data-testid="input-vendor-reminder"
+                />
               </div>
             </div>
 
             <div>
               <Label>Problem</Label>
-              <Textarea value={dispatch.problem} onChange={(e) => setDispatch({ ...dispatch, problem: e.target.value })} rows={2} />
+              <Textarea
+                value={dispatch.problem}
+                onChange={(e) =>
+                  setDispatch({ ...dispatch, problem: e.target.value })
+                }
+                rows={2}
+              />
             </div>
             <div>
               <Label>Narration</Label>
               <Textarea
                 value={dispatch.narration}
-                onChange={(e) => setDispatch({ ...dispatch, narration: e.target.value })}
+                onChange={(e) =>
+                  setDispatch({ ...dispatch, narration: e.target.value })
+                }
                 rows={2}
                 placeholder="Warranty terms, what was agreed with the vendor..."
                 data-testid="input-vendor-narration"
@@ -590,8 +921,14 @@ export default function WarrantyClaims() {
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDispatchFor(null)}>Cancel</Button>
-            <Button onClick={() => dispatchMutation.mutate()} disabled={dispatchMutation.isPending} data-testid="button-save-dispatch">
+            <Button variant="outline" onClick={() => setDispatchFor(null)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={() => dispatchMutation.mutate()}
+              disabled={dispatchMutation.isPending}
+              data-testid="button-save-dispatch"
+            >
               {dispatchMutation.isPending ? "Saving..." : "Send to Vendor"}
             </Button>
           </DialogFooter>

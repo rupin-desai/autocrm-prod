@@ -1,6 +1,12 @@
 import { useState, useCallback } from "react";
 import Cropper from "react-easy-crop";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { useToast } from "@/hooks/use-toast";
@@ -28,7 +34,10 @@ const createImage = (url: string): Promise<HTMLImageElement> =>
     image.src = url;
   });
 
-async function getCroppedImg(imageSrc: string, pixelCrop: Area): Promise<string> {
+async function getCroppedImg(
+  imageSrc: string,
+  pixelCrop: Area,
+): Promise<string> {
   const image = await createImage(imageSrc);
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d");
@@ -40,7 +49,7 @@ async function getCroppedImg(imageSrc: string, pixelCrop: Area): Promise<string>
   canvas.width = pixelCrop.width;
   canvas.height = pixelCrop.height;
 
-  ctx.fillStyle = 'white';
+  ctx.fillStyle = "white";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   ctx.drawImage(
@@ -52,7 +61,7 @@ async function getCroppedImg(imageSrc: string, pixelCrop: Area): Promise<string>
     0,
     0,
     pixelCrop.width,
-    pixelCrop.height
+    pixelCrop.height,
   );
 
   return new Promise((resolve) => {
@@ -70,15 +79,23 @@ async function getCroppedImg(imageSrc: string, pixelCrop: Area): Promise<string>
   });
 }
 
-export function ImageCropDialog({ open, onOpenChange, imageSrc, onCropComplete }: ImageCropDialogProps) {
+export function ImageCropDialog({
+  open,
+  onOpenChange,
+  imageSrc,
+  onCropComplete,
+}: ImageCropDialogProps) {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
   const { toast } = useToast();
 
-  const onCropCompleteCallback = useCallback((_croppedArea: Area, croppedAreaPixels: Area) => {
-    setCroppedAreaPixels(croppedAreaPixels);
-  }, []);
+  const onCropCompleteCallback = useCallback(
+    (_croppedArea: Area, croppedAreaPixels: Area) => {
+      setCroppedAreaPixels(croppedAreaPixels);
+    },
+    [],
+  );
 
   const handleCropConfirm = useCallback(async () => {
     if (!croppedAreaPixels) return;

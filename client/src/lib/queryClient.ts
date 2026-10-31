@@ -18,19 +18,19 @@ async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
     const text = await res.text();
     let json: any;
-    
+
     try {
       json = JSON.parse(text);
     } catch {
       throw new Error(text || res.statusText);
     }
-    
-    if (json.code === 'INACTIVITY_TIMEOUT') {
+
+    if (json.code === "INACTIVITY_TIMEOUT") {
       queryClient.clear();
-      window.location.href = '/';
-      throw new Error('Session expired due to inactivity. Please login again.');
+      window.location.href = "/";
+      throw new Error("Session expired due to inactivity. Please login again.");
     }
-    
+
     throw new Error(json.error || json.message || text || res.statusText);
   }
 }

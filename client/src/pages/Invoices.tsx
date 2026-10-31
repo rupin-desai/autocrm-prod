@@ -1,17 +1,55 @@
 import { useState, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/lib/auth";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
-import { FileText, DollarSign, CheckCircle, XCircle, Clock, Filter, Eye, CreditCard, Download, Trash2, Upload } from "lucide-react";
+import {
+  FileText,
+  DollarSign,
+  CheckCircle,
+  XCircle,
+  Clock,
+  Filter,
+  Eye,
+  CreditCard,
+  Download,
+  Trash2,
+  Upload,
+} from "lucide-react";
 import { format } from "date-fns";
 import { PaymentRecordingDialog } from "@/components/PaymentRecordingDialog";
 import { InvoiceGenerationDialog } from "@/components/InvoiceGenerationDialog";
@@ -43,12 +81,12 @@ interface Invoice {
   totalAmount: number;
   paidAmount: number;
   dueAmount: number;
-  status: 'draft' | 'pending_approval' | 'approved' | 'rejected' | 'cancelled';
-  paymentStatus: 'unpaid' | 'partial' | 'paid';
-  paymentMethod?: 'UPI' | 'Cash' | 'Card' | 'Net Banking' | 'Cheque';
+  status: "draft" | "pending_approval" | "approved" | "rejected" | "cancelled";
+  paymentStatus: "unpaid" | "partial" | "paid";
+  paymentMethod?: "UPI" | "Cash" | "Card" | "Net Banking" | "Cheque";
   payments?: Array<{
     amount: number;
-    paymentMode: 'UPI' | 'Cash' | 'Card' | 'Net Banking' | 'Cheque';
+    paymentMode: "UPI" | "Cash" | "Card" | "Net Banking" | "Cheque";
     transactionId?: string;
     transactionDate?: string;
   }>;
@@ -64,38 +102,45 @@ interface Invoice {
 export default function Invoices() {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [paymentFilter, setPaymentFilter] = useState<string>('all');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [paymentFilter, setPaymentFilter] = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState("");
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [showApprovalDialog, setShowApprovalDialog] = useState(false);
   const [showRejectDialog, setShowRejectDialog] = useState(false);
-  const [rejectionReason, setRejectionReason] = useState('');
+  const [rejectionReason, setRejectionReason] = useState("");
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showWarrantyDialog, setShowWarrantyDialog] = useState(false);
   const [showPaymentMethodDialog, setShowPaymentMethodDialog] = useState(false);
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'UPI' | 'Cash' | 'Card' | 'Net Banking' | 'Cheque'>('Cash');
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<
+    "UPI" | "Cash" | "Card" | "Net Banking" | "Cheque"
+  >("Cash");
   const [showManualInvoiceDialog, setShowManualInvoiceDialog] = useState(false);
-  const [selectedCustomerId, setSelectedCustomerId] = useState<string>('');
-  const [showInvoiceGenerationDialog, setShowInvoiceGenerationDialog] = useState(false);
-  const [selectedServiceForInvoice, setSelectedServiceForInvoice] = useState<any>(null);
+  const [selectedCustomerId, setSelectedCustomerId] = useState<string>("");
+  const [showInvoiceGenerationDialog, setShowInvoiceGenerationDialog] =
+    useState(false);
+  const [selectedServiceForInvoice, setSelectedServiceForInvoice] =
+    useState<any>(null);
 
   const { data: invoices = [], isLoading } = useQuery<Invoice[]>({
-    queryKey: ['/api/invoices', statusFilter, paymentFilter, searchQuery],
+    queryKey: ["/api/invoices", statusFilter, paymentFilter, searchQuery],
     queryFn: () => {
       const params = new URLSearchParams();
-      if (statusFilter !== 'all') params.append('status', statusFilter);
-      if (paymentFilter !== 'all') params.append('paymentStatus', paymentFilter);
-      if (searchQuery) params.append('search', searchQuery);
-      return fetch(`/api/invoices?${params}`).then(res => res.json());
+      if (statusFilter !== "all") params.append("status", statusFilter);
+      if (paymentFilter !== "all")
+        params.append("paymentStatus", paymentFilter);
+      if (searchQuery) params.append("search", searchQuery);
+      return fetch(`/api/invoices?${params}`).then((res) => res.json());
     },
   });
 
   const { data: completedServices = [] } = useQuery<any[]>({
-    queryKey: ['/api/service-visits/completed'],
+    queryKey: ["/api/service-visits/completed"],
     queryFn: async () => {
-      const response = await fetch(`/api/service-visits/completed`, { credentials: 'include' });
+      const response = await fetch(`/api/service-visits/completed`, {
+        credentials: "include",
+      });
       if (!response.ok) return [];
       const data = await response.json();
       return Array.isArray(data) ? data : [];
@@ -104,13 +149,18 @@ export default function Invoices() {
 
   const handleOpenInvoiceGeneration = (customerId: string) => {
     // Find the completed service for this customer
-    const completedService = completedServices.find(service => service.customerId?._id === customerId);
-    
+    const completedService = completedServices.find(
+      (service) => service.customerId?._id === customerId,
+    );
+
     if (!completedService) {
-      toast({ title: "No completed service found for this customer", variant: "destructive" });
+      toast({
+        title: "No completed service found for this customer",
+        variant: "destructive",
+      });
       return;
     }
-    
+
     setSelectedServiceForInvoice(completedService);
     setShowManualInvoiceDialog(false);
     setShowInvoiceGenerationDialog(true);
@@ -118,54 +168,63 @@ export default function Invoices() {
 
   const approveMutation = useMutation({
     mutationFn: async (invoiceId: string) => {
-      console.log('🚀 [FRONTEND] Starting invoice approval process');
-      console.log('   Invoice ID:', invoiceId);
-      console.log('   Timestamp:', new Date().toISOString());
-      
-      const response = await apiRequest('POST', `/api/invoices/${invoiceId}/approve`, {});
+      console.log("🚀 [FRONTEND] Starting invoice approval process");
+      console.log("   Invoice ID:", invoiceId);
+      console.log("   Timestamp:", new Date().toISOString());
+
+      const response = await apiRequest(
+        "POST",
+        `/api/invoices/${invoiceId}/approve`,
+        {},
+      );
       const data = await response.json();
-      
-      console.log('✅ [FRONTEND] Approval API request completed');
-      console.log('   Response data:', data);
-      
+
+      console.log("✅ [FRONTEND] Approval API request completed");
+      console.log("   Response data:", data);
+
       return data;
     },
     onSuccess: (data: any, invoiceId) => {
-      console.log('🎉 [FRONTEND] Invoice approval successful!');
-      console.log('   Invoice ID:', invoiceId);
-      console.log('   Response data:', data);
-      console.log('   Notifications sent:', {
+      console.log("🎉 [FRONTEND] Invoice approval successful!");
+      console.log("   Invoice ID:", invoiceId);
+      console.log("   Response data:", data);
+      console.log("   Notifications sent:", {
         email: data?.notificationsSent?.email,
         emailSentAt: data?.notificationsSent?.emailSentAt,
         whatsapp: data?.notificationsSent?.whatsapp,
         whatsappSentAt: data?.notificationsSent?.whatsappSentAt,
       });
-      
-      queryClient.invalidateQueries({ queryKey: ['/api/invoices'] });
+
+      queryClient.invalidateQueries({ queryKey: ["/api/invoices"] });
       toast({ title: "Invoice approved successfully" });
       setShowApprovalDialog(false);
       setSelectedInvoice(null);
     },
     onError: (error: any, invoiceId) => {
-      console.error('❌ [FRONTEND] Invoice approval failed');
-      console.error('   Invoice ID:', invoiceId);
-      console.error('   Error:', error);
-      console.error('   Error message:', error?.message);
-      console.error('   Error details:', error?.response?.data);
-      
+      console.error("❌ [FRONTEND] Invoice approval failed");
+      console.error("   Invoice ID:", invoiceId);
+      console.error("   Error:", error);
+      console.error("   Error message:", error?.message);
+      console.error("   Error details:", error?.response?.data);
+
       toast({ title: "Failed to approve invoice", variant: "destructive" });
     },
   });
 
   const rejectMutation = useMutation({
-    mutationFn: ({ invoiceId, reason }: { invoiceId: string; reason: string }) =>
-      apiRequest('POST', `/api/invoices/${invoiceId}/reject`, { reason }),
+    mutationFn: ({
+      invoiceId,
+      reason,
+    }: {
+      invoiceId: string;
+      reason: string;
+    }) => apiRequest("POST", `/api/invoices/${invoiceId}/reject`, { reason }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/invoices'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/invoices"] });
       toast({ title: "Invoice rejected" });
       setShowRejectDialog(false);
       setSelectedInvoice(null);
-      setRejectionReason('');
+      setRejectionReason("");
     },
     onError: () => {
       toast({ title: "Failed to reject invoice", variant: "destructive" });
@@ -173,9 +232,10 @@ export default function Invoices() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (invoiceId: string) => apiRequest('DELETE', `/api/invoices/${invoiceId}`, {}),
+    mutationFn: (invoiceId: string) =>
+      apiRequest("DELETE", `/api/invoices/${invoiceId}`, {}),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/invoices'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/invoices"] });
       toast({ title: "Invoice deleted successfully" });
       setShowDeleteDialog(false);
       setSelectedInvoice(null);
@@ -186,28 +246,39 @@ export default function Invoices() {
   });
 
   const togglePaidStatusMutation = useMutation({
-    mutationFn: ({ invoiceId, currentStatus, paymentMethod }: { invoiceId: string; currentStatus: string; paymentMethod?: string }) => {
-      const newStatus = currentStatus === 'paid' ? 'unpaid' : 'paid';
-      return apiRequest('PATCH', `/api/invoices/${invoiceId}/payment-status`, { 
+    mutationFn: ({
+      invoiceId,
+      currentStatus,
+      paymentMethod,
+    }: {
+      invoiceId: string;
+      currentStatus: string;
+      paymentMethod?: string;
+    }) => {
+      const newStatus = currentStatus === "paid" ? "unpaid" : "paid";
+      return apiRequest("PATCH", `/api/invoices/${invoiceId}/payment-status`, {
         paymentStatus: newStatus,
-        paymentMethod: newStatus === 'paid' ? paymentMethod : undefined
+        paymentMethod: newStatus === "paid" ? paymentMethod : undefined,
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/invoices'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/invoices"] });
       toast({ title: "Payment status updated" });
       setShowPaymentMethodDialog(false);
     },
     onError: () => {
-      toast({ title: "Failed to update payment status", variant: "destructive" });
+      toast({
+        title: "Failed to update payment status",
+        variant: "destructive",
+      });
     },
   });
 
   const handleMarkPaid = (invoice: Invoice) => {
-    if (invoice.paymentStatus === 'paid') {
-      togglePaidStatusMutation.mutate({ 
-        invoiceId: invoice._id, 
-        currentStatus: invoice.paymentStatus 
+    if (invoice.paymentStatus === "paid") {
+      togglePaidStatusMutation.mutate({
+        invoiceId: invoice._id,
+        currentStatus: invoice.paymentStatus,
       });
     } else {
       setSelectedInvoice(invoice);
@@ -228,23 +299,23 @@ export default function Invoices() {
   const handleDownloadPDF = async (invoiceId: string) => {
     try {
       const response = await fetch(`/api/invoices/${invoiceId}/pdf`, {
-        credentials: 'include',
+        credentials: "include",
       });
-      
+
       if (!response.ok) {
-        throw new Error('Failed to download PDF');
+        throw new Error("Failed to download PDF");
       }
-      
+
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = url;
       a.download = `invoice_${invoiceId}.pdf`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
-      
+
       toast({ title: "PDF downloaded successfully" });
     } catch (error) {
       toast({ title: "Failed to download PDF", variant: "destructive" });
@@ -254,17 +325,17 @@ export default function Invoices() {
   const handleViewPDF = async (invoiceId: string) => {
     try {
       const response = await fetch(`/api/invoices/${invoiceId}/pdf`, {
-        credentials: 'include',
+        credentials: "include",
       });
-      
+
       if (!response.ok) {
-        throw new Error('Failed to load PDF');
+        throw new Error("Failed to load PDF");
       }
-      
+
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
-      window.open(url, '_blank');
-      
+      window.open(url, "_blank");
+
       toast({ title: "Invoice opened in new tab" });
     } catch (error) {
       toast({ title: "Failed to view PDF", variant: "destructive" });
@@ -272,44 +343,80 @@ export default function Invoices() {
   };
 
   const getStatusBadge = (status: string) => {
-    const variants: Record<string, { variant: "default" | "secondary" | "destructive" | "outline"; label: string }> = {
+    const variants: Record<
+      string,
+      {
+        variant: "default" | "secondary" | "destructive" | "outline";
+        label: string;
+      }
+    > = {
       draft: { variant: "secondary", label: "Draft" },
       pending_approval: { variant: "outline", label: "Pending Approval" },
       approved: { variant: "default", label: "Approved" },
       rejected: { variant: "destructive", label: "Rejected" },
       cancelled: { variant: "destructive", label: "Cancelled" },
     };
-    const config = variants[status] || { variant: "outline" as const, label: status };
-    return <Badge variant={config.variant} data-testid={`badge-status-${status}`}>{config.label}</Badge>;
+    const config = variants[status] || {
+      variant: "outline" as const,
+      label: status,
+    };
+    return (
+      <Badge variant={config.variant} data-testid={`badge-status-${status}`}>
+        {config.label}
+      </Badge>
+    );
   };
 
   const getPaymentBadge = (paymentStatus: string) => {
-    const variants: Record<string, { variant: "default" | "secondary" | "destructive" | "outline"; label: string }> = {
+    const variants: Record<
+      string,
+      {
+        variant: "default" | "secondary" | "destructive" | "outline";
+        label: string;
+      }
+    > = {
       unpaid: { variant: "destructive", label: "Unpaid" },
       partial: { variant: "outline", label: "Partial" },
       paid: { variant: "default", label: "Paid" },
     };
-    const config = variants[paymentStatus] || { variant: "outline" as const, label: paymentStatus };
-    return <Badge variant={config.variant} data-testid={`badge-payment-${paymentStatus}`}>{config.label}</Badge>;
+    const config = variants[paymentStatus] || {
+      variant: "outline" as const,
+      label: paymentStatus,
+    };
+    return (
+      <Badge
+        variant={config.variant}
+        data-testid={`badge-payment-${paymentStatus}`}
+      >
+        {config.label}
+      </Badge>
+    );
   };
 
-  const formatInvoiceDate = (value: string) => format(new Date(value), 'dd/MM/yyyy');
+  const formatInvoiceDate = (value: string) =>
+    format(new Date(value), "dd/MM/yyyy");
 
-  const getPaymentModeLabel = (mode?: string) => mode === 'UPI' ? 'PhonePe/UPI' : (mode || '');
+  const getPaymentModeLabel = (mode?: string) =>
+    mode === "UPI" ? "PhonePe/UPI" : mode || "";
 
   const getPaymentHistoryLabel = (invoice: Invoice) => {
-    const paymentEntries = invoice.payments?.filter(payment => Number(payment.amount) > 0) || [];
+    const paymentEntries =
+      invoice.payments?.filter((payment) => Number(payment.amount) > 0) || [];
 
     if (paymentEntries.length > 0) {
       return paymentEntries
-        .map(payment => {
+        .map((payment) => {
           const label = `${getPaymentModeLabel(payment.paymentMode)} ₹${Number(payment.amount).toLocaleString()}`;
-          return payment.transactionId ? `${label} (${payment.transactionId})` : label;
+          return payment.transactionId
+            ? `${label} (${payment.transactionId})`
+            : label;
         })
-        .join(' + ');
+        .join(" + ");
     }
 
-    return invoice.paymentMethod ? `via ${getPaymentModeLabel(invoice.paymentMethod)}` : '';
+    return invoice.paymentMethod
+      ? `via ${getPaymentModeLabel(invoice.paymentMethod)}`
+      : "";
   };
 
   // Search is now handled by the backend, so we just use the invoices directly
@@ -319,8 +426,15 @@ export default function Invoices() {
     <div className="p-3 md:p-6 space-y-4 md:space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-semibold tracking-tight sm:text-2xl" data-testid="heading-invoices">Invoices & Billing</h1>
-          <p className="text-sm md:text-base text-muted-foreground">Manage invoices, payments, and billing</p>
+          <h1
+            className="text-xl font-semibold tracking-tight sm:text-2xl"
+            data-testid="heading-invoices"
+          >
+            Invoices & Billing
+          </h1>
+          <p className="text-sm md:text-base text-muted-foreground">
+            Manage invoices, payments, and billing
+          </p>
         </div>
       </div>
 
@@ -334,8 +448,8 @@ export default function Invoices() {
                 <CardDescription>View and manage invoices</CardDescription>
               </div>
             </div>
-            {(user?.role === 'Admin' || user?.role === 'Manager') && (
-              <Button 
+            {(user?.role === "Admin" || user?.role === "Manager") && (
+              <Button
                 onClick={() => setShowManualInvoiceDialog(true)}
                 data-testid="button-create-manual-invoice"
               >
@@ -355,19 +469,27 @@ export default function Invoices() {
               data-testid="input-search-invoice"
             />
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-[180px]" data-testid="select-status-filter">
+              <SelectTrigger
+                className="w-[180px]"
+                data-testid="select-status-filter"
+              >
                 <SelectValue placeholder="Filter by status" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Status</SelectItem>
                 <SelectItem value="draft">Draft</SelectItem>
-                <SelectItem value="pending_approval">Pending Approval</SelectItem>
+                <SelectItem value="pending_approval">
+                  Pending Approval
+                </SelectItem>
                 <SelectItem value="approved">Approved</SelectItem>
                 <SelectItem value="rejected">Rejected</SelectItem>
               </SelectContent>
             </Select>
             <Select value={paymentFilter} onValueChange={setPaymentFilter}>
-              <SelectTrigger className="w-[180px]" data-testid="select-payment-filter">
+              <SelectTrigger
+                className="w-[180px]"
+                data-testid="select-payment-filter"
+              >
                 <SelectValue placeholder="Filter by payment" />
               </SelectTrigger>
               <SelectContent>
@@ -384,14 +506,23 @@ export default function Invoices() {
             {isLoading ? (
               <div className="text-center py-8">Loading invoices...</div>
             ) : filteredInvoices.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">No invoices found</div>
+              <div className="text-center py-8 text-muted-foreground">
+                No invoices found
+              </div>
             ) : (
               filteredInvoices.map((invoice) => (
-                <Card key={invoice._id} className="p-4" data-testid={`card-invoice-${invoice._id}`}>
+                <Card
+                  key={invoice._id}
+                  className="p-4"
+                  data-testid={`card-invoice-${invoice._id}`}
+                >
                   <div className="space-y-3">
                     <div className="flex justify-between items-start">
                       <div>
-                        <div className="font-semibold text-lg" data-testid={`text-invoice-number-${invoice._id}`}>
+                        <div
+                          className="font-semibold text-lg"
+                          data-testid={`text-invoice-number-${invoice._id}`}
+                        >
                           {invoice.invoiceNumber}
                         </div>
                         <div className="text-sm text-muted-foreground">
@@ -402,56 +533,64 @@ export default function Invoices() {
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="font-bold text-lg">₹{invoice.totalAmount.toLocaleString()}</div>
+                        <div className="font-bold text-lg">
+                          ₹{invoice.totalAmount.toLocaleString()}
+                        </div>
                         {invoice.dueAmount > 0 && (
-                          <div className="text-sm text-destructive">Due: ₹{invoice.dueAmount.toLocaleString()}</div>
+                          <div className="text-sm text-destructive">
+                            Due: ₹{invoice.dueAmount.toLocaleString()}
+                          </div>
                         )}
                       </div>
                     </div>
-                    
+
                     <div className="flex gap-2 flex-wrap items-center">
                       {getStatusBadge(invoice.status)}
                       <div className="flex flex-col gap-1">
                         {getPaymentBadge(invoice.paymentStatus)}
                         {getPaymentHistoryLabel(invoice) && (
-                          <span className="text-xs text-muted-foreground" data-testid={`text-payment-method-mobile-${invoice._id}`}>
+                          <span
+                            className="text-xs text-muted-foreground"
+                            data-testid={`text-payment-method-mobile-${invoice._id}`}
+                          >
                             {getPaymentHistoryLabel(invoice)}
                           </span>
                         )}
                       </div>
                     </div>
-                    
+
                     <div className="flex flex-wrap gap-2">
-                      {(user?.role === 'Admin' || user?.role === 'Manager') && invoice.status === 'pending_approval' && (
-                        <>
-                          <Button
-                            size="sm"
-                            variant="default"
-                            onClick={() => {
-                              setSelectedInvoice(invoice);
-                              setShowApprovalDialog(true);
-                            }}
-                            data-testid={`button-approve-${invoice._id}`}
-                            className="flex-1"
-                          >
-                            <CheckCircle className="h-4 w-4 mr-1" />
-                            Approve
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            onClick={() => {
-                              setSelectedInvoice(invoice);
-                              setShowRejectDialog(true);
-                            }}
-                            data-testid={`button-reject-${invoice._id}`}
-                            className="flex-1"
-                          >
-                            <XCircle className="h-4 w-4 mr-1" />
-                            Reject
-                          </Button>
-                        </>
-                      )}
+                      {(user?.role === "Admin" || user?.role === "Manager") &&
+                        invoice.status === "pending_approval" && (
+                          <>
+                            <Button
+                              size="sm"
+                              variant="default"
+                              onClick={() => {
+                                setSelectedInvoice(invoice);
+                                setShowApprovalDialog(true);
+                              }}
+                              data-testid={`button-approve-${invoice._id}`}
+                              className="flex-1"
+                            >
+                              <CheckCircle className="h-4 w-4 mr-1" />
+                              Approve
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() => {
+                                setSelectedInvoice(invoice);
+                                setShowRejectDialog(true);
+                              }}
+                              data-testid={`button-reject-${invoice._id}`}
+                              className="flex-1"
+                            >
+                              <XCircle className="h-4 w-4 mr-1" />
+                              Reject
+                            </Button>
+                          </>
+                        )}
                       <Button
                         size="sm"
                         variant="outline"
@@ -462,7 +601,7 @@ export default function Invoices() {
                         <Eye className="h-4 w-4 mr-1" />
                         View
                       </Button>
-                      {invoice.status === 'approved' && (
+                      {invoice.status === "approved" && (
                         <Button
                           size="sm"
                           variant="outline"
@@ -474,34 +613,42 @@ export default function Invoices() {
                           Download
                         </Button>
                       )}
-                      {(user?.role === 'Admin' || user?.role === 'Manager') && invoice.status === 'approved' && (
-                        <Button
-                          size="sm"
-                          variant={invoice.paymentStatus === 'paid' ? 'secondary' : 'default'}
-                          onClick={() => handleMarkPaid(invoice)}
-                          disabled={togglePaidStatusMutation.isPending}
-                          data-testid={`button-toggle-paid-${invoice._id}`}
-                          className="flex-1"
-                        >
-                          {invoice.paymentStatus === 'paid' ? 'Mark Unpaid' : 'Mark Paid'}
-                        </Button>
-                      )}
-                      {invoice.paymentStatus === 'paid' && invoice.status === 'approved' && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => {
-                            setSelectedInvoice(invoice);
-                            setShowWarrantyDialog(true);
-                          }}
-                          data-testid={`button-warranty-${invoice._id}`}
-                          className="flex-1"
-                        >
-                          <FileText className="h-4 w-4 mr-1" />
-                          Warranty
-                        </Button>
-                      )}
-                      {user?.role === 'Admin' && (
+                      {(user?.role === "Admin" || user?.role === "Manager") &&
+                        invoice.status === "approved" && (
+                          <Button
+                            size="sm"
+                            variant={
+                              invoice.paymentStatus === "paid"
+                                ? "secondary"
+                                : "default"
+                            }
+                            onClick={() => handleMarkPaid(invoice)}
+                            disabled={togglePaidStatusMutation.isPending}
+                            data-testid={`button-toggle-paid-${invoice._id}`}
+                            className="flex-1"
+                          >
+                            {invoice.paymentStatus === "paid"
+                              ? "Mark Unpaid"
+                              : "Mark Paid"}
+                          </Button>
+                        )}
+                      {invoice.paymentStatus === "paid" &&
+                        invoice.status === "approved" && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              setSelectedInvoice(invoice);
+                              setShowWarrantyDialog(true);
+                            }}
+                            data-testid={`button-warranty-${invoice._id}`}
+                            className="flex-1"
+                          >
+                            <FileText className="h-4 w-4 mr-1" />
+                            Warranty
+                          </Button>
+                        )}
+                      {user?.role === "Admin" && (
                         <Button
                           size="sm"
                           variant="destructive"
@@ -548,63 +695,84 @@ export default function Invoices() {
                   </TableRow>
                 ) : filteredInvoices.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
+                    <TableCell
+                      colSpan={9}
+                      className="text-center py-8 text-muted-foreground"
+                    >
                       No invoices found
                     </TableCell>
                   </TableRow>
                 ) : (
                   filteredInvoices.map((invoice) => (
-                    <TableRow key={invoice._id} data-testid={`row-invoice-${invoice._id}`}>
-                      <TableCell className="font-medium" data-testid={`text-invoice-number-${invoice._id}`}>
+                    <TableRow
+                      key={invoice._id}
+                      data-testid={`row-invoice-${invoice._id}`}
+                    >
+                      <TableCell
+                        className="font-medium"
+                        data-testid={`text-invoice-number-${invoice._id}`}
+                      >
                         {invoice.invoiceNumber}
                       </TableCell>
                       <TableCell>
                         {invoice.customerId?.fullName || invoice.customerName}
                       </TableCell>
-                      <TableCell>₹{invoice.totalAmount.toLocaleString()}</TableCell>
-                      <TableCell>₹{invoice.paidAmount.toLocaleString()}</TableCell>
-                      <TableCell>₹{invoice.dueAmount.toLocaleString()}</TableCell>
+                      <TableCell>
+                        ₹{invoice.totalAmount.toLocaleString()}
+                      </TableCell>
+                      <TableCell>
+                        ₹{invoice.paidAmount.toLocaleString()}
+                      </TableCell>
+                      <TableCell>
+                        ₹{invoice.dueAmount.toLocaleString()}
+                      </TableCell>
                       <TableCell>{getStatusBadge(invoice.status)}</TableCell>
                       <TableCell>
                         <div className="flex flex-col gap-1">
                           {getPaymentBadge(invoice.paymentStatus)}
                           {getPaymentHistoryLabel(invoice) && (
-                            <span className="text-xs text-muted-foreground" data-testid={`text-payment-method-${invoice._id}`}>
+                            <span
+                              className="text-xs text-muted-foreground"
+                              data-testid={`text-payment-method-${invoice._id}`}
+                            >
                               {getPaymentHistoryLabel(invoice)}
                             </span>
                           )}
                         </div>
                       </TableCell>
-                      <TableCell>{formatInvoiceDate(invoice.createdAt)}</TableCell>
+                      <TableCell>
+                        {formatInvoiceDate(invoice.createdAt)}
+                      </TableCell>
                       <TableCell className="text-right space-x-2">
-                        {(user?.role === 'Admin' || user?.role === 'Manager') && invoice.status === 'pending_approval' && (
-                          <>
-                            <Button
-                              size="sm"
-                              variant="default"
-                              onClick={() => {
-                                setSelectedInvoice(invoice);
-                                setShowApprovalDialog(true);
-                              }}
-                              data-testid={`button-approve-${invoice._id}`}
-                            >
-                              <CheckCircle className="h-4 w-4 mr-1" />
-                              Approve
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="destructive"
-                              onClick={() => {
-                                setSelectedInvoice(invoice);
-                                setShowRejectDialog(true);
-                              }}
-                              data-testid={`button-reject-${invoice._id}`}
-                            >
-                              <XCircle className="h-4 w-4 mr-1" />
-                              Reject
-                            </Button>
-                          </>
-                        )}
+                        {(user?.role === "Admin" || user?.role === "Manager") &&
+                          invoice.status === "pending_approval" && (
+                            <>
+                              <Button
+                                size="sm"
+                                variant="default"
+                                onClick={() => {
+                                  setSelectedInvoice(invoice);
+                                  setShowApprovalDialog(true);
+                                }}
+                                data-testid={`button-approve-${invoice._id}`}
+                              >
+                                <CheckCircle className="h-4 w-4 mr-1" />
+                                Approve
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                onClick={() => {
+                                  setSelectedInvoice(invoice);
+                                  setShowRejectDialog(true);
+                                }}
+                                data-testid={`button-reject-${invoice._id}`}
+                              >
+                                <XCircle className="h-4 w-4 mr-1" />
+                                Reject
+                              </Button>
+                            </>
+                          )}
                         <Button
                           size="sm"
                           variant="outline"
@@ -614,7 +782,7 @@ export default function Invoices() {
                           <Eye className="h-4 w-4 mr-1" />
                           View
                         </Button>
-                        {invoice.status === 'approved' && (
+                        {invoice.status === "approved" && (
                           <Button
                             size="sm"
                             variant="outline"
@@ -625,32 +793,40 @@ export default function Invoices() {
                             Download
                           </Button>
                         )}
-                        {(user?.role === 'Admin' || user?.role === 'Manager') && invoice.status === 'approved' && (
-                          <Button
-                            size="sm"
-                            variant={invoice.paymentStatus === 'paid' ? 'secondary' : 'default'}
-                            onClick={() => handleMarkPaid(invoice)}
-                            disabled={togglePaidStatusMutation.isPending}
-                            data-testid={`button-toggle-paid-${invoice._id}`}
-                          >
-                            {invoice.paymentStatus === 'paid' ? 'Mark Unpaid' : 'Mark Paid'}
-                          </Button>
-                        )}
-                        {invoice.paymentStatus === 'paid' && invoice.status === 'approved' && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => {
-                              setSelectedInvoice(invoice);
-                              setShowWarrantyDialog(true);
-                            }}
-                            data-testid={`button-warranty-${invoice._id}`}
-                          >
-                            <FileText className="h-4 w-4 mr-1" />
-                            Warranty Cards
-                          </Button>
-                        )}
-                        {user?.role === 'Admin' && (
+                        {(user?.role === "Admin" || user?.role === "Manager") &&
+                          invoice.status === "approved" && (
+                            <Button
+                              size="sm"
+                              variant={
+                                invoice.paymentStatus === "paid"
+                                  ? "secondary"
+                                  : "default"
+                              }
+                              onClick={() => handleMarkPaid(invoice)}
+                              disabled={togglePaidStatusMutation.isPending}
+                              data-testid={`button-toggle-paid-${invoice._id}`}
+                            >
+                              {invoice.paymentStatus === "paid"
+                                ? "Mark Unpaid"
+                                : "Mark Paid"}
+                            </Button>
+                          )}
+                        {invoice.paymentStatus === "paid" &&
+                          invoice.status === "approved" && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => {
+                                setSelectedInvoice(invoice);
+                                setShowWarrantyDialog(true);
+                              }}
+                              data-testid={`button-warranty-${invoice._id}`}
+                            >
+                              <FileText className="h-4 w-4 mr-1" />
+                              Warranty Cards
+                            </Button>
+                          )}
+                        {user?.role === "Admin" && (
                           <Button
                             size="sm"
                             variant="destructive"
@@ -680,15 +856,22 @@ export default function Invoices() {
           <DialogHeader>
             <DialogTitle>Approve Invoice</DialogTitle>
             <DialogDescription>
-              Are you sure you want to approve invoice {selectedInvoice?.invoiceNumber}?
+              Are you sure you want to approve invoice{" "}
+              {selectedInvoice?.invoiceNumber}?
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowApprovalDialog(false)} data-testid="button-cancel-approve">
+            <Button
+              variant="outline"
+              onClick={() => setShowApprovalDialog(false)}
+              data-testid="button-cancel-approve"
+            >
               Cancel
             </Button>
             <Button
-              onClick={() => selectedInvoice && approveMutation.mutate(selectedInvoice._id)}
+              onClick={() =>
+                selectedInvoice && approveMutation.mutate(selectedInvoice._id)
+              }
               disabled={approveMutation.isPending}
               data-testid="button-confirm-approve"
             >
@@ -704,7 +887,8 @@ export default function Invoices() {
           <DialogHeader>
             <DialogTitle>Reject Invoice</DialogTitle>
             <DialogDescription>
-              Please provide a reason for rejecting invoice {selectedInvoice?.invoiceNumber}
+              Please provide a reason for rejecting invoice{" "}
+              {selectedInvoice?.invoiceNumber}
             </DialogDescription>
           </DialogHeader>
           <Textarea
@@ -714,12 +898,22 @@ export default function Invoices() {
             data-testid="textarea-rejection-reason"
           />
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowRejectDialog(false)} data-testid="button-cancel-reject">
+            <Button
+              variant="outline"
+              onClick={() => setShowRejectDialog(false)}
+              data-testid="button-cancel-reject"
+            >
               Cancel
             </Button>
             <Button
               variant="destructive"
-              onClick={() => selectedInvoice && rejectMutation.mutate({ invoiceId: selectedInvoice._id, reason: rejectionReason })}
+              onClick={() =>
+                selectedInvoice &&
+                rejectMutation.mutate({
+                  invoiceId: selectedInvoice._id,
+                  reason: rejectionReason,
+                })
+              }
               disabled={rejectMutation.isPending || !rejectionReason}
               data-testid="button-confirm-reject"
             >
@@ -744,16 +938,23 @@ export default function Invoices() {
           <DialogHeader>
             <DialogTitle>Delete Invoice</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete invoice {selectedInvoice?.invoiceNumber}? This action cannot be undone.
+              Are you sure you want to delete invoice{" "}
+              {selectedInvoice?.invoiceNumber}? This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowDeleteDialog(false)} data-testid="button-cancel-delete">
+            <Button
+              variant="outline"
+              onClick={() => setShowDeleteDialog(false)}
+              data-testid="button-cancel-delete"
+            >
               Cancel
             </Button>
             <Button
               variant="destructive"
-              onClick={() => selectedInvoice && deleteMutation.mutate(selectedInvoice._id)}
+              onClick={() =>
+                selectedInvoice && deleteMutation.mutate(selectedInvoice._id)
+              }
               disabled={deleteMutation.isPending}
               data-testid="button-confirm-delete"
             >
@@ -764,7 +965,10 @@ export default function Invoices() {
       </Dialog>
 
       {/* Payment Method Selection Dialog */}
-      <Dialog open={showPaymentMethodDialog} onOpenChange={setShowPaymentMethodDialog}>
+      <Dialog
+        open={showPaymentMethodDialog}
+        onOpenChange={setShowPaymentMethodDialog}
+      >
         <DialogContent className="max-w-md" data-testid="dialog-payment-method">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
@@ -772,13 +976,17 @@ export default function Invoices() {
               Select Payment Method
             </DialogTitle>
             <DialogDescription>
-              Choose how the payment was received for invoice {selectedInvoice?.invoiceNumber}
+              Choose how the payment was received for invoice{" "}
+              {selectedInvoice?.invoiceNumber}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-3">
               <label className="text-sm font-medium">Payment Method</label>
-              <Select value={selectedPaymentMethod} onValueChange={(value: any) => setSelectedPaymentMethod(value)}>
+              <Select
+                value={selectedPaymentMethod}
+                onValueChange={(value: any) => setSelectedPaymentMethod(value)}
+              >
                 <SelectTrigger data-testid="select-payment-method-dialog">
                   <SelectValue />
                 </SelectTrigger>
@@ -832,7 +1040,9 @@ export default function Invoices() {
               data-testid="button-confirm-payment-method"
               className="w-full sm:w-auto"
             >
-              {togglePaidStatusMutation.isPending ? "Processing..." : "Mark as Paid"}
+              {togglePaidStatusMutation.isPending
+                ? "Processing..."
+                : "Mark as Paid"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -858,7 +1068,10 @@ export default function Invoices() {
       )}
 
       {/* Manual Invoice Creation Dialog */}
-      <Dialog open={showManualInvoiceDialog} onOpenChange={setShowManualInvoiceDialog}>
+      <Dialog
+        open={showManualInvoiceDialog}
+        onOpenChange={setShowManualInvoiceDialog}
+      >
         <DialogContent data-testid="dialog-create-manual-invoice">
           <DialogHeader>
             <DialogTitle>Create Manual Invoice</DialogTitle>
@@ -867,31 +1080,41 @@ export default function Invoices() {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
-            <Select value={selectedCustomerId} onValueChange={setSelectedCustomerId}>
+            <Select
+              value={selectedCustomerId}
+              onValueChange={setSelectedCustomerId}
+            >
               <SelectTrigger data-testid="select-customer-for-invoice">
                 <SelectValue placeholder="Select a customer..." />
               </SelectTrigger>
               <SelectContent>
-                {Array.isArray(completedServices) && completedServices.length > 0 ? (
+                {Array.isArray(completedServices) &&
+                completedServices.length > 0 ? (
                   completedServices.map((service: any) => (
-                    <SelectItem key={service.customerId?._id} value={service.customerId?._id || ''}>
-                      {service.customerId?.fullName || 'Unknown'} - {service.vehicleReg || 'N/A'}
+                    <SelectItem
+                      key={service.customerId?._id}
+                      value={service.customerId?._id || ""}
+                    >
+                      {service.customerId?.fullName || "Unknown"} -{" "}
+                      {service.vehicleReg || "N/A"}
                     </SelectItem>
                   ))
                 ) : (
-                  <SelectItem value="empty" disabled>No completed services available</SelectItem>
+                  <SelectItem value="empty" disabled>
+                    No completed services available
+                  </SelectItem>
                 )}
               </SelectContent>
             </Select>
           </div>
           <DialogFooter>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={() => setShowManualInvoiceDialog(false)}
             >
               Cancel
             </Button>
-            <Button 
+            <Button
               onClick={() => handleOpenInvoiceGeneration(selectedCustomerId)}
               disabled={!selectedCustomerId}
               data-testid="button-confirm-manual-invoice"
@@ -922,28 +1145,46 @@ interface WarrantyCardDialogProps {
   invoiceNumber: string;
 }
 
-function WarrantyCardDialog({ open, onOpenChange, invoiceId, invoiceNumber }: WarrantyCardDialogProps) {
+function WarrantyCardDialog({
+  open,
+  onOpenChange,
+  invoiceId,
+  invoiceNumber,
+}: WarrantyCardDialogProps) {
   const { toast } = useToast();
   const fileInputRefs = useRef<{ [key: number]: HTMLInputElement | null }>({});
 
   const { data: productsData, isLoading } = useQuery({
-    queryKey: ['/api/invoices', invoiceId, 'products'],
-    queryFn: () => fetch(`/api/invoices/${invoiceId}/products`, { credentials: 'include' }).then(res => res.json()),
+    queryKey: ["/api/invoices", invoiceId, "products"],
+    queryFn: () =>
+      fetch(`/api/invoices/${invoiceId}/products`, {
+        credentials: "include",
+      }).then((res) => res.json()),
     enabled: open,
   });
 
   const uploadMutation = useMutation({
-    mutationFn: async ({ itemIndex, file }: { itemIndex: number; file: File }) => {
+    mutationFn: async ({
+      itemIndex,
+      file,
+    }: {
+      itemIndex: number;
+      file: File;
+    }) => {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = async () => {
           try {
             const base64Data = reader.result as string;
-            const response = await apiRequest('POST', `/api/invoices/${invoiceId}/warranty-cards`, {
-              itemIndex,
-              warrantyCardData: base64Data,
-              filename: file.name,
-            });
+            const response = await apiRequest(
+              "POST",
+              `/api/invoices/${invoiceId}/warranty-cards`,
+              {
+                itemIndex,
+                warrantyCardData: base64Data,
+                filename: file.name,
+              },
+            );
             resolve(response);
           } catch (error) {
             reject(error);
@@ -954,26 +1195,42 @@ function WarrantyCardDialog({ open, onOpenChange, invoiceId, invoiceNumber }: Wa
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/invoices', invoiceId, 'products'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/registration/customers'] });
+      queryClient.invalidateQueries({
+        queryKey: ["/api/invoices", invoiceId, "products"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["/api/registration/customers"],
+      });
       toast({ title: "Warranty card uploaded successfully" });
     },
     onError: () => {
-      toast({ title: "Failed to upload warranty card", variant: "destructive" });
+      toast({
+        title: "Failed to upload warranty card",
+        variant: "destructive",
+      });
     },
   });
 
-  const handleFileSelect = (itemIndex: number, event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = (
+    itemIndex: number,
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
     if (!file.type.match(/image\/(jpeg|jpg|png|gif|webp)|application\/pdf/)) {
-      toast({ title: "Please select an image or PDF file", variant: "destructive" });
+      toast({
+        title: "Please select an image or PDF file",
+        variant: "destructive",
+      });
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      toast({ title: "File size must be less than 5MB", variant: "destructive" });
+      toast({
+        title: "File size must be less than 5MB",
+        variant: "destructive",
+      });
       return;
     }
 
@@ -994,9 +1251,10 @@ function WarrantyCardDialog({ open, onOpenChange, invoiceId, invoiceNumber }: Wa
             </style>
           </head>
           <body>
-            ${url.startsWith('data:application/pdf') 
-              ? `<embed src="${url}" type="application/pdf" width="100%" height="100%" />`
-              : `<img src="${url}" alt="${filename}" />`
+            ${
+              url.startsWith("data:application/pdf")
+                ? `<embed src="${url}" type="application/pdf" width="100%" height="100%" />`
+                : `<img src="${url}" alt="${filename}" />`
             }
           </body>
         </html>
@@ -1008,7 +1266,10 @@ function WarrantyCardDialog({ open, onOpenChange, invoiceId, invoiceNumber }: Wa
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto" data-testid="dialog-warranty-cards">
+      <DialogContent
+        className="max-w-3xl max-h-[80vh] overflow-y-auto"
+        data-testid="dialog-warranty-cards"
+      >
         <DialogHeader>
           <DialogTitle>Upload Warranty Cards</DialogTitle>
           <DialogDescription>
@@ -1022,24 +1283,36 @@ function WarrantyCardDialog({ open, onOpenChange, invoiceId, invoiceNumber }: Wa
           </div>
         ) : products.length === 0 ? (
           <div className="p-8 text-center">
-            <p className="text-muted-foreground">No products found in this invoice.</p>
+            <p className="text-muted-foreground">
+              No products found in this invoice.
+            </p>
           </div>
         ) : (
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              Upload warranty card documents for each product. The warranty cards will be synced to the customer's vehicle records.
+              Upload warranty card documents for each product. The warranty
+              cards will be synced to the customer's vehicle records.
             </p>
-            
+
             <div className="space-y-3">
               {products.map((product) => (
-                <Card key={product.itemIndex} className="p-4" data-testid={`card-product-${product.itemIndex}`}>
+                <Card
+                  key={product.itemIndex}
+                  className="p-4"
+                  data-testid={`card-product-${product.itemIndex}`}
+                >
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1">
-                      <h4 className="font-semibold text-sm" data-testid={`text-product-name-${product.itemIndex}`}>
+                      <h4
+                        className="font-semibold text-sm"
+                        data-testid={`text-product-name-${product.itemIndex}`}
+                      >
                         {product.name}
                       </h4>
                       {product.description && (
-                        <p className="text-xs text-muted-foreground mt-1">{product.description}</p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {product.description}
+                        </p>
                       )}
                       <div className="flex gap-2 mt-2">
                         <Badge variant="outline" className="text-xs">
@@ -1051,7 +1324,7 @@ function WarrantyCardDialog({ open, onOpenChange, invoiceId, invoiceNumber }: Wa
                           </Badge>
                         )}
                       </div>
-                      
+
                       {product.warrantyCards.length > 0 && (
                         <div className="mt-3 space-y-1">
                           <p className="text-xs font-medium">Uploaded Cards:</p>
@@ -1061,21 +1334,26 @@ function WarrantyCardDialog({ open, onOpenChange, invoiceId, invoiceNumber }: Wa
                               variant="ghost"
                               size="sm"
                               className="h-auto p-0 text-xs justify-start"
-                              onClick={() => handleViewWarrantyCard(card.url, card.filename)}
+                              onClick={() =>
+                                handleViewWarrantyCard(card.url, card.filename)
+                              }
                               data-testid={`button-view-warranty-${product.itemIndex}-${idx}`}
                             >
                               <Eye className="h-3 w-3 mr-1" />
-                              {card.filename} ({format(new Date(card.uploadedAt), 'PP')})
+                              {card.filename} (
+                              {format(new Date(card.uploadedAt), "PP")})
                             </Button>
                           ))}
                         </div>
                       )}
                     </div>
-                    
+
                     <div>
                       <input
                         type="file"
-                        ref={(el) => (fileInputRefs.current[product.itemIndex] = el)}
+                        ref={(el) =>
+                          (fileInputRefs.current[product.itemIndex] = el)
+                        }
                         onChange={(e) => handleFileSelect(product.itemIndex, e)}
                         accept="image/*,.pdf"
                         className="hidden"
@@ -1084,12 +1362,16 @@ function WarrantyCardDialog({ open, onOpenChange, invoiceId, invoiceNumber }: Wa
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => fileInputRefs.current[product.itemIndex]?.click()}
+                        onClick={() =>
+                          fileInputRefs.current[product.itemIndex]?.click()
+                        }
                         disabled={uploadMutation.isPending}
                         data-testid={`button-upload-${product.itemIndex}`}
                       >
                         <Upload className="h-4 w-4 mr-2" />
-                        {uploadMutation.isPending ? "Uploading..." : "Upload Card"}
+                        {uploadMutation.isPending
+                          ? "Uploading..."
+                          : "Upload Card"}
                       </Button>
                     </div>
                   </div>
@@ -1100,7 +1382,11 @@ function WarrantyCardDialog({ open, onOpenChange, invoiceId, invoiceNumber }: Wa
         )}
 
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)} data-testid="button-close-warranty">
+          <Button
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            data-testid="button-close-warranty"
+          >
             Close
           </Button>
         </DialogFooter>

@@ -33,14 +33,16 @@ export function buildLegacyVehicleMaster(): VehicleMasterBrand[] {
 }
 
 export function getVehicleMasterBrands(
-  response?: VehicleMasterResponse | null
+  response?: VehicleMasterResponse | null,
 ): VehicleMasterBrand[] {
-  return response?.brands?.length ? response.brands : buildLegacyVehicleMaster();
+  return response?.brands?.length
+    ? response.brands
+    : buildLegacyVehicleMaster();
 }
 
 export function getVehicleMasterModels(
   brands: VehicleMasterBrand[],
-  brandName: string
+  brandName: string,
 ): VehicleMasterModel[] {
   return brands.find((brand) => brand.name === brandName)?.models || [];
 }

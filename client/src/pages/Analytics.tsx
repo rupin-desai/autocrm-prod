@@ -11,15 +11,36 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  Download, TrendingUp, Package, Users, DollarSign, FileText, 
-  AlertCircle, Shield, MessageSquare, ShoppingCart, Gift, MapPin
+  Download,
+  TrendingUp,
+  Package,
+  Users,
+  DollarSign,
+  FileText,
+  AlertCircle,
+  Shield,
+  MessageSquare,
+  ShoppingCart,
+  Gift,
+  MapPin,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
-import { 
-  BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, 
-  XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer 
-} from 'recharts';
+import {
+  BarChart,
+  Bar,
+  LineChart,
+  Line,
+  PieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
 import {
   exportToExcel,
   formatSalesEnhancedForExcel,
@@ -27,12 +48,21 @@ import {
   formatInventoryEnhancedForExcel,
   formatWarrantiesForExcel,
   formatFeedbackForExcel,
-  formatEmployeePerformanceForExcel
+  formatEmployeePerformanceForExcel,
 } from "@/lib/excelExport";
 
 type ReportPeriod = "today" | "week" | "month" | "year";
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d', '#ffc658', '#ff7c7c'];
+const COLORS = [
+  "#0088FE",
+  "#00C49F",
+  "#FFBB28",
+  "#FF8042",
+  "#8884d8",
+  "#82ca9d",
+  "#ffc658",
+  "#ff7c7c",
+];
 
 interface DashboardData {
   totalSales: number;
@@ -171,38 +201,46 @@ export default function Analytics() {
 
   const dateRange = getDateRange(selectedPeriod);
 
-  const { data: dashboard, isLoading: dashboardLoading } = useQuery<DashboardData>({
-    queryKey: ["/api/reports/dashboard"],
-  });
+  const { data: dashboard, isLoading: dashboardLoading } =
+    useQuery<DashboardData>({
+      queryKey: ["/api/reports/dashboard"],
+    });
 
-  const { data: salesEnhanced, isLoading: salesLoading } = useQuery<SalesEnhancedData>({
-    queryKey: ["/api/reports/sales-enhanced", selectedPeriod],
-    queryFn: async () => {
-      const response = await fetch(
-        `/api/reports/sales-enhanced?startDate=${dateRange.startDate}&endDate=${dateRange.endDate}`
-      );
-      if (!response.ok) throw new Error("Failed to fetch sales report");
-      return response.json();
-    },
-  });
+  const { data: salesEnhanced, isLoading: salesLoading } =
+    useQuery<SalesEnhancedData>({
+      queryKey: ["/api/reports/sales-enhanced", selectedPeriod],
+      queryFn: async () => {
+        const response = await fetch(
+          `/api/reports/sales-enhanced?startDate=${dateRange.startDate}&endDate=${dateRange.endDate}`,
+        );
+        if (!response.ok) throw new Error("Failed to fetch sales report");
+        return response.json();
+      },
+    });
 
-  const { data: customers, isLoading: customersLoading } = useQuery<CustomerReportData>({
-    queryKey: ["/api/reports/customers"],
-  });
+  const { data: customers, isLoading: customersLoading } =
+    useQuery<CustomerReportData>({
+      queryKey: ["/api/reports/customers"],
+    });
 
-  const { data: inventoryEnhanced, isLoading: inventoryLoading } = useQuery<InventoryEnhancedData>({
-    queryKey: ["/api/reports/inventory-enhanced"],
-  });
+  const { data: inventoryEnhanced, isLoading: inventoryLoading } =
+    useQuery<InventoryEnhancedData>({
+      queryKey: ["/api/reports/inventory-enhanced"],
+    });
 
-  const { data: warranties, isLoading: warrantiesLoading } = useQuery<WarrantyReportData>({
-    queryKey: ["/api/reports/warranties"],
-  });
+  const { data: warranties, isLoading: warrantiesLoading } =
+    useQuery<WarrantyReportData>({
+      queryKey: ["/api/reports/warranties"],
+    });
 
-  const { data: feedback, isLoading: feedbackLoading } = useQuery<FeedbackReportData>({
-    queryKey: ["/api/reports/feedback"],
-  });
+  const { data: feedback, isLoading: feedbackLoading } =
+    useQuery<FeedbackReportData>({
+      queryKey: ["/api/reports/feedback"],
+    });
 
-  const { data: employeePerformance, isLoading: employeeLoading } = useQuery<EmployeePerformanceData[]>({
+  const { data: employeePerformance, isLoading: employeeLoading } = useQuery<
+    EmployeePerformanceData[]
+  >({
     queryKey: ["/api/reports/employee-performance"],
   });
 
@@ -243,10 +281,12 @@ export default function Analytics() {
         break;
       case "employees":
         if (employeePerformance && employeePerformance.length > 0) {
-          sheets = [{
-            name: 'Employee Performance',
-            data: formatEmployeePerformanceForExcel(employeePerformance)
-          }];
+          sheets = [
+            {
+              name: "Employee Performance",
+              data: formatEmployeePerformanceForExcel(employeePerformance),
+            },
+          ];
         }
         filename = "employee-report";
         break;
@@ -269,8 +309,8 @@ export default function Analytics() {
         }
         if (employeePerformance && employeePerformance.length > 0) {
           sheets.push({
-            name: 'Employee Performance',
-            data: formatEmployeePerformanceForExcel(employeePerformance)
+            name: "Employee Performance",
+            data: formatEmployeePerformanceForExcel(employeePerformance),
           });
         }
         filename = "complete-analytics-report";
@@ -287,7 +327,7 @@ export default function Analytics() {
       toast({
         title: "No Data",
         description: "No data available to export.",
-        variant: "destructive"
+        variant: "destructive",
       });
     }
   };
@@ -296,12 +336,22 @@ export default function Analytics() {
     <div className="space-y-6" data-testid="page-analytics">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">Analytics & Reports</h1>
-          <p className="text-muted-foreground mt-1">Comprehensive business insights and performance metrics</p>
+          <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">
+            Analytics & Reports
+          </h1>
+          <p className="text-muted-foreground mt-1">
+            Comprehensive business insights and performance metrics
+          </p>
         </div>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-          <Select value={selectedPeriod} onValueChange={(v) => setSelectedPeriod(v as ReportPeriod)}>
-            <SelectTrigger className="w-full sm:w-[180px]" data-testid="select-report-period">
+          <Select
+            value={selectedPeriod}
+            onValueChange={(v) => setSelectedPeriod(v as ReportPeriod)}
+          >
+            <SelectTrigger
+              className="w-full sm:w-[180px]"
+              data-testid="select-report-period"
+            >
               <SelectValue placeholder="Select period" />
             </SelectTrigger>
             <SelectContent>
@@ -311,7 +361,12 @@ export default function Analytics() {
               <SelectItem value="year">This Year</SelectItem>
             </SelectContent>
           </Select>
-          <Button variant="outline" onClick={() => handleExport("all")} data-testid="button-export-all" size="sm">
+          <Button
+            variant="outline"
+            onClick={() => handleExport("all")}
+            data-testid="button-export-all"
+            size="sm"
+          >
             <Download className="h-4 w-4 mr-2" />
             Export All
           </Button>
@@ -322,14 +377,18 @@ export default function Analytics() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <Card data-testid="card-total-sales">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Sales (30 days)</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total Sales (30 days)
+            </CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             {dashboardLoading ? (
               <Skeleton className="h-8 w-24" />
             ) : (
-              <div className="text-2xl font-bold">₹{(dashboard?.totalSales || 0).toLocaleString('en-IN')}</div>
+              <div className="text-2xl font-bold">
+                ₹{(dashboard?.totalSales || 0).toLocaleString("en-IN")}
+              </div>
             )}
             <p className="text-xs text-muted-foreground mt-1">
               {dashboard?.totalInvoices || 0} invoices generated
@@ -346,7 +405,9 @@ export default function Analytics() {
             {dashboardLoading ? (
               <Skeleton className="h-8 w-24" />
             ) : (
-              <div className="text-2xl font-bold">{dashboard?.newCustomers || 0}</div>
+              <div className="text-2xl font-bold">
+                {dashboard?.newCustomers || 0}
+              </div>
             )}
             <p className="text-xs text-muted-foreground mt-1">Last 30 days</p>
           </CardContent>
@@ -354,59 +415,81 @@ export default function Analytics() {
 
         <Card data-testid="card-low-stock">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Low Stock Items</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Low Stock Items
+            </CardTitle>
             <AlertCircle className="h-4 w-4 text-orange-500" />
           </CardHeader>
           <CardContent>
             {dashboardLoading ? (
               <Skeleton className="h-8 w-24" />
             ) : (
-              <div className="text-2xl font-bold text-orange-600">{dashboard?.lowStockCount || 0}</div>
+              <div className="text-2xl font-bold text-orange-600">
+                {dashboard?.lowStockCount || 0}
+              </div>
             )}
-            <p className="text-xs text-muted-foreground mt-1">Requires attention</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Requires attention
+            </p>
           </CardContent>
         </Card>
 
         <Card data-testid="card-active-warranties">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Warranties</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Active Warranties
+            </CardTitle>
             <Shield className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             {dashboardLoading ? (
               <Skeleton className="h-8 w-24" />
             ) : (
-              <div className="text-2xl font-bold">{dashboard?.activeWarranties || 0}</div>
+              <div className="text-2xl font-bold">
+                {dashboard?.activeWarranties || 0}
+              </div>
             )}
-            <p className="text-xs text-muted-foreground mt-1">Currently valid</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Currently valid
+            </p>
           </CardContent>
         </Card>
 
         <Card data-testid="card-open-complaints">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Open Complaints</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Open Complaints
+            </CardTitle>
             <MessageSquare className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             {dashboardLoading ? (
               <Skeleton className="h-8 w-24" />
             ) : (
-              <div className="text-2xl font-bold text-red-600">{dashboard?.openComplaints || 0}</div>
+              <div className="text-2xl font-bold text-red-600">
+                {dashboard?.openComplaints || 0}
+              </div>
             )}
-            <p className="text-xs text-muted-foreground mt-1">Needs resolution</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Needs resolution
+            </p>
           </CardContent>
         </Card>
 
         <Card data-testid="card-total-invoices">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Invoices</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total Invoices
+            </CardTitle>
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             {dashboardLoading ? (
               <Skeleton className="h-8 w-24" />
             ) : (
-              <div className="text-2xl font-bold">{dashboard?.totalInvoices || 0}</div>
+              <div className="text-2xl font-bold">
+                {dashboard?.totalInvoices || 0}
+              </div>
             )}
             <p className="text-xs text-muted-foreground mt-1">Last 30 days</p>
           </CardContent>
@@ -417,12 +500,24 @@ export default function Analytics() {
       <Tabs defaultValue="sales" className="space-y-4">
         <div className="w-full overflow-x-auto">
           <TabsList data-testid="tabs-reports" className="w-full justify-start">
-            <TabsTrigger value="sales" data-testid="tab-sales">Sales</TabsTrigger>
-            <TabsTrigger value="customers" data-testid="tab-customers">Customers</TabsTrigger>
-            <TabsTrigger value="inventory" data-testid="tab-inventory">Inventory</TabsTrigger>
-            <TabsTrigger value="employees" data-testid="tab-employees">Employees</TabsTrigger>
-            <TabsTrigger value="warranties" data-testid="tab-warranties">Warranties</TabsTrigger>
-            <TabsTrigger value="feedback" data-testid="tab-feedback">Feedback</TabsTrigger>
+            <TabsTrigger value="sales" data-testid="tab-sales">
+              Sales
+            </TabsTrigger>
+            <TabsTrigger value="customers" data-testid="tab-customers">
+              Customers
+            </TabsTrigger>
+            <TabsTrigger value="inventory" data-testid="tab-inventory">
+              Inventory
+            </TabsTrigger>
+            <TabsTrigger value="employees" data-testid="tab-employees">
+              Employees
+            </TabsTrigger>
+            <TabsTrigger value="warranties" data-testid="tab-warranties">
+              Warranties
+            </TabsTrigger>
+            <TabsTrigger value="feedback" data-testid="tab-feedback">
+              Feedback
+            </TabsTrigger>
           </TabsList>
         </div>
 
@@ -430,7 +525,11 @@ export default function Analytics() {
         <TabsContent value="sales" className="space-y-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center">
             <h2 className="text-2xl font-bold">Sales Report</h2>
-            <Button onClick={() => handleExport("sales")} data-testid="button-export-sales" size="sm">
+            <Button
+              onClick={() => handleExport("sales")}
+              data-testid="button-export-sales"
+              size="sm"
+            >
               <Download className="h-4 w-4 mr-2" />
               Export Sales Report
             </Button>
@@ -447,17 +546,24 @@ export default function Analytics() {
               <div className="grid gap-4 md:grid-cols-4">
                 <Card>
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+                    <CardTitle className="text-sm font-medium">
+                      Total Revenue
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold">
-                      ₹{(salesEnhanced?.invoices?.totalRevenue || 0).toLocaleString('en-IN')}
+                      ₹
+                      {(
+                        salesEnhanced?.invoices?.totalRevenue || 0
+                      ).toLocaleString("en-IN")}
                     </div>
                   </CardContent>
                 </Card>
                 <Card>
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium">Total Invoices</CardTitle>
+                    <CardTitle className="text-sm font-medium">
+                      Total Invoices
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold">
@@ -467,21 +573,31 @@ export default function Analytics() {
                 </Card>
                 <Card>
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium">Avg Invoice Value</CardTitle>
+                    <CardTitle className="text-sm font-medium">
+                      Avg Invoice Value
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold">
-                      ₹{(salesEnhanced?.invoices?.avgInvoiceValue || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+                      ₹
+                      {(
+                        salesEnhanced?.invoices?.avgInvoiceValue || 0
+                      ).toLocaleString("en-IN", { maximumFractionDigits: 0 })}
                     </div>
                   </CardContent>
                 </Card>
                 <Card>
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium">Total Discounts</CardTitle>
+                    <CardTitle className="text-sm font-medium">
+                      Total Discounts
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold text-orange-600">
-                      ₹{(salesEnhanced?.invoices?.totalDiscount || 0).toLocaleString('en-IN')}
+                      ₹
+                      {(
+                        salesEnhanced?.invoices?.totalDiscount || 0
+                      ).toLocaleString("en-IN")}
                     </div>
                   </CardContent>
                 </Card>
@@ -494,21 +610,32 @@ export default function Analytics() {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-2">
-                      {salesEnhanced.coupons.slice(0, 10).map((coupon: any, idx: number) => (
-                        <div key={idx} className="flex items-center justify-between p-3 border rounded-lg">
-                          <div className="flex items-center gap-3">
-                            <Gift className="h-5 w-5 text-primary" />
-                            <div>
-                              <p className="font-medium">{coupon._id}</p>
-                              <p className="text-sm text-muted-foreground">{coupon.usageCount} uses</p>
+                      {salesEnhanced.coupons
+                        .slice(0, 10)
+                        .map((coupon: any, idx: number) => (
+                          <div
+                            key={idx}
+                            className="flex items-center justify-between p-3 border rounded-lg"
+                          >
+                            <div className="flex items-center gap-3">
+                              <Gift className="h-5 w-5 text-primary" />
+                              <div>
+                                <p className="font-medium">{coupon._id}</p>
+                                <p className="text-sm text-muted-foreground">
+                                  {coupon.usageCount} uses
+                                </p>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <p className="font-semibold">
+                                ₹{coupon.totalDiscount.toLocaleString("en-IN")}
+                              </p>
+                              <p className="text-sm text-muted-foreground">
+                                Total discount
+                              </p>
                             </div>
                           </div>
-                          <div className="text-right">
-                            <p className="font-semibold">₹{coupon.totalDiscount.toLocaleString('en-IN')}</p>
-                            <p className="text-sm text-muted-foreground">Total discount</p>
-                          </div>
-                        </div>
-                      ))}
+                        ))}
                     </div>
                   </CardContent>
                 </Card>
@@ -521,7 +648,11 @@ export default function Analytics() {
         <TabsContent value="customers" className="space-y-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center">
             <h2 className="text-2xl font-bold">Customer Report</h2>
-            <Button onClick={() => handleExport("customers")} data-testid="button-export-customers" size="sm">
+            <Button
+              onClick={() => handleExport("customers")}
+              data-testid="button-export-customers"
+              size="sm"
+            >
               <Download className="h-4 w-4 mr-2" />
               Export Customer Report
             </Button>
@@ -534,75 +665,101 @@ export default function Analytics() {
               <div className="grid gap-4 md:grid-cols-5">
                 <Card>
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium">Total Customers</CardTitle>
+                    <CardTitle className="text-sm font-medium">
+                      Total Customers
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">{customers?.total || 0}</div>
+                    <div className="text-2xl font-bold">
+                      {customers?.total || 0}
+                    </div>
                   </CardContent>
                 </Card>
                 <Card>
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium">Active</CardTitle>
+                    <CardTitle className="text-sm font-medium">
+                      Active
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold text-green-600">{customers?.active || 0}</div>
+                    <div className="text-2xl font-bold text-green-600">
+                      {customers?.active || 0}
+                    </div>
                   </CardContent>
                 </Card>
                 <Card>
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium">New (30d)</CardTitle>
+                    <CardTitle className="text-sm font-medium">
+                      New (30d)
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold text-blue-600">{customers?.new || 0}</div>
+                    <div className="text-2xl font-bold text-blue-600">
+                      {customers?.new || 0}
+                    </div>
                   </CardContent>
                 </Card>
                 <Card>
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium">Repeat</CardTitle>
+                    <CardTitle className="text-sm font-medium">
+                      Repeat
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold text-purple-600">{customers?.repeat || 0}</div>
+                    <div className="text-2xl font-bold text-purple-600">
+                      {customers?.repeat || 0}
+                    </div>
                   </CardContent>
                 </Card>
                 <Card>
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium">Referred</CardTitle>
+                    <CardTitle className="text-sm font-medium">
+                      Referred
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold text-orange-600">{customers?.referred || 0}</div>
+                    <div className="text-2xl font-bold text-orange-600">
+                      {customers?.referred || 0}
+                    </div>
                   </CardContent>
                 </Card>
               </div>
 
-              {customers?.byReferralSource && customers.byReferralSource.length > 0 && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Customer Acquisition Sources</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <ResponsiveContainer width="100%" height={300}>
-                      <PieChart>
-                        <Pie
-                          data={customers.byReferralSource}
-                          cx="50%"
-                          cy="50%"
-                          labelLine={false}
-                          label={(entry) => `${entry._id}: ${entry.count}`}
-                          outerRadius={80}
-                          fill="#8884d8"
-                          dataKey="count"
-                        >
-                          {customers.byReferralSource.map((entry: any, index: number) => (
-                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                          ))}
-                        </Pie>
-                        <Tooltip />
-                        <Legend />
-                      </PieChart>
-                    </ResponsiveContainer>
-                  </CardContent>
-                </Card>
-              )}
+              {customers?.byReferralSource &&
+                customers.byReferralSource.length > 0 && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Customer Acquisition Sources</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <ResponsiveContainer width="100%" height={300}>
+                        <PieChart>
+                          <Pie
+                            data={customers.byReferralSource}
+                            cx="50%"
+                            cy="50%"
+                            labelLine={false}
+                            label={(entry) => `${entry._id}: ${entry.count}`}
+                            outerRadius={80}
+                            fill="#8884d8"
+                            dataKey="count"
+                          >
+                            {customers.byReferralSource.map(
+                              (entry: any, index: number) => (
+                                <Cell
+                                  key={`cell-${index}`}
+                                  fill={COLORS[index % COLORS.length]}
+                                />
+                              ),
+                            )}
+                          </Pie>
+                          <Tooltip />
+                          <Legend />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </CardContent>
+                  </Card>
+                )}
             </>
           )}
         </TabsContent>
@@ -611,7 +768,11 @@ export default function Analytics() {
         <TabsContent value="inventory" className="space-y-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center">
             <h2 className="text-2xl font-bold">Inventory Report</h2>
-            <Button onClick={() => handleExport("inventory")} data-testid="button-export-inventory" size="sm">
+            <Button
+              onClick={() => handleExport("inventory")}
+              data-testid="button-export-inventory"
+              size="sm"
+            >
               <Download className="h-4 w-4 mr-2" />
               Export Inventory Report
             </Button>
@@ -624,27 +785,37 @@ export default function Analytics() {
               <div className="grid gap-4 md:grid-cols-4">
                 <Card>
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium">Total Inventory Value</CardTitle>
+                    <CardTitle className="text-sm font-medium">
+                      Total Inventory Value
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold">
-                      ₹{(inventoryEnhanced?.totalInventoryValue?.totalValue || 0).toLocaleString('en-IN')}
+                      ₹
+                      {(
+                        inventoryEnhanced?.totalInventoryValue?.totalValue || 0
+                      ).toLocaleString("en-IN")}
                     </div>
                   </CardContent>
                 </Card>
                 <Card>
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium">Total Products</CardTitle>
+                    <CardTitle className="text-sm font-medium">
+                      Total Products
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold">
-                      {inventoryEnhanced?.totalInventoryValue?.totalProducts || 0}
+                      {inventoryEnhanced?.totalInventoryValue?.totalProducts ||
+                        0}
                     </div>
                   </CardContent>
                 </Card>
                 <Card>
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium">Low Stock</CardTitle>
+                    <CardTitle className="text-sm font-medium">
+                      Low Stock
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold text-orange-600">
@@ -654,7 +825,9 @@ export default function Analytics() {
                 </Card>
                 <Card>
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium">Out of Stock</CardTitle>
+                    <CardTitle className="text-sm font-medium">
+                      Out of Stock
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold text-red-600">
@@ -664,55 +837,74 @@ export default function Analytics() {
                 </Card>
               </div>
 
-              {inventoryEnhanced?.brandWise && inventoryEnhanced.brandWise.length > 0 && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Inventory by Brand</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <ResponsiveContainer width="100%" height={300}>
-                      <BarChart data={inventoryEnhanced.brandWise.slice(0, 10)}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="_id" />
-                        <YAxis />
-                        <Tooltip formatter={(value) => `₹${Number(value).toLocaleString('en-IN')}`} />
-                        <Legend />
-                        <Bar dataKey="totalValue" fill="#8884d8" name="Total Value" />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </CardContent>
-                </Card>
-              )}
-
-              {inventoryEnhanced?.colorWise && inventoryEnhanced.colorWise.length > 0 && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Inventory by Color</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <ResponsiveContainer width="100%" height={300}>
-                      <PieChart>
-                        <Pie
-                          data={inventoryEnhanced.colorWise.slice(0, 10)}
-                          cx="50%"
-                          cy="50%"
-                          labelLine={false}
-                          label={(entry) => `${entry._id || 'N/A'}: ${entry.totalProducts}`}
-                          outerRadius={80}
-                          fill="#8884d8"
-                          dataKey="totalProducts"
+              {inventoryEnhanced?.brandWise &&
+                inventoryEnhanced.brandWise.length > 0 && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Inventory by Brand</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <ResponsiveContainer width="100%" height={300}>
+                        <BarChart
+                          data={inventoryEnhanced.brandWise.slice(0, 10)}
                         >
-                          {inventoryEnhanced.colorWise.slice(0, 10).map((entry: any, index: number) => (
-                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                          ))}
-                        </Pie>
-                        <Tooltip />
-                        <Legend />
-                      </PieChart>
-                    </ResponsiveContainer>
-                  </CardContent>
-                </Card>
-              )}
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="_id" />
+                          <YAxis />
+                          <Tooltip
+                            formatter={(value) =>
+                              `₹${Number(value).toLocaleString("en-IN")}`
+                            }
+                          />
+                          <Legend />
+                          <Bar
+                            dataKey="totalValue"
+                            fill="#8884d8"
+                            name="Total Value"
+                          />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </CardContent>
+                  </Card>
+                )}
+
+              {inventoryEnhanced?.colorWise &&
+                inventoryEnhanced.colorWise.length > 0 && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Inventory by Color</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <ResponsiveContainer width="100%" height={300}>
+                        <PieChart>
+                          <Pie
+                            data={inventoryEnhanced.colorWise.slice(0, 10)}
+                            cx="50%"
+                            cy="50%"
+                            labelLine={false}
+                            label={(entry) =>
+                              `${entry._id || "N/A"}: ${entry.totalProducts}`
+                            }
+                            outerRadius={80}
+                            fill="#8884d8"
+                            dataKey="totalProducts"
+                          >
+                            {inventoryEnhanced.colorWise
+                              .slice(0, 10)
+                              .map((entry: any, index: number) => (
+                                <Cell
+                                  key={`cell-${index}`}
+                                  fill={COLORS[index % COLORS.length]}
+                                />
+                              ))}
+                          </Pie>
+                          <Tooltip />
+                          <Legend />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </CardContent>
+                  </Card>
+                )}
             </>
           )}
         </TabsContent>
@@ -721,7 +913,11 @@ export default function Analytics() {
         <TabsContent value="employees" className="space-y-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center">
             <h2 className="text-2xl font-bold">Employee Performance Report</h2>
-            <Button onClick={() => handleExport("employees")} data-testid="button-export-employees" size="sm">
+            <Button
+              onClick={() => handleExport("employees")}
+              data-testid="button-export-employees"
+              size="sm"
+            >
               <Download className="h-4 w-4 mr-2" />
               Export Employee Report
             </Button>
@@ -742,9 +938,17 @@ export default function Analytics() {
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="employee.name" />
                         <YAxis />
-                        <Tooltip formatter={(value) => `₹${Number(value).toLocaleString('en-IN')}`} />
+                        <Tooltip
+                          formatter={(value) =>
+                            `₹${Number(value).toLocaleString("en-IN")}`
+                          }
+                        />
                         <Legend />
-                        <Bar dataKey="totalSales" fill="#8884d8" name="Total Sales" />
+                        <Bar
+                          dataKey="totalSales"
+                          fill="#8884d8"
+                          name="Total Sales"
+                        />
                       </BarChart>
                     </ResponsiveContainer>
 
@@ -764,9 +968,18 @@ export default function Analytics() {
                             <tr key={idx} className="border-t">
                               <td className="p-3">{emp.employee.name}</td>
                               <td className="p-3">{emp.employee.role}</td>
-                              <td className="p-3 text-right">₹{emp.totalSales.toLocaleString('en-IN')}</td>
-                              <td className="p-3 text-right">{emp.orderCount}</td>
-                              <td className="p-3 text-right">₹{emp.avgOrderValue.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</td>
+                              <td className="p-3 text-right">
+                                ₹{emp.totalSales.toLocaleString("en-IN")}
+                              </td>
+                              <td className="p-3 text-right">
+                                {emp.orderCount}
+                              </td>
+                              <td className="p-3 text-right">
+                                ₹
+                                {emp.avgOrderValue.toLocaleString("en-IN", {
+                                  maximumFractionDigits: 0,
+                                })}
+                              </td>
                             </tr>
                           ))}
                         </tbody>
@@ -774,7 +987,9 @@ export default function Analytics() {
                     </div>
                   </>
                 ) : (
-                  <p className="text-center text-muted-foreground py-8">No employee performance data available</p>
+                  <p className="text-center text-muted-foreground py-8">
+                    No employee performance data available
+                  </p>
                 )}
               </CardContent>
             </Card>
@@ -785,7 +1000,11 @@ export default function Analytics() {
         <TabsContent value="warranties" className="space-y-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center">
             <h2 className="text-2xl font-bold">Warranty Report</h2>
-            <Button onClick={() => handleExport("warranties")} data-testid="button-export-warranties" size="sm">
+            <Button
+              onClick={() => handleExport("warranties")}
+              data-testid="button-export-warranties"
+              size="sm"
+            >
               <Download className="h-4 w-4 mr-2" />
               Export Warranty Report
             </Button>
@@ -798,26 +1017,38 @@ export default function Analytics() {
               <div className="grid gap-4 md:grid-cols-3">
                 <Card>
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium">Active Warranties</CardTitle>
+                    <CardTitle className="text-sm font-medium">
+                      Active Warranties
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold text-green-600">{warranties?.active || 0}</div>
+                    <div className="text-2xl font-bold text-green-600">
+                      {warranties?.active || 0}
+                    </div>
                   </CardContent>
                 </Card>
                 <Card>
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium">Expiring Soon (30d)</CardTitle>
+                    <CardTitle className="text-sm font-medium">
+                      Expiring Soon (30d)
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold text-orange-600">{warranties?.expiringCount || 0}</div>
+                    <div className="text-2xl font-bold text-orange-600">
+                      {warranties?.expiringCount || 0}
+                    </div>
                   </CardContent>
                 </Card>
                 <Card>
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium">Expired</CardTitle>
+                    <CardTitle className="text-sm font-medium">
+                      Expired
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold text-red-600">{warranties?.expired || 0}</div>
+                    <div className="text-2xl font-bold text-red-600">
+                      {warranties?.expired || 0}
+                    </div>
                   </CardContent>
                 </Card>
               </div>
@@ -835,8 +1066,16 @@ export default function Analytics() {
                         <YAxis />
                         <Tooltip />
                         <Legend />
-                        <Bar dataKey="count" fill="#8884d8" name="Total Warranties" />
-                        <Bar dataKey="activeCount" fill="#82ca9d" name="Active Warranties" />
+                        <Bar
+                          dataKey="count"
+                          fill="#8884d8"
+                          name="Total Warranties"
+                        />
+                        <Bar
+                          dataKey="activeCount"
+                          fill="#82ca9d"
+                          name="Active Warranties"
+                        />
                       </BarChart>
                     </ResponsiveContainer>
                   </CardContent>
@@ -862,15 +1101,21 @@ export default function Analytics() {
                           </tr>
                         </thead>
                         <tbody>
-                          {warranties.expiring.slice(0, 10).map((warranty: any, idx: number) => (
-                            <tr key={idx} className="border-t">
-                              <td className="p-3">{warranty.productName}</td>
-                              <td className="p-3">{warranty.customerId?.fullName || 'N/A'}</td>
-                              <td className="p-3 text-right">
-                                {new Date(warranty.endDate).toLocaleDateString('en-IN')}
-                              </td>
-                            </tr>
-                          ))}
+                          {warranties.expiring
+                            .slice(0, 10)
+                            .map((warranty: any, idx: number) => (
+                              <tr key={idx} className="border-t">
+                                <td className="p-3">{warranty.productName}</td>
+                                <td className="p-3">
+                                  {warranty.customerId?.fullName || "N/A"}
+                                </td>
+                                <td className="p-3 text-right">
+                                  {new Date(
+                                    warranty.endDate,
+                                  ).toLocaleDateString("en-IN")}
+                                </td>
+                              </tr>
+                            ))}
                         </tbody>
                       </table>
                     </div>
@@ -885,7 +1130,11 @@ export default function Analytics() {
         <TabsContent value="feedback" className="space-y-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center">
             <h2 className="text-2xl font-bold">Feedback & Complaints Report</h2>
-            <Button onClick={() => handleExport("feedback")} data-testid="button-export-feedback" size="sm">
+            <Button
+              onClick={() => handleExport("feedback")}
+              data-testid="button-export-feedback"
+              size="sm"
+            >
               <Download className="h-4 w-4 mr-2" />
               Export Feedback Report
             </Button>
@@ -898,64 +1147,95 @@ export default function Analytics() {
               <div className="grid gap-4 md:grid-cols-4">
                 <Card>
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium">Average Rating</CardTitle>
+                    <CardTitle className="text-sm font-medium">
+                      Average Rating
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold text-green-600">
-                      {feedback?.averageRating ? feedback.averageRating.toFixed(1) : '0.0'} / 5.0
+                      {feedback?.averageRating
+                        ? feedback.averageRating.toFixed(1)
+                        : "0.0"}{" "}
+                      / 5.0
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1">{feedback?.totalRated || 0} ratings</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {feedback?.totalRated || 0} ratings
+                    </p>
                   </CardContent>
                 </Card>
                 <Card>
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium">Total Complaints</CardTitle>
+                    <CardTitle className="text-sm font-medium">
+                      Total Complaints
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold text-red-600">{feedback?.totalComplaints || 0}</div>
+                    <div className="text-2xl font-bold text-red-600">
+                      {feedback?.totalComplaints || 0}
+                    </div>
                   </CardContent>
                 </Card>
                 <Card>
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium">Open Complaints</CardTitle>
+                    <CardTitle className="text-sm font-medium">
+                      Open Complaints
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold text-orange-600">{feedback?.openComplaints || 0}</div>
+                    <div className="text-2xl font-bold text-orange-600">
+                      {feedback?.openComplaints || 0}
+                    </div>
                   </CardContent>
                 </Card>
                 <Card>
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium">Resolution Rate</CardTitle>
+                    <CardTitle className="text-sm font-medium">
+                      Resolution Rate
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold text-blue-600">
                       {feedback && feedback.totalComplaints > 0
-                        ? (((feedback.totalComplaints - feedback.openComplaints) / feedback.totalComplaints) * 100).toFixed(0)
-                        : 0}%
+                        ? (
+                            ((feedback.totalComplaints -
+                              feedback.openComplaints) /
+                              feedback.totalComplaints) *
+                            100
+                          ).toFixed(0)
+                        : 0}
+                      %
                     </div>
                   </CardContent>
                 </Card>
               </div>
 
               <div className="grid gap-4 md:grid-cols-2">
-                {feedback?.ratingDistribution && feedback.ratingDistribution.length > 0 && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Rating Distribution</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <ResponsiveContainer width="100%" height={250}>
-                        <BarChart data={feedback.ratingDistribution}>
-                          <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis dataKey="_id" label={{ value: 'Rating', position: 'insideBottom', offset: -5 }} />
-                          <YAxis />
-                          <Tooltip />
-                          <Bar dataKey="count" fill="#8884d8" name="Count" />
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </CardContent>
-                  </Card>
-                )}
+                {feedback?.ratingDistribution &&
+                  feedback.ratingDistribution.length > 0 && (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Rating Distribution</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <ResponsiveContainer width="100%" height={250}>
+                          <BarChart data={feedback.ratingDistribution}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis
+                              dataKey="_id"
+                              label={{
+                                value: "Rating",
+                                position: "insideBottom",
+                                offset: -5,
+                              }}
+                            />
+                            <YAxis />
+                            <Tooltip />
+                            <Bar dataKey="count" fill="#8884d8" name="Count" />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </CardContent>
+                    </Card>
+                  )}
 
                 {feedback?.byType && feedback.byType.length > 0 && (
                   <Card>
@@ -975,9 +1255,14 @@ export default function Analytics() {
                             fill="#8884d8"
                             dataKey="count"
                           >
-                            {feedback.byType.map((entry: any, index: number) => (
-                              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                            ))}
+                            {feedback.byType.map(
+                              (entry: any, index: number) => (
+                                <Cell
+                                  key={`cell-${index}`}
+                                  fill={COLORS[index % COLORS.length]}
+                                />
+                              ),
+                            )}
                           </Pie>
                           <Tooltip />
                           <Legend />

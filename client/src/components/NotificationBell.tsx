@@ -97,7 +97,12 @@ export function NotificationBell() {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative" data-testid="button-notifications">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="relative"
+          data-testid="button-notifications"
+        >
           <Bell className="h-5 w-5" />
           {unreadCount > 0 && (
             <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs">
@@ -130,16 +135,23 @@ export function NotificationBell() {
                   onClick={() => handleNotificationClick(notification)}
                   className={cn(
                     "p-3 rounded-md mb-2 hover-elevate cursor-pointer transition-colors",
-                    !notification.read && "bg-primary/5"
+                    !notification.read && "bg-primary/5",
                   )}
                   data-testid={`notification-${notification._id}`}
                 >
                   <div className="flex items-start gap-3">
-                    <div className={cn("h-2 w-2 rounded-full mt-1.5", getTypeColor(notification.type))} />
+                    <div
+                      className={cn(
+                        "h-2 w-2 rounded-full mt-1.5",
+                        getTypeColor(notification.type),
+                      )}
+                    />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm">{notification.message}</p>
                       <p className="text-xs text-muted-foreground mt-1">
-                        {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
+                        {formatDistanceToNow(new Date(notification.createdAt), {
+                          addSuffix: true,
+                        })}
                       </p>
                     </div>
                   </div>
@@ -149,15 +161,17 @@ export function NotificationBell() {
           </div>
         </ScrollArea>
         <div className="p-3 border-t border-border">
-          <Button 
-            variant="ghost" 
-            className="w-full" 
-            size="sm" 
+          <Button
+            variant="ghost"
+            className="w-full"
+            size="sm"
             data-testid="button-mark-all-read"
             onClick={handleMarkAllAsRead}
             disabled={unreadCount === 0 || markAllAsReadMutation.isPending}
           >
-            {markAllAsReadMutation.isPending ? "Marking..." : "Mark all as read"}
+            {markAllAsReadMutation.isPending
+              ? "Marking..."
+              : "Mark all as read"}
           </Button>
         </div>
       </PopoverContent>

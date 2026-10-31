@@ -1,8 +1,8 @@
-import { Invoice } from '../models/Invoice';
-import { RegistrationCustomer } from '../models/RegistrationCustomer';
-import { Product } from '../models/Product';
-import { Warranty } from '../models/Warranty';
-import { Feedback } from '../models/Feedback';
+import { Invoice } from "../models/Invoice";
+import { RegistrationCustomer } from "../models/RegistrationCustomer";
+import { Product } from "../models/Product";
+import { Warranty } from "../models/Warranty";
+import { Feedback } from "../models/Feedback";
 
 interface DailyReportData {
   date: string;
@@ -45,60 +45,69 @@ export async function generateDailyReportData(): Promise<DailyReportData> {
     expiringWarranties,
     totalComplaints,
     openComplaints,
-    avgRatingData
+    avgRatingData,
   ] = await Promise.all([
     Invoice.aggregate([
       { $match: { createdAt: { $gte: startOfDay } } },
       {
         $group: {
           _id: null,
-          totalRevenue: { $sum: '$grandTotal' },
+          totalRevenue: { $sum: "$grandTotal" },
           totalInvoices: { $sum: 1 },
-          avgInvoiceValue: { $avg: '$grandTotal' }
-        }
-      }
+          avgInvoiceValue: { $avg: "$grandTotal" },
+        },
+      },
     ]),
     RegistrationCustomer.countDocuments(),
     RegistrationCustomer.countDocuments({ createdAt: { $gte: thirtyDaysAgo } }),
-    Product.countDocuments({ $expr: { $lte: ['$stockQty', '$minStockLevel'] }, stockQty: { $gt: 0 } }),
-    Product.countDocuments({ stockQty: 0 }),
-    Warranty.countDocuments({ status: 'active', endDate: { $gt: now } }),
-    Warranty.countDocuments({
-      status: 'active',
-      endDate: { $gt: now, $lte: new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000) }
+    Product.countDocuments({
+      $expr: { $lte: ["$stockQty", "$minStockLevel"] },
+      stockQty: { $gt: 0 },
     }),
-    Feedback.countDocuments({ type: 'complaint' }),
-    Feedback.countDocuments({ type: 'complaint', status: { $in: ['open', 'in_progress'] } }),
+    Product.countDocuments({ stockQty: 0 }),
+    Warranty.countDocuments({ status: "active", endDate: { $gt: now } }),
+    Warranty.countDocuments({
+      status: "active",
+      endDate: {
+        $gt: now,
+        $lte: new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000),
+      },
+    }),
+    Feedback.countDocuments({ type: "complaint" }),
+    Feedback.countDocuments({
+      type: "complaint",
+      status: { $in: ["open", "in_progress"] },
+    }),
     Feedback.aggregate([
       { $match: { rating: { $exists: true, $ne: null } } },
-      { $group: { _id: null, avgRating: { $avg: '$rating' } } }
-    ])
+      { $group: { _id: null, avgRating: { $avg: "$rating" } } },
+    ]),
   ]);
 
   return {
-    date: now.toISOString().split('T')[0],
+    date: now.toISOString().split("T")[0],
     sales: {
       totalRevenue: invoiceStats[0]?.totalRevenue || 0,
       totalInvoices: invoiceStats[0]?.totalInvoices || 0,
-      avgInvoiceValue: invoiceStats[0]?.avgInvoiceValue || 0
+      avgInvoiceValue: invoiceStats[0]?.avgInvoiceValue || 0,
     },
     customers: {
       total: totalCustomers,
-      new: newCustomers
+      new: newCustomers,
     },
     inventory: {
       lowStock,
-      outOfStock
+      outOfStock,
     },
     warranties: {
       active: activeWarranties,
-      expiring: expiringWarranties
+      expiring: expiringWarranties,
     },
     feedback: {
       totalComplaints,
       openComplaints,
-      avgRating: avgRatingData[0]?.avgRating || 0
-    }
+      avgRating: avgRatingData[0]?.avgRating || 0,
+    },
   };
 }
 
@@ -196,7 +205,7 @@ export function formatDailyReportHTML(data: DailyReportData): string {
       <div class="metrics">
         <div class="metric">
           <div class="metric-label">Total Revenue</div>
-          <div class="metric-value">₹${data.sales.totalRevenue.toLocaleString('en-IN')}</div>
+          <div class="metric-value">₹${data.sales.totalRevenue.toLocaleString("en-IN")}</div>
         </div>
         <div class="metric">
           <div class="metric-label">Total Invoices</div>
@@ -204,7 +213,7 @@ export function formatDailyReportHTML(data: DailyReportData): string {
         </div>
         <div class="metric">
           <div class="metric-label">Avg Invoice Value</div>
-          <div class="metric-value">₹${data.sales.avgInvoiceValue.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</div>
+          <div class="metric-value">₹${data.sales.avgInvoiceValue.toLocaleString("en-IN", { maximumFractionDigits: 0 })}</div>
         </div>
       </div>
     </div>
@@ -228,11 +237,11 @@ export function formatDailyReportHTML(data: DailyReportData): string {
       <div class="metrics">
         <div class="metric">
           <div class="metric-label">Low Stock Items</div>
-          <div class="metric-value" style="color: ${data.inventory.lowStock > 0 ? '#f97316' : '#10b981'};">${data.inventory.lowStock}</div>
+          <div class="metric-value" style="color: ${data.inventory.lowStock > 0 ? "#f97316" : "#10b981"};">${data.inventory.lowStock}</div>
         </div>
         <div class="metric">
           <div class="metric-label">Out of Stock</div>
-          <div class="metric-value" style="color: ${data.inventory.outOfStock > 0 ? '#ef4444' : '#10b981'};">${data.inventory.outOfStock}</div>
+          <div class="metric-value" style="color: ${data.inventory.outOfStock > 0 ? "#ef4444" : "#10b981"};">${data.inventory.outOfStock}</div>
         </div>
       </div>
     </div>
@@ -246,7 +255,7 @@ export function formatDailyReportHTML(data: DailyReportData): string {
         </div>
         <div class="metric">
           <div class="metric-label">Expiring Soon (30d)</div>
-          <div class="metric-value" style="color: ${data.warranties.expiring > 0 ? '#f97316' : '#10b981'};">${data.warranties.expiring}</div>
+          <div class="metric-value" style="color: ${data.warranties.expiring > 0 ? "#f97316" : "#10b981"};">${data.warranties.expiring}</div>
         </div>
       </div>
     </div>
@@ -264,26 +273,33 @@ export function formatDailyReportHTML(data: DailyReportData): string {
         </div>
         <div class="metric">
           <div class="metric-label">Open Complaints</div>
-          <div class="metric-value" style="color: ${data.feedback.openComplaints > 0 ? '#ef4444' : '#10b981'};">${data.feedback.openComplaints}</div>
+          <div class="metric-value" style="color: ${data.feedback.openComplaints > 0 ? "#ef4444" : "#10b981"};">${data.feedback.openComplaints}</div>
         </div>
       </div>
     </div>
     
-    ${(data.inventory.lowStock > 0 || data.inventory.outOfStock > 0 || data.feedback.openComplaints > 0 || data.warranties.expiring > 0) ? `
+    ${
+      data.inventory.lowStock > 0 ||
+      data.inventory.outOfStock > 0 ||
+      data.feedback.openComplaints > 0 ||
+      data.warranties.expiring > 0
+        ? `
     <div class="alert">
       <h3>⚠️ Action Required</h3>
       <ul style="margin: 0; padding-left: 20px;">
-        ${data.inventory.outOfStock > 0 ? `<li>${data.inventory.outOfStock} products are out of stock</li>` : ''}
-        ${data.inventory.lowStock > 0 ? `<li>${data.inventory.lowStock} products have low stock</li>` : ''}
-        ${data.feedback.openComplaints > 0 ? `<li>${data.feedback.openComplaints} customer complaints need attention</li>` : ''}
-        ${data.warranties.expiring > 0 ? `<li>${data.warranties.expiring} warranties expiring in the next 30 days</li>` : ''}
+        ${data.inventory.outOfStock > 0 ? `<li>${data.inventory.outOfStock} products are out of stock</li>` : ""}
+        ${data.inventory.lowStock > 0 ? `<li>${data.inventory.lowStock} products have low stock</li>` : ""}
+        ${data.feedback.openComplaints > 0 ? `<li>${data.feedback.openComplaints} customer complaints need attention</li>` : ""}
+        ${data.warranties.expiring > 0 ? `<li>${data.warranties.expiring} warranties expiring in the next 30 days</li>` : ""}
       </ul>
     </div>
-    ` : ''}
+    `
+        : ""
+    }
     
     <div class="footer">
       <p>This is an automated daily report from Mauli Car World Management System</p>
-      <p>Generated on ${new Date().toLocaleString('en-IN')}</p>
+      <p>Generated on ${new Date().toLocaleString("en-IN")}</p>
     </div>
   </div>
 </body>
@@ -291,22 +307,24 @@ export function formatDailyReportHTML(data: DailyReportData): string {
   `;
 }
 
-export async function sendDailyReportEmail(recipientEmail: string): Promise<{ success: boolean; error?: string }> {
+export async function sendDailyReportEmail(
+  recipientEmail: string,
+): Promise<{ success: boolean; error?: string }> {
   try {
     const reportData = await generateDailyReportData();
     const htmlContent = formatDailyReportHTML(reportData);
-    
-    console.log('📧 Email Report Generated for:', recipientEmail);
-    console.log('Report Data:', JSON.stringify(reportData, null, 2));
-    
+
+    console.log("📧 Email Report Generated for:", recipientEmail);
+    console.log("Report Data:", JSON.stringify(reportData, null, 2));
+
     return {
-      success: true
+      success: true,
     };
   } catch (error) {
-    console.error('Failed to generate daily report:', error);
+    console.error("Failed to generate daily report:", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : "Unknown error",
     };
   }
 }

@@ -9,13 +9,38 @@ import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Globe, Package, Pencil, Search } from "lucide-react";
-import { EmptyState, PageHeader, StatTile, TableSkeleton } from "@/components/PageShell";
+import {
+  EmptyState,
+  PageHeader,
+  StatTile,
+  TableSkeleton,
+} from "@/components/PageShell";
 
 // Requirement 8: choose which products appear on the e-commerce website.
 
@@ -28,7 +53,11 @@ export default function WebsiteProducts() {
   const [visibility, setVisibility] = useState("all");
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [editing, setEditing] = useState<any>(null);
-  const [editForm, setEditForm] = useState({ websiteTitle: "", websiteDescription: "", websitePrice: "" });
+  const [editForm, setEditForm] = useState({
+    websiteTitle: "",
+    websiteDescription: "",
+    websitePrice: "",
+  });
 
   const queryString = useMemo(() => {
     const params = new URLSearchParams({ limit: "100" });
@@ -40,17 +69,28 @@ export default function WebsiteProducts() {
   const { data, isLoading } = useQuery<any>({
     queryKey: ["/api/website/products", queryString],
     queryFn: async () => {
-      const res = await fetch(`/api/website/products?${queryString}`, { credentials: "include" });
+      const res = await fetch(`/api/website/products?${queryString}`, {
+        credentials: "include",
+      });
       if (!res.ok) throw new Error("Failed to load products");
       return res.json();
     },
   });
 
-  const refresh = () => queryClient.invalidateQueries({ queryKey: ["/api/website/products"] });
+  const refresh = () =>
+    queryClient.invalidateQueries({ queryKey: ["/api/website/products"] });
 
   const toggleMutation = useMutation({
-    mutationFn: async ({ id, showOnWebsite }: { id: string; showOnWebsite: boolean }) => {
-      const res = await apiRequest("PATCH", `/api/website/products/${id}`, { showOnWebsite });
+    mutationFn: async ({
+      id,
+      showOnWebsite,
+    }: {
+      id: string;
+      showOnWebsite: boolean;
+    }) => {
+      const res = await apiRequest("PATCH", `/api/website/products/${id}`, {
+        showOnWebsite,
+      });
       return res.json();
     },
     onSuccess: (p: any) => {
@@ -61,7 +101,11 @@ export default function WebsiteProducts() {
       });
     },
     onError: (error: any) =>
-      toast({ title: "Error", description: error.message || "Failed to update", variant: "destructive" }),
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update",
+        variant: "destructive",
+      }),
   });
 
   const bulkMutation = useMutation({
@@ -75,20 +119,32 @@ export default function WebsiteProducts() {
     onSuccess: (result: any) => {
       refresh();
       setSelected(new Set());
-      toast({ title: "Updated", description: `${result.modified} product(s) updated` });
+      toast({
+        title: "Updated",
+        description: `${result.modified} product(s) updated`,
+      });
     },
     onError: (error: any) =>
-      toast({ title: "Error", description: error.message || "Failed to update", variant: "destructive" }),
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update",
+        variant: "destructive",
+      }),
   });
 
   const detailMutation = useMutation({
     mutationFn: async () => {
-      const res = await apiRequest("PATCH", `/api/website/products/${editing._id}`, {
-        showOnWebsite: editing.showOnWebsite,
-        websiteTitle: editForm.websiteTitle,
-        websiteDescription: editForm.websiteDescription,
-        websitePrice: editForm.websitePrice === "" ? null : Number(editForm.websitePrice),
-      });
+      const res = await apiRequest(
+        "PATCH",
+        `/api/website/products/${editing._id}`,
+        {
+          showOnWebsite: editing.showOnWebsite,
+          websiteTitle: editForm.websiteTitle,
+          websiteDescription: editForm.websiteDescription,
+          websitePrice:
+            editForm.websitePrice === "" ? null : Number(editForm.websitePrice),
+        },
+      );
       return res.json();
     },
     onSuccess: () => {
@@ -97,11 +153,16 @@ export default function WebsiteProducts() {
       toast({ title: "Saved", description: "Website details updated" });
     },
     onError: (error: any) =>
-      toast({ title: "Error", description: error.message || "Failed to save", variant: "destructive" }),
+      toast({
+        title: "Error",
+        description: error.message || "Failed to save",
+        variant: "destructive",
+      }),
   });
 
   const items = data?.items || [];
-  const allSelected = items.length > 0 && items.every((p: any) => selected.has(p._id));
+  const allSelected =
+    items.length > 0 && items.every((p: any) => selected.has(p._id));
 
   return (
     <div className="space-y-6">
@@ -119,7 +180,11 @@ export default function WebsiteProducts() {
           tone="positive"
           testId="text-published-count"
         />
-        <StatTile label="Catalogue shown" value={data?.pagination?.total ?? 0} icon={Package} />
+        <StatTile
+          label="Catalogue shown"
+          value={data?.pagination?.total ?? 0}
+          icon={Package}
+        />
         <StatTile
           label="Selected"
           value={selected.size}
@@ -134,7 +199,9 @@ export default function WebsiteProducts() {
             <div className="min-w-[170px]">
               <Label className="text-xs text-muted-foreground">Show</Label>
               <Select value={visibility} onValueChange={setVisibility}>
-                <SelectTrigger data-testid="select-visibility"><SelectValue /></SelectTrigger>
+                <SelectTrigger data-testid="select-visibility">
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All products</SelectItem>
                   <SelectItem value="shown">On website</SelectItem>
@@ -157,10 +224,19 @@ export default function WebsiteProducts() {
             </div>
             {selected.size > 0 && (
               <div className="flex gap-2">
-                <Button size="sm" onClick={() => bulkMutation.mutate(true)} data-testid="button-bulk-publish">
+                <Button
+                  size="sm"
+                  onClick={() => bulkMutation.mutate(true)}
+                  data-testid="button-bulk-publish"
+                >
                   Publish {selected.size}
                 </Button>
-                <Button size="sm" variant="outline" onClick={() => bulkMutation.mutate(false)} data-testid="button-bulk-hide">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => bulkMutation.mutate(false)}
+                  data-testid="button-bulk-hide"
+                >
                   Hide {selected.size}
                 </Button>
               </div>
@@ -184,7 +260,11 @@ export default function WebsiteProducts() {
                       <Checkbox
                         checked={allSelected}
                         onCheckedChange={(checked) =>
-                          setSelected(checked ? new Set(items.map((p: any) => p._id)) : new Set())
+                          setSelected(
+                            checked
+                              ? new Set(items.map((p: any) => p._id))
+                              : new Set(),
+                          )
                         }
                         data-testid="checkbox-select-all"
                       />
@@ -206,34 +286,50 @@ export default function WebsiteProducts() {
                           checked={selected.has(p._id)}
                           onCheckedChange={(checked) => {
                             const next = new Set(selected);
-                            if (checked) next.add(p._id); else next.delete(p._id);
+                            if (checked) next.add(p._id);
+                            else next.delete(p._id);
                             setSelected(next);
                           }}
                         />
                       </TableCell>
                       <TableCell>
-                        <div className="font-medium">{p.websiteTitle || p.productName}</div>
+                        <div className="font-medium">
+                          {p.websiteTitle || p.productName}
+                        </div>
                         <div className="text-xs text-muted-foreground">
-                          {p.brand}{p.model ? ` · ${p.model}` : ""}
-                          {p.websiteTitle && <> · listed as “{p.websiteTitle}”</>}
+                          {p.brand}
+                          {p.model ? ` · ${p.model}` : ""}
+                          {p.websiteTitle && (
+                            <> · listed as “{p.websiteTitle}”</>
+                          )}
                         </div>
                       </TableCell>
                       <TableCell className="text-sm">{p.category}</TableCell>
-                      <TableCell className="text-right text-sm">{money(p.sellingPrice)}</TableCell>
+                      <TableCell className="text-right text-sm">
+                        {money(p.sellingPrice)}
+                      </TableCell>
                       <TableCell className="text-right text-sm">
                         {p.websitePrice ? (
-                          <span className="font-medium">{money(p.websitePrice)}</span>
+                          <span className="font-medium">
+                            {money(p.websitePrice)}
+                          </span>
                         ) : (
                           <span className="text-muted-foreground">same</span>
                         )}
                       </TableCell>
                       <TableCell>
-                        <Badge variant={p.stockQty > 0 ? "secondary" : "outline"}>{p.stockQty}</Badge>
+                        <Badge
+                          variant={p.stockQty > 0 ? "secondary" : "outline"}
+                        >
+                          {p.stockQty}
+                        </Badge>
                       </TableCell>
                       <TableCell>
                         <Switch
                           checked={!!p.showOnWebsite}
-                          onCheckedChange={(showOnWebsite) => toggleMutation.mutate({ id: p._id, showOnWebsite })}
+                          onCheckedChange={(showOnWebsite) =>
+                            toggleMutation.mutate({ id: p._id, showOnWebsite })
+                          }
                           data-testid={`switch-website-${p._id}`}
                         />
                       </TableCell>
@@ -246,7 +342,9 @@ export default function WebsiteProducts() {
                             setEditForm({
                               websiteTitle: p.websiteTitle || "",
                               websiteDescription: p.websiteDescription || "",
-                              websitePrice: p.websitePrice ? String(p.websitePrice) : "",
+                              websitePrice: p.websitePrice
+                                ? String(p.websitePrice)
+                                : "",
                             });
                           }}
                           data-testid={`button-edit-website-${p._id}`}
@@ -263,12 +361,16 @@ export default function WebsiteProducts() {
         </CardContent>
       </Card>
 
-      <Dialog open={!!editing} onOpenChange={(open) => !open && setEditing(null)}>
+      <Dialog
+        open={!!editing}
+        onOpenChange={(open) => !open && setEditing(null)}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Website listing</DialogTitle>
             <DialogDescription>
-              How "{editing?.productName}" appears on the storefront. Leave blank to use the catalogue values.
+              How "{editing?.productName}" appears on the storefront. Leave
+              blank to use the catalogue values.
             </DialogDescription>
           </DialogHeader>
 
@@ -277,7 +379,9 @@ export default function WebsiteProducts() {
               <Label>Website title</Label>
               <Input
                 value={editForm.websiteTitle}
-                onChange={(e) => setEditForm({ ...editForm, websiteTitle: e.target.value })}
+                onChange={(e) =>
+                  setEditForm({ ...editForm, websiteTitle: e.target.value })
+                }
                 placeholder={editing?.productName}
                 data-testid="input-website-title"
               />
@@ -286,7 +390,12 @@ export default function WebsiteProducts() {
               <Label>Website description</Label>
               <Textarea
                 value={editForm.websiteDescription}
-                onChange={(e) => setEditForm({ ...editForm, websiteDescription: e.target.value })}
+                onChange={(e) =>
+                  setEditForm({
+                    ...editForm,
+                    websiteDescription: e.target.value,
+                  })
+                }
                 rows={3}
                 data-testid="input-website-description"
               />
@@ -297,7 +406,9 @@ export default function WebsiteProducts() {
                 type="number"
                 min="0"
                 value={editForm.websitePrice}
-                onChange={(e) => setEditForm({ ...editForm, websitePrice: e.target.value })}
+                onChange={(e) =>
+                  setEditForm({ ...editForm, websitePrice: e.target.value })
+                }
                 placeholder={`Catalogue price: ${editing?.sellingPrice}`}
                 data-testid="input-website-price"
               />
@@ -309,14 +420,22 @@ export default function WebsiteProducts() {
               <Label className="text-sm">Show on website</Label>
               <Switch
                 checked={!!editing?.showOnWebsite}
-                onCheckedChange={(showOnWebsite) => setEditing({ ...editing, showOnWebsite })}
+                onCheckedChange={(showOnWebsite) =>
+                  setEditing({ ...editing, showOnWebsite })
+                }
               />
             </div>
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setEditing(null)}>Cancel</Button>
-            <Button onClick={() => detailMutation.mutate()} disabled={detailMutation.isPending} data-testid="button-save-website">
+            <Button variant="outline" onClick={() => setEditing(null)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={() => detailMutation.mutate()}
+              disabled={detailMutation.isPending}
+              data-testid="button-save-website"
+            >
               {detailMutation.isPending ? "Saving..." : "Save"}
             </Button>
           </DialogFooter>

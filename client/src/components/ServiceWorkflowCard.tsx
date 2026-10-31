@@ -11,6 +11,7 @@ interface ServiceWorkflowCardProps {
   handlers: string[];
   startTime: string;
   totalAmount?: number;
+  showAmounts?: boolean;
   partsCount?: number;
   partNames?: string[];
   notes?: string;
@@ -25,6 +26,7 @@ export function ServiceWorkflowCard({
   handlers,
   startTime,
   totalAmount,
+  showAmounts = false,
   partsCount,
   partNames = [],
   notes,
@@ -32,9 +34,9 @@ export function ServiceWorkflowCard({
   onEdit,
 }: ServiceWorkflowCardProps) {
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
       maximumFractionDigits: 0,
     }).format(amount);
   };
@@ -63,12 +65,19 @@ export function ServiceWorkflowCard({
   };
 
   return (
-    <Card className={`hover-elevate ${getPhaseBackgroundColor(status)}`} data-testid={`service-card-${vehicleReg}`}>
+    <Card
+      className={`hover-elevate ${getPhaseBackgroundColor(status)}`}
+      data-testid={`service-card-${vehicleReg}`}
+    >
       <CardHeader className="pb-4">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 flex-1">
-            <CardTitle className="text-base font-semibold">{customerName}</CardTitle>
-            <p className="text-sm text-muted-foreground font-mono mt-2">{vehicleReg}</p>
+            <CardTitle className="text-base font-semibold">
+              {customerName}
+            </CardTitle>
+            <p className="text-sm text-muted-foreground font-mono mt-2">
+              {vehicleReg}
+            </p>
           </div>
           <StatusBadge type="service" status={status} />
         </div>
@@ -76,7 +85,9 @@ export function ServiceWorkflowCard({
       <CardContent className="pt-0 space-y-4">
         <div className="space-y-2">
           <p className="text-xs text-muted-foreground">
-            {handlers?.length > 0 ? `Handler${handlers.length > 1 ? 's' : ''}` : 'No handlers assigned'}
+            {handlers?.length > 0
+              ? `Handler${handlers.length > 1 ? "s" : ""}`
+              : "No handlers assigned"}
           </p>
           {handlers?.length > 0 ? (
             <div className="flex flex-wrap gap-2">
@@ -100,32 +111,42 @@ export function ServiceWorkflowCard({
           <div className="flex items-center gap-2">
             <Clock className="h-4 w-4 text-muted-foreground flex-shrink-0" />
             <div className="min-w-0">
-              <p className="text-xs text-muted-foreground truncate">{startTime}</p>
+              <p className="text-xs text-muted-foreground truncate">
+                {startTime}
+              </p>
             </div>
           </div>
-          
+
           {partsCount !== undefined && partsCount > 0 && (
             <div className="flex items-center gap-2">
               <Package className="h-4 w-4 text-muted-foreground flex-shrink-0" />
               <div className="min-w-0">
-                <p className="text-xs text-muted-foreground">{partsCount} part{partsCount === 1 ? '' : 's'}</p>
+                <p className="text-xs text-muted-foreground">
+                  {partsCount} part{partsCount === 1 ? "" : "s"}
+                </p>
               </div>
             </div>
           )}
         </div>
 
         {partNames.length > 0 && (
-          <p className="text-xs text-muted-foreground line-clamp-2" title={partNames.join(', ')} data-testid={`text-parts-${vehicleReg}`}>
-            {partNames.slice(0, 3).join(', ')}
+          <p
+            className="text-xs text-muted-foreground line-clamp-2"
+            title={partNames.join(", ")}
+            data-testid={`text-parts-${vehicleReg}`}
+          >
+            {partNames.slice(0, 3).join(", ")}
             {partNames.length > 3 && ` +${partNames.length - 3} more`}
           </p>
         )}
 
-        {totalAmount !== undefined && totalAmount > 0 && (
+        {showAmounts && totalAmount !== undefined && totalAmount > 0 && (
           <div className="flex items-center gap-2 pt-2 border-t">
             <IndianRupee className="h-4 w-4 text-muted-foreground flex-shrink-0" />
             <div className="flex-1">
-              <p className="text-sm font-semibold">{formatCurrency(totalAmount)}</p>
+              <p className="text-sm font-semibold">
+                {formatCurrency(totalAmount)}
+              </p>
             </div>
           </div>
         )}
@@ -133,14 +154,16 @@ export function ServiceWorkflowCard({
         {notes && (
           <div className="flex items-start gap-2 pt-2 border-t">
             <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0 mt-0.5" />
-            <p className="text-xs text-muted-foreground line-clamp-2 flex-1">{notes}</p>
+            <p className="text-xs text-muted-foreground line-clamp-2 flex-1">
+              {notes}
+            </p>
           </div>
         )}
 
         <div className="flex gap-2 pt-3">
-          <Button 
-            variant="outline" 
-            size="sm" 
+          <Button
+            variant="outline"
+            size="sm"
             className="flex-1"
             onClick={(e) => {
               e.stopPropagation();
@@ -151,9 +174,9 @@ export function ServiceWorkflowCard({
             <Eye className="h-3.5 w-3.5 mr-1.5" />
             View Details
           </Button>
-          <Button 
-            variant="default" 
-            size="sm" 
+          <Button
+            variant="default"
+            size="sm"
             className="flex-1"
             onClick={(e) => {
               e.stopPropagation();

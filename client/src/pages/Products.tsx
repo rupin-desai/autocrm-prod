@@ -5,7 +5,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -24,13 +31,29 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, Search, Package, X, ImagePlus, Barcode, Trash2, ImageIcon, Download, Upload, Copy } from "lucide-react";
+import {
+  Plus,
+  Search,
+  Package,
+  X,
+  ImagePlus,
+  Barcode,
+  Trash2,
+  ImageIcon,
+  Download,
+  Upload,
+  Copy,
+} from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useAuth } from "@/lib/auth";
 import * as XLSX from "xlsx";
-import { getVehicleMasterBrands, getVehicleMasterModels, type VehicleMasterResponse } from "@/lib/vehicleMaster";
+import {
+  getVehicleMasterBrands,
+  getVehicleMasterModels,
+  type VehicleMasterResponse,
+} from "@/lib/vehicleMaster";
 
 const normalizeMinStockLevel = (value: unknown) => {
   const parsed = Number(value);
@@ -39,7 +62,9 @@ const normalizeMinStockLevel = (value: unknown) => {
 
 export default function Products() {
   const { user } = useAuth();
-  const canDeleteProducts = (user?.permissions?.products || []).includes('delete');
+  const canDeleteProducts = (user?.permissions?.products || []).includes(
+    "delete",
+  );
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("brand-asc");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -56,7 +81,10 @@ export default function Products() {
   const { data: vehicleMasterData } = useQuery<VehicleMasterResponse>({
     queryKey: ["/api/vehicle-master"],
   });
-  const vehicleBrands = useMemo(() => getVehicleMasterBrands(vehicleMasterData), [vehicleMasterData]);
+  const vehicleBrands = useMemo(
+    () => getVehicleMasterBrands(vehicleMasterData),
+    [vehicleMasterData],
+  );
 
   const [formData, setFormData] = useState({
     brand: "",
@@ -80,17 +108,22 @@ export default function Products() {
     variants: [{ size: "", color: "", colorCustom: "" }],
   });
 
-  const { data: products = [], isLoading, error, refetch } = useQuery<any[]>({
+  const {
+    data: products = [],
+    isLoading,
+    error,
+    refetch,
+  } = useQuery<any[]>({
     queryKey: ["/api/products"],
   });
 
   const createProductMutation = useMutation({
     mutationFn: async (data: any) => {
-      const response = await apiRequest('POST', '/api/products', data);
+      const response = await apiRequest("POST", "/api/products", data);
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/products'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/products"] });
       setIsCreateDialogOpen(false);
       resetForm();
       toast({
@@ -109,11 +142,11 @@ export default function Products() {
 
   const updateProductMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: any }) => {
-      const response = await apiRequest('PATCH', `/api/products/${id}`, data);
+      const response = await apiRequest("PATCH", `/api/products/${id}`, data);
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/products'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/products"] });
       setIsEditDialogOpen(false);
       setSelectedProduct(null);
       toast({
@@ -132,7 +165,11 @@ export default function Products() {
 
   const updateStockMutation = useMutation({
     mutationFn: async (data: any) => {
-      const response = await apiRequest('POST', '/api/inventory-transactions', data);
+      const response = await apiRequest(
+        "POST",
+        "/api/inventory-transactions",
+        data,
+      );
       const result = await response.json();
       if (!result?.success || !result?.product) {
         throw new Error(result?.message || "Stock save was not confirmed");
@@ -140,11 +177,15 @@ export default function Products() {
       return result;
     },
     onSuccess: (result) => {
-      queryClient.setQueryData<any[]>(['/api/products'], (current = []) =>
-        current.map((product) => product._id === result.product._id ? result.product : product)
+      queryClient.setQueryData<any[]>(["/api/products"], (current = []) =>
+        current.map((product) =>
+          product._id === result.product._id ? result.product : product,
+        ),
       );
-      queryClient.invalidateQueries({ queryKey: ['/api/products'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/inventory-transactions'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/products"] });
+      queryClient.invalidateQueries({
+        queryKey: ["/api/inventory-transactions"],
+      });
       setIsStockDialogOpen(false);
       setSelectedProduct(null);
       setStockFormData({ quantity: "", type: "IN", reason: "" });
@@ -164,11 +205,11 @@ export default function Products() {
 
   const deleteProductMutation = useMutation({
     mutationFn: async (id: string) => {
-      const response = await apiRequest('DELETE', `/api/products/${id}`);
+      const response = await apiRequest("DELETE", `/api/products/${id}`);
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/products'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/products"] });
       setIsDeleteDialogOpen(false);
       setSelectedProduct(null);
       toast({
@@ -187,11 +228,15 @@ export default function Products() {
 
   const deleteDuplicatesMutation = useMutation({
     mutationFn: async () => {
-      const response = await apiRequest('POST', '/api/products/delete-duplicates', {});
+      const response = await apiRequest(
+        "POST",
+        "/api/products/delete-duplicates",
+        {},
+      );
       return response.json();
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['/api/products'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/products"] });
       toast({
         title: "Success",
         description: `Deleted ${data.deletedCount} duplicate products from ${data.duplicateGroups} groups`,
@@ -208,14 +253,16 @@ export default function Products() {
 
   const importProductsMutation = useMutation({
     mutationFn: async (productsData: any[]) => {
-      const response = await apiRequest('POST', '/api/products/import', { products: productsData });
+      const response = await apiRequest("POST", "/api/products/import", {
+        products: productsData,
+      });
       return response.json();
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['/api/products'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/products"] });
       toast({
         title: "Success",
-        description: `Imported ${data.imported} products. ${data.errors > 0 ? `${data.errors} errors occurred.` : ''}`,
+        description: `Imported ${data.imported} products. ${data.errors > 0 ? `${data.errors} errors occurred.` : ""}`,
       });
     },
     onError: (error: any) => {
@@ -268,12 +315,15 @@ export default function Products() {
       const reader = new FileReader();
       reader.onloadend = () => {
         const base64String = reader.result as string;
-        setFormData(prev => ({ ...prev, images: [...prev.images, base64String] }));
+        setFormData((prev) => ({
+          ...prev,
+          images: [...prev.images, base64String],
+        }));
       };
       reader.readAsDataURL(file);
     });
-    
-    e.target.value = '';
+
+    e.target.value = "";
   };
 
   const handleBarcodeImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -292,11 +342,11 @@ export default function Products() {
     const reader = new FileReader();
     reader.onloadend = () => {
       const base64String = reader.result as string;
-      setFormData(prev => ({ ...prev, barcodeImage: base64String }));
+      setFormData((prev) => ({ ...prev, barcodeImage: base64String }));
     };
     reader.readAsDataURL(file);
-    
-    e.target.value = '';
+
+    e.target.value = "";
   };
 
   const removeBarcodeImage = () => {
@@ -309,12 +359,18 @@ export default function Products() {
   };
 
   const addModelCompat = () => {
-    setFormData({ ...formData, modelCompatibility: [...formData.modelCompatibility, ""] });
+    setFormData({
+      ...formData,
+      modelCompatibility: [...formData.modelCompatibility, ""],
+    });
   };
 
   const removeModelCompat = (index: number) => {
     const newModels = formData.modelCompatibility.filter((_, i) => i !== index);
-    setFormData({ ...formData, modelCompatibility: newModels.length > 0 ? newModels : [""] });
+    setFormData({
+      ...formData,
+      modelCompatibility: newModels.length > 0 ? newModels : [""],
+    });
   };
 
   const updateModelCompat = (index: number, value: string) => {
@@ -324,22 +380,38 @@ export default function Products() {
   };
 
   const addVariant = () => {
-    setFormData({ ...formData, variants: [...formData.variants, { size: "", color: "", colorCustom: "" }] });
+    setFormData({
+      ...formData,
+      variants: [
+        ...formData.variants,
+        { size: "", color: "", colorCustom: "" },
+      ],
+    });
   };
 
   const removeVariant = (index: number) => {
     const newVariants = formData.variants.filter((_, i) => i !== index);
-    setFormData({ ...formData, variants: newVariants.length > 0 ? newVariants : [{ size: "", color: "", colorCustom: "" }] });
+    setFormData({
+      ...formData,
+      variants:
+        newVariants.length > 0
+          ? newVariants
+          : [{ size: "", color: "", colorCustom: "" }],
+    });
   };
 
-  const updateVariant = (index: number, field: 'size' | 'color' | 'colorCustom', value: string) => {
+  const updateVariant = (
+    index: number,
+    field: "size" | "color" | "colorCustom",
+    value: string,
+  ) => {
     const newVariants = [...formData.variants];
     newVariants[index][field] = value;
     setFormData({ ...formData, variants: newVariants });
   };
 
   const handleExportProducts = () => {
-    const exportData = products.map(product => ({
+    const exportData = products.map((product) => ({
       brand: product.brand,
       model: product.model || "",
       productId: product.productId || "",
@@ -354,16 +426,18 @@ export default function Products() {
       minStockLevel: product.minStockLevel,
       warranty: product.warranty || "",
       status: product.status,
-      modelCompatibility: Array.isArray(product.modelCompatibility) ? product.modelCompatibility.join(", ") : "",
+      modelCompatibility: Array.isArray(product.modelCompatibility)
+        ? product.modelCompatibility.join(", ")
+        : "",
     }));
 
     const ws = XLSX.utils.json_to_sheet(exportData);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Products");
-    
-    const fileName = `products_export_${new Date().toISOString().split('T')[0]}.xlsx`;
+
+    const fileName = `products_export_${new Date().toISOString().split("T")[0]}.xlsx`;
     XLSX.writeFile(wb, fileName);
-    
+
     toast({
       title: "Success",
       description: `Exported ${products.length} products to ${fileName}`,
@@ -378,7 +452,7 @@ export default function Products() {
     reader.onload = (e) => {
       try {
         const data = new Uint8Array(e.target?.result as ArrayBuffer);
-        const workbook = XLSX.read(data, { type: 'array' });
+        const workbook = XLSX.read(data, { type: "array" });
         const sheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[sheetName];
         const jsonData = XLSX.utils.sheet_to_json(worksheet);
@@ -387,18 +461,24 @@ export default function Products() {
           brand: row.brand || row.Brand,
           model: row.model || row.Model || "",
           productId: row.productId || row.ProductId || row.product_id || "",
-          productName: row.productName || row.ProductName || row.product_name || "",
+          productName:
+            row.productName || row.ProductName || row.product_name || "",
           category: row.category || row.Category || "",
           hsnNumber: row.hsnNumber || row.HSNNumber || row.hsn_number || "",
           barcode: row.barcode || row.Barcode || "",
           mrp: row.mrp || row.MRP || 0,
-          sellingPrice: row.sellingPrice || row.SellingPrice || row.selling_price || 0,
+          sellingPrice:
+            row.sellingPrice || row.SellingPrice || row.selling_price || 0,
           discount: row.discount || row.Discount || 0,
           stockQty: row.stockQty || row.StockQty || row.stock_qty || 0,
-          minStockLevel: normalizeMinStockLevel(row.minStockLevel || row.MinStockLevel || row.min_stock_level),
+          minStockLevel: normalizeMinStockLevel(
+            row.minStockLevel || row.MinStockLevel || row.min_stock_level,
+          ),
           warranty: row.warranty || row.Warranty || "",
-          modelCompatibility: row.modelCompatibility 
-            ? (typeof row.modelCompatibility === 'string' ? row.modelCompatibility.split(",").map((s: string) => s.trim()) : [])
+          modelCompatibility: row.modelCompatibility
+            ? typeof row.modelCompatibility === "string"
+              ? row.modelCompatibility.split(",").map((s: string) => s.trim())
+              : []
             : [],
         }));
 
@@ -412,20 +492,26 @@ export default function Products() {
       }
     };
     reader.readAsArrayBuffer(file);
-    event.target.value = '';
+    event.target.value = "";
   };
 
   const handleCreateProduct = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const mrp = parseFloat(formData.mrp);
     const sellingPrice = parseFloat(formData.sellingPrice);
     const discount = parseFloat(formData.discount) || 0;
     const stockQty = parseInt(formData.stockQty);
     const minStockLevel = normalizeMinStockLevel(formData.minStockLevel);
 
-    const finalWarranty = formData.warranty === 'Other' ? formData.warrantyCustom : formData.warranty;
-    const finalCategory = formData.category === 'Other' ? formData.categoryCustom : formData.category;
+    const finalWarranty =
+      formData.warranty === "Other"
+        ? formData.warrantyCustom
+        : formData.warranty;
+    const finalCategory =
+      formData.category === "Other"
+        ? formData.categoryCustom
+        : formData.category;
 
     if (!formData.brand) {
       toast({
@@ -444,7 +530,7 @@ export default function Products() {
       });
       return;
     }
-    
+
     if (isNaN(mrp) || mrp <= 0 || isNaN(sellingPrice) || sellingPrice <= 0) {
       toast({
         title: "Validation Error",
@@ -453,7 +539,7 @@ export default function Products() {
       });
       return;
     }
-    
+
     if (isNaN(stockQty) || stockQty < 0) {
       toast({
         title: "Validation Error",
@@ -462,7 +548,7 @@ export default function Products() {
       });
       return;
     }
-    
+
     if (!formData.productName) {
       toast({
         title: "Validation Error",
@@ -487,22 +573,26 @@ export default function Products() {
       stockQty,
       minStockLevel,
       warranty: finalWarranty,
-      images: formData.images.filter(img => img.trim() !== ""),
-      modelCompatibility: formData.modelCompatibility.filter(m => m.trim() !== ""),
-      variants: formData.variants.map(v => ({
-        size: v.size,
-        color: v.color === 'Other' ? v.colorCustom : v.color
-      })).filter(v => v.size || v.color),
+      images: formData.images.filter((img) => img.trim() !== ""),
+      modelCompatibility: formData.modelCompatibility.filter(
+        (m) => m.trim() !== "",
+      ),
+      variants: formData.variants
+        .map((v) => ({
+          size: v.size,
+          color: v.color === "Other" ? v.colorCustom : v.color,
+        }))
+        .filter((v) => v.size || v.color),
     };
-    
+
     createProductMutation.mutate(productData);
   };
 
   const handleEditProduct = (product: any) => {
     setSelectedProduct(product);
-    const warrantyOptions = ['2YR', '1 Yr', '6 month', '1 month', 'NA'];
-    const isStandardWarranty = warrantyOptions.includes(product.warranty || '');
-    
+    const warrantyOptions = ["2YR", "1 Yr", "6 month", "1 month", "NA"];
+    const isStandardWarranty = warrantyOptions.includes(product.warranty || "");
+
     setFormData({
       brand: product.brand || "",
       model: product.model || "",
@@ -516,34 +606,49 @@ export default function Products() {
       discount: product.discount?.toString() || "0",
       stockQty: product.stockQty?.toString() || "",
       minStockLevel: normalizeMinStockLevel(product.minStockLevel).toString(),
-      warranty: isStandardWarranty ? product.warranty : 'Other',
-      warrantyCustom: isStandardWarranty ? '' : (product.warranty || ''),
+      warranty: isStandardWarranty ? product.warranty : "Other",
+      warrantyCustom: isStandardWarranty ? "" : product.warranty || "",
       category: product.category || "",
       categoryCustom: "",
-      images: (product.images && product.images.length > 0) ? product.images : [],
-      modelCompatibility: (product.modelCompatibility && product.modelCompatibility.length > 0) ? product.modelCompatibility : [""],
-      variants: (product.variants && product.variants.length > 0) ? product.variants.map((v: any) => {
-        const colorOptions = ['Red', 'Blue', 'Black', 'White', 'Silver', 'Gray', 'Green', 'Yellow'];
-        const isStandardColor = colorOptions.includes(v.color || '');
-        return {
-          size: v.size || "",
-          color: isStandardColor ? v.color : 'Other',
-          colorCustom: isStandardColor ? '' : (v.color || '')
-        };
-      }) : [{ size: "", color: "", colorCustom: "" }],
+      images: product.images && product.images.length > 0 ? product.images : [],
+      modelCompatibility:
+        product.modelCompatibility && product.modelCompatibility.length > 0
+          ? product.modelCompatibility
+          : [""],
+      variants:
+        product.variants && product.variants.length > 0
+          ? product.variants.map((v: any) => {
+              const colorOptions = [
+                "Red",
+                "Blue",
+                "Black",
+                "White",
+                "Silver",
+                "Gray",
+                "Green",
+                "Yellow",
+              ];
+              const isStandardColor = colorOptions.includes(v.color || "");
+              return {
+                size: v.size || "",
+                color: isStandardColor ? v.color : "Other",
+                colorCustom: isStandardColor ? "" : v.color || "",
+              };
+            })
+          : [{ size: "", color: "", colorCustom: "" }],
     });
     setIsEditDialogOpen(true);
   };
 
   const handleUpdateProduct = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const mrp = parseFloat(formData.mrp);
     const sellingPrice = parseFloat(formData.sellingPrice);
     const discount = parseFloat(formData.discount) || 0;
     const stockQty = parseInt(formData.stockQty);
     const minStockLevel = normalizeMinStockLevel(formData.minStockLevel);
-    
+
     if (!formData.brand) {
       toast({
         title: "Validation Error",
@@ -552,7 +657,7 @@ export default function Products() {
       });
       return;
     }
-    
+
     if (isNaN(mrp) || mrp <= 0 || isNaN(sellingPrice) || sellingPrice <= 0) {
       toast({
         title: "Validation Error",
@@ -561,7 +666,7 @@ export default function Products() {
       });
       return;
     }
-    
+
     if (isNaN(stockQty) || stockQty < 0) {
       toast({
         title: "Validation Error",
@@ -570,7 +675,7 @@ export default function Products() {
       });
       return;
     }
-    
+
     if (!formData.productName) {
       toast({
         title: "Validation Error",
@@ -581,9 +686,15 @@ export default function Products() {
     }
 
     if (selectedProduct) {
-      const finalWarranty = formData.warranty === 'Other' ? formData.warrantyCustom : formData.warranty;
-      const finalCategory = formData.category === 'Other' ? formData.categoryCustom : formData.category;
-      
+      const finalWarranty =
+        formData.warranty === "Other"
+          ? formData.warrantyCustom
+          : formData.warranty;
+      const finalCategory =
+        formData.category === "Other"
+          ? formData.categoryCustom
+          : formData.category;
+
       const productData = {
         brand: formData.brand,
         model: formData.model,
@@ -599,14 +710,18 @@ export default function Products() {
         stockQty,
         minStockLevel,
         warranty: finalWarranty,
-        images: formData.images.filter(img => img.trim() !== ""),
-        modelCompatibility: formData.modelCompatibility.filter(m => m.trim() !== ""),
-        variants: formData.variants.map(v => ({
-          size: v.size,
-          color: v.color === 'Other' ? v.colorCustom : v.color
-        })).filter(v => v.size || v.color),
+        images: formData.images.filter((img) => img.trim() !== ""),
+        modelCompatibility: formData.modelCompatibility.filter(
+          (m) => m.trim() !== "",
+        ),
+        variants: formData.variants
+          .map((v) => ({
+            size: v.size,
+            color: v.color === "Other" ? v.colorCustom : v.color,
+          }))
+          .filter((v) => v.size || v.color),
       };
-      
+
       updateProductMutation.mutate({
         id: selectedProduct._id,
         data: productData,
@@ -622,9 +737,9 @@ export default function Products() {
 
   const handleUpdateStock = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const quantity = parseInt(stockFormData.quantity);
-    
+
     if (isNaN(quantity) || quantity <= 0) {
       toast({
         title: "Validation Error",
@@ -633,7 +748,7 @@ export default function Products() {
       });
       return;
     }
-    
+
     if (!stockFormData.reason) {
       toast({
         title: "Validation Error",
@@ -642,7 +757,7 @@ export default function Products() {
       });
       return;
     }
-    
+
     if (selectedProduct) {
       updateStockMutation.mutate({
         productId: selectedProduct._id,
@@ -654,9 +769,9 @@ export default function Products() {
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
       maximumFractionDigits: 0,
     }).format(amount);
   };
@@ -668,62 +783,92 @@ export default function Products() {
     return 0;
   };
 
-  const filteredProducts = products.filter((product: any) => {
-    const matchesSearch = product.brand.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (product.model && product.model.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (product.barcode && product.barcode.includes(searchTerm));
-    return matchesSearch;
-  }).sort((a: any, b: any) => {
-    switch (sortBy) {
-      case "brand-asc":
-        return a.brand.localeCompare(b.brand);
-      case "brand-desc":
-        return b.brand.localeCompare(a.brand);
-      case "stock-high":
-        return (b.stockQty || 0) - (a.stockQty || 0);
-      case "stock-low":
-        return (a.stockQty || 0) - (b.stockQty || 0);
-      case "price-high":
-        return (b.sellingPrice || 0) - (a.sellingPrice || 0);
-      case "price-low":
-        return (a.sellingPrice || 0) - (b.sellingPrice || 0);
-      case "category-asc":
-        return (a.category || "").localeCompare(b.category || "");
-      default:
-        return 0;
-    }
-  });
+  const filteredProducts = products
+    .filter((product: any) => {
+      const matchesSearch =
+        product.brand.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (product.model &&
+          product.model.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (product.barcode && product.barcode.includes(searchTerm));
+      return matchesSearch;
+    })
+    .sort((a: any, b: any) => {
+      switch (sortBy) {
+        case "brand-asc":
+          return a.brand.localeCompare(b.brand);
+        case "brand-desc":
+          return b.brand.localeCompare(a.brand);
+        case "stock-high":
+          return (b.stockQty || 0) - (a.stockQty || 0);
+        case "stock-low":
+          return (a.stockQty || 0) - (b.stockQty || 0);
+        case "price-high":
+          return (b.sellingPrice || 0) - (a.sellingPrice || 0);
+        case "price-low":
+          return (a.sellingPrice || 0) - (b.sellingPrice || 0);
+        case "category-asc":
+          return (a.category || "").localeCompare(b.category || "");
+        default:
+          return 0;
+      }
+    });
 
-  const getStatusBadge = (status: string, stock: number, minStockLevel: number = 0) => {
+  const getStatusBadge = (
+    status: string,
+    stock: number,
+    minStockLevel: number = 0,
+  ) => {
     const numericStock = Number(stock) || 0;
     const numericMinStock = Number(minStockLevel) || 0;
-    const derivedStatus = numericStock <= 0
-      ? "out_of_stock"
-      : numericStock <= numericMinStock
-        ? "low_stock"
-        : "in_stock";
+    const derivedStatus =
+      numericStock <= 0
+        ? "out_of_stock"
+        : numericStock <= numericMinStock
+          ? "low_stock"
+          : "in_stock";
 
     switch (derivedStatus || status) {
       case "in_stock":
-        return <Badge variant="default" data-testid={`status-in-stock`}>In Stock ({numericStock})</Badge>;
+        return (
+          <Badge variant="default" data-testid={`status-in-stock`}>
+            In Stock ({numericStock})
+          </Badge>
+        );
       case "low_stock":
-        return <Badge variant="secondary" data-testid={`status-low-stock`}>Low Stock ({numericStock})</Badge>;
+        return (
+          <Badge variant="secondary" data-testid={`status-low-stock`}>
+            Low Stock ({numericStock})
+          </Badge>
+        );
       case "out_of_stock":
-        return <Badge variant="destructive" data-testid={`status-out-of-stock`}>Out of Stock</Badge>;
+        return (
+          <Badge variant="destructive" data-testid={`status-out-of-stock`}>
+            Out of Stock
+          </Badge>
+        );
       default:
-        return <Badge variant="outline" data-testid={`status-${status}`}>{status}</Badge>;
+        return (
+          <Badge variant="outline" data-testid={`status-${status}`}>
+            {status}
+          </Badge>
+        );
     }
   };
 
   const renderProductForm = (isEdit: boolean) => (
-    <form onSubmit={isEdit ? handleUpdateProduct : handleCreateProduct} className="space-y-4">
+    <form
+      onSubmit={isEdit ? handleUpdateProduct : handleCreateProduct}
+      className="space-y-4"
+    >
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="brand">Brand *</Label>
           <Input
             id="brand"
             value={formData.brand}
-            onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, brand: e.target.value })
+            }
             required
             data-testid="input-product-brand"
           />
@@ -732,22 +877,30 @@ export default function Products() {
           <Label htmlFor="category">Category *</Label>
           <Select
             value={formData.category}
-            onValueChange={(value) => setFormData({ ...formData, category: value })}
+            onValueChange={(value) =>
+              setFormData({ ...formData, category: value })
+            }
           >
             <SelectTrigger data-testid="select-category">
               <SelectValue placeholder="Select category" />
             </SelectTrigger>
             <SelectContent>
-              {Array.from(new Set(products.map(p => p.category).filter(Boolean))).map((cat: any) => (
-                <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+              {Array.from(
+                new Set(products.map((p) => p.category).filter(Boolean)),
+              ).map((cat: any) => (
+                <SelectItem key={cat} value={cat}>
+                  {cat}
+                </SelectItem>
               ))}
               <SelectItem value="Other">Add New Category</SelectItem>
             </SelectContent>
           </Select>
-          {formData.category === 'Other' && (
+          {formData.category === "Other" && (
             <Input
               value={formData.categoryCustom}
-              onChange={(e) => setFormData({ ...formData, categoryCustom: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, categoryCustom: e.target.value })
+              }
               placeholder="Enter new category"
               required
               data-testid="input-category-custom"
@@ -762,7 +915,9 @@ export default function Products() {
           <Input
             id="model"
             value={formData.model}
-            onChange={(e) => setFormData({ ...formData, model: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, model: e.target.value })
+            }
             data-testid="input-product-model"
             placeholder="e.g., XL 100, Activa 6G"
           />
@@ -772,7 +927,9 @@ export default function Products() {
           <Input
             id="productId"
             value={formData.productId}
-            onChange={(e) => setFormData({ ...formData, productId: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, productId: e.target.value })
+            }
             data-testid="input-product-id"
             placeholder="e.g., SKU-12345"
           />
@@ -784,7 +941,9 @@ export default function Products() {
         <Input
           id="productName"
           value={formData.productName}
-          onChange={(e) => setFormData({ ...formData, productName: e.target.value })}
+          onChange={(e) =>
+            setFormData({ ...formData, productName: e.target.value })
+          }
           required
           data-testid="input-product-name"
           placeholder="Enter product name"
@@ -796,7 +955,9 @@ export default function Products() {
         <Input
           id="hsnNumber"
           value={formData.hsnNumber}
-          onChange={(e) => setFormData({ ...formData, hsnNumber: e.target.value })}
+          onChange={(e) =>
+            setFormData({ ...formData, hsnNumber: e.target.value })
+          }
           data-testid="input-product-hsn"
           placeholder="e.g., 8512.90.20"
         />
@@ -809,7 +970,9 @@ export default function Products() {
           <Input
             id="barcode"
             value={formData.barcode}
-            onChange={(e) => setFormData({ ...formData, barcode: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, barcode: e.target.value })
+            }
             className="pl-10"
             data-testid="input-product-barcode"
           />
@@ -828,9 +991,9 @@ export default function Products() {
         </div>
         {formData.barcodeImage && (
           <div className="relative inline-block mt-2">
-            <img 
-              src={formData.barcodeImage} 
-              alt="Barcode" 
+            <img
+              src={formData.barcodeImage}
+              alt="Barcode"
               className="w-32 h-32 object-contain rounded-md border"
             />
             <Button
@@ -867,7 +1030,9 @@ export default function Products() {
             type="number"
             step="0.01"
             value={formData.sellingPrice}
-            onChange={(e) => setFormData({ ...formData, sellingPrice: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, sellingPrice: e.target.value })
+            }
             required
             data-testid="input-product-sellingprice"
           />
@@ -877,9 +1042,10 @@ export default function Products() {
           <Input
             id="discount"
             type="text"
-            value={formData.mrp && formData.sellingPrice ? 
-              `${calculateDiscountPercentage(parseFloat(formData.mrp), parseFloat(formData.sellingPrice))}%` : 
-              '0%'
+            value={
+              formData.mrp && formData.sellingPrice
+                ? `${calculateDiscountPercentage(parseFloat(formData.mrp), parseFloat(formData.sellingPrice))}%`
+                : "0%"
             }
             readOnly
             className="bg-muted"
@@ -895,7 +1061,9 @@ export default function Products() {
             id="stockQty"
             type="number"
             value={formData.stockQty}
-            onChange={(e) => setFormData({ ...formData, stockQty: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, stockQty: e.target.value })
+            }
             required
             data-testid="input-product-stockqty"
           />
@@ -906,7 +1074,9 @@ export default function Products() {
             id="minStockLevel"
             type="number"
             value={formData.minStockLevel}
-            onChange={(e) => setFormData({ ...formData, minStockLevel: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, minStockLevel: e.target.value })
+            }
             min={0}
             placeholder="0"
             data-testid="input-product-minstocklevel"
@@ -918,7 +1088,9 @@ export default function Products() {
         <Label htmlFor="warranty">Warranty</Label>
         <Select
           value={formData.warranty}
-          onValueChange={(value) => setFormData({ ...formData, warranty: value })}
+          onValueChange={(value) =>
+            setFormData({ ...formData, warranty: value })
+          }
         >
           <SelectTrigger data-testid="select-warranty">
             <SelectValue placeholder="Select warranty" />
@@ -932,10 +1104,12 @@ export default function Products() {
             <SelectItem value="Other">Other (Custom)</SelectItem>
           </SelectContent>
         </Select>
-        {formData.warranty === 'Other' && (
+        {formData.warranty === "Other" && (
           <Input
             value={formData.warrantyCustom}
-            onChange={(e) => setFormData({ ...formData, warrantyCustom: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, warrantyCustom: e.target.value })
+            }
             placeholder="Enter custom warranty"
             data-testid="input-warranty-custom"
           />
@@ -957,9 +1131,9 @@ export default function Products() {
           <div className="grid grid-cols-3 gap-2 mt-2">
             {formData.images.map((image, index) => (
               <div key={index} className="relative">
-                <img 
-                  src={image} 
-                  alt={`Product ${index + 1}`} 
+                <img
+                  src={image}
+                  alt={`Product ${index + 1}`}
                   className="w-full h-24 object-cover rounded-md"
                 />
                 <Button
@@ -985,13 +1159,13 @@ export default function Products() {
             <div className="flex gap-2">
               <Input
                 value={variant.size}
-                onChange={(e) => updateVariant(index, 'size', e.target.value)}
+                onChange={(e) => updateVariant(index, "size", e.target.value)}
                 placeholder="Size"
                 data-testid={`input-variant-size-${index}`}
               />
               <Select
                 value={variant.color}
-                onValueChange={(value) => updateVariant(index, 'color', value)}
+                onValueChange={(value) => updateVariant(index, "color", value)}
               >
                 <SelectTrigger data-testid={`select-variant-color-${index}`}>
                   <SelectValue placeholder="Select color" />
@@ -1020,10 +1194,12 @@ export default function Products() {
                 </Button>
               )}
             </div>
-            {variant.color === 'Other' && (
+            {variant.color === "Other" && (
               <Input
                 value={variant.colorCustom}
-                onChange={(e) => updateVariant(index, 'colorCustom', e.target.value)}
+                onChange={(e) =>
+                  updateVariant(index, "colorCustom", e.target.value)
+                }
                 placeholder="Enter custom color"
                 data-testid={`input-variant-color-custom-${index}`}
               />
@@ -1045,24 +1221,28 @@ export default function Products() {
       <div className="space-y-2">
         <Label>Model Compatibility</Label>
         <p className="text-xs text-muted-foreground">
-          Select vehicle brands and models this product is compatible with. Choosing model "Other" makes it universal.
+          Select vehicle brands and models this product is compatible with.
+          Choosing model "Other" makes it universal.
         </p>
         {formData.modelCompatibility.map((model, index) => (
           <div key={index} className="space-y-2">
             <div className="flex gap-2">
               <Select
                 value={
-                  model.startsWith('Other:') || model === '' 
-                    ? '' 
-                    : model.includes(' - ') 
-                      ? model.split(' - ')[0] 
+                  model.startsWith("Other:") || model === ""
+                    ? ""
+                    : model.includes(" - ")
+                      ? model.split(" - ")[0]
                       : model
                 }
                 onValueChange={(brand) => {
                   updateModelCompat(index, brand);
                 }}
               >
-                <SelectTrigger className="w-[200px]" data-testid={`select-brand-${index}`}>
+                <SelectTrigger
+                  className="w-[200px]"
+                  data-testid={`select-brand-${index}`}
+                >
                   <SelectValue placeholder="Other (Custom)" />
                 </SelectTrigger>
                 <SelectContent>
@@ -1073,42 +1253,59 @@ export default function Products() {
                   ))}
                 </SelectContent>
               </Select>
-              
-              {model && !model.startsWith('Other:') && model !== '' && vehicleBrands.find((b) => b.name === (model.includes(' - ') ? model.split(' - ')[0] : model)) && (
-                <Select
-                  value={model.includes(' - ') ? model.split(' - ')[1] : ''}
-                  onValueChange={(modelName) => {
-                    const brand = model.includes(' - ') ? model.split(' - ')[0] : model;
-                    updateModelCompat(index, `${brand} - ${modelName}`);
-                  }}
-                >
-                  <SelectTrigger className="flex-1" data-testid={`select-model-${index}`}>
-                    <SelectValue placeholder="Select model" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {getVehicleMasterModels(
-                      vehicleBrands,
-                      model.includes(' - ') ? model.split(' - ')[0] : model
-                    ).map((vehicleModel) => (
-                      <SelectItem key={vehicleModel.id} value={vehicleModel.name}>
-                        {vehicleModel.name}
-                      </SelectItem>
-                    ))}
-                    <SelectItem value="Other">Other</SelectItem>
-                  </SelectContent>
-                </Select>
-              )}
-              
-              {(model.startsWith('Other:') || model === '') && (
+
+              {model &&
+                !model.startsWith("Other:") &&
+                model !== "" &&
+                vehicleBrands.find(
+                  (b) =>
+                    b.name ===
+                    (model.includes(" - ") ? model.split(" - ")[0] : model),
+                ) && (
+                  <Select
+                    value={model.includes(" - ") ? model.split(" - ")[1] : ""}
+                    onValueChange={(modelName) => {
+                      const brand = model.includes(" - ")
+                        ? model.split(" - ")[0]
+                        : model;
+                      updateModelCompat(index, `${brand} - ${modelName}`);
+                    }}
+                  >
+                    <SelectTrigger
+                      className="flex-1"
+                      data-testid={`select-model-${index}`}
+                    >
+                      <SelectValue placeholder="Select model" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {getVehicleMasterModels(
+                        vehicleBrands,
+                        model.includes(" - ") ? model.split(" - ")[0] : model,
+                      ).map((vehicleModel) => (
+                        <SelectItem
+                          key={vehicleModel.id}
+                          value={vehicleModel.name}
+                        >
+                          {vehicleModel.name}
+                        </SelectItem>
+                      ))}
+                      <SelectItem value="Other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+
+              {(model.startsWith("Other:") || model === "") && (
                 <Input
-                  value={model.replace('Other: ', '')}
-                  onChange={(e) => updateModelCompat(index, `Other: ${e.target.value}`)}
+                  value={model.replace("Other: ", "")}
+                  onChange={(e) =>
+                    updateModelCompat(index, `Other: ${e.target.value}`)
+                  }
                   placeholder="Enter custom compatibility"
                   className="flex-1"
                   data-testid={`input-custom-model-${index}`}
                 />
               )}
-              
+
               {formData.modelCompatibility.length > 1 && (
                 <Button
                   type="button"
@@ -1121,10 +1318,8 @@ export default function Products() {
                 </Button>
               )}
             </div>
-            {model && !model.startsWith('Other:') && model.includes(' - ') && (
-              <p className="text-xs text-green-600">
-                ✓ Selected: {model}
-              </p>
+            {model && !model.startsWith("Other:") && model.includes(" - ") && (
+              <p className="text-xs text-green-600">✓ Selected: {model}</p>
             )}
           </div>
         ))}
@@ -1152,15 +1347,22 @@ export default function Products() {
         >
           Cancel
         </Button>
-        <Button 
-          type="submit" 
-          disabled={isEdit ? updateProductMutation.isPending : createProductMutation.isPending}
+        <Button
+          type="submit"
+          disabled={
+            isEdit
+              ? updateProductMutation.isPending
+              : createProductMutation.isPending
+          }
           data-testid="button-submit-product"
         >
-          {isEdit 
-            ? (updateProductMutation.isPending ? 'Updating...' : 'Update Product')
-            : (createProductMutation.isPending ? 'Creating...' : 'Create Product')
-          }
+          {isEdit
+            ? updateProductMutation.isPending
+              ? "Updating..."
+              : "Update Product"
+            : createProductMutation.isPending
+              ? "Creating..."
+              : "Create Product"}
         </Button>
       </div>
     </form>
@@ -1182,14 +1384,19 @@ export default function Products() {
   if (error) {
     return (
       <div className="space-y-6">
-        <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">Products & Inventory</h1>
+        <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">
+          Products & Inventory
+        </h1>
         <Card className="border-destructive">
           <CardContent className="pt-6">
             <div className="text-center py-8">
               <Package className="h-12 w-12 mx-auto text-destructive mb-4" />
-              <h3 className="text-lg font-semibold mb-2">Failed to load products</h3>
+              <h3 className="text-lg font-semibold mb-2">
+                Failed to load products
+              </h3>
               <p className="text-muted-foreground mb-4">
-                {(error as Error)?.message || 'An error occurred while fetching products'}
+                {(error as Error)?.message ||
+                  "An error occurred while fetching products"}
               </p>
               <Button onClick={() => refetch()}>Retry</Button>
             </div>
@@ -1202,7 +1409,9 @@ export default function Products() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">Products & Inventory</h1>
+        <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">
+          Products & Inventory
+        </h1>
         <div className="flex gap-2 flex-wrap">
           <input
             type="file"
@@ -1223,7 +1432,7 @@ export default function Products() {
           </Button>
           <Button
             variant="outline"
-            onClick={() => document.getElementById('import-products')?.click()}
+            onClick={() => document.getElementById("import-products")?.click()}
             data-testid="button-import"
             size="sm"
           >
@@ -1242,7 +1451,10 @@ export default function Products() {
               Delete Duplicates
             </Button>
           )}
-          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+          <Dialog
+            open={isCreateDialogOpen}
+            onOpenChange={setIsCreateDialogOpen}
+          >
             <DialogTrigger asChild>
               <Button data-testid="button-add-product" size="sm">
                 <Plus className="h-4 w-4 mr-2" />
@@ -1275,16 +1487,29 @@ export default function Products() {
         </div>
         <div className="flex gap-4 flex-wrap">
           <div className="flex-1 min-w-[200px]">
-            <Label htmlFor="sort-select" className="text-sm text-muted-foreground mb-2 block">Sort By</Label>
+            <Label
+              htmlFor="sort-select"
+              className="text-sm text-muted-foreground mb-2 block"
+            >
+              Sort By
+            </Label>
             <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger id="sort-select" className="w-full" data-testid="select-sort">
+              <SelectTrigger
+                id="sort-select"
+                className="w-full"
+                data-testid="select-sort"
+              >
                 <SelectValue placeholder="Select sort option..." />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="brand-asc">Brand (A-Z)</SelectItem>
                 <SelectItem value="brand-desc">Brand (Z-A)</SelectItem>
-                <SelectItem value="stock-high">Stock Level (High to Low)</SelectItem>
-                <SelectItem value="stock-low">Stock Level (Low to High)</SelectItem>
+                <SelectItem value="stock-high">
+                  Stock Level (High to Low)
+                </SelectItem>
+                <SelectItem value="stock-low">
+                  Stock Level (Low to High)
+                </SelectItem>
                 <SelectItem value="price-high">Price (High to Low)</SelectItem>
                 <SelectItem value="price-low">Price (Low to High)</SelectItem>
                 <SelectItem value="category-asc">Category (A-Z)</SelectItem>
@@ -1297,15 +1522,24 @@ export default function Products() {
       {filteredProducts.length > 0 ? (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {filteredProducts.map((product: any) => {
-            const discountPercent = calculateDiscountPercentage(product.mrp, product.sellingPrice);
+            const discountPercent = calculateDiscountPercentage(
+              product.mrp,
+              product.sellingPrice,
+            );
             return (
-              <Card key={product._id} className="hover-elevate" data-testid={`card-product-${product._id}`}>
+              <Card
+                key={product._id}
+                className="hover-elevate"
+                data-testid={`card-product-${product._id}`}
+              >
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <CardTitle className="text-lg">{product.brand}</CardTitle>
                       {product.model && (
-                        <p className="text-sm text-muted-foreground mt-1">{product.model}</p>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {product.model}
+                        </p>
                       )}
                       {product.barcode && (
                         <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
@@ -1323,16 +1557,18 @@ export default function Products() {
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {product.images && product.images.length > 0 && product.images[0] ? (
+                  {product.images &&
+                  product.images.length > 0 &&
+                  product.images[0] ? (
                     <div className="relative w-full h-40 bg-muted rounded-md overflow-hidden">
-                      <img 
-                        src={product.images[0]} 
-                        alt={`${product.brand} ${product.model || 'Product'}`}
+                      <img
+                        src={product.images[0]}
+                        alt={`${product.brand} ${product.model || "Product"}`}
                         className="w-full h-full object-cover"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
-                          target.style.display = 'none';
-                          target.nextElementSibling?.classList.remove('hidden');
+                          target.style.display = "none";
+                          target.nextElementSibling?.classList.remove("hidden");
                         }}
                       />
                       <div className="hidden absolute inset-0 flex items-center justify-center bg-muted">
@@ -1345,8 +1581,17 @@ export default function Products() {
                     </div>
                   )}
                   <div className="flex items-center gap-2 flex-wrap">
-                    <Badge variant="outline" data-testid={`category-${product._id}`}>{product.category}</Badge>
-                    {getStatusBadge(product.status, product.stockQty, product.minStockLevel)}
+                    <Badge
+                      variant="outline"
+                      data-testid={`category-${product._id}`}
+                    >
+                      {product.category}
+                    </Badge>
+                    {getStatusBadge(
+                      product.status,
+                      product.stockQty,
+                      product.minStockLevel,
+                    )}
                     {discountPercent > 0 && (
                       <Badge variant="default" className="bg-green-600">
                         {discountPercent}% OFF
@@ -1360,20 +1605,32 @@ export default function Products() {
                     </p>
                   )}
 
-                  {product.modelCompatibility && product.modelCompatibility.length > 0 && (
-                    <div className="text-xs">
-                      <span className="text-muted-foreground">Compatible: </span>
-                      <span>{product.modelCompatibility.slice(0, 2).join(', ')}</span>
-                      {product.modelCompatibility.length > 2 && <span> +{product.modelCompatibility.length - 2} more</span>}
-                    </div>
-                  )}
+                  {product.modelCompatibility &&
+                    product.modelCompatibility.length > 0 && (
+                      <div className="text-xs">
+                        <span className="text-muted-foreground">
+                          Compatible:{" "}
+                        </span>
+                        <span>
+                          {product.modelCompatibility.slice(0, 2).join(", ")}
+                        </span>
+                        {product.modelCompatibility.length > 2 && (
+                          <span>
+                            {" "}
+                            +{product.modelCompatibility.length - 2} more
+                          </span>
+                        )}
+                      </div>
+                    )}
 
                   {product.variants && product.variants.length > 0 && (
                     <div className="text-xs">
                       <span className="text-muted-foreground">Variants: </span>
                       {product.variants.map((v: any, i: number) => (
                         <Badge key={i} variant="outline" className="mr-1">
-                          {v.size && v.color ? `${v.size}/${v.color}` : v.size || v.color}
+                          {v.size && v.color
+                            ? `${v.size}/${v.color}`
+                            : v.size || v.color}
                         </Badge>
                       ))}
                     </div>
@@ -1382,11 +1639,17 @@ export default function Products() {
                   <div className="flex justify-between items-center">
                     <div>
                       <p className="text-xs text-muted-foreground">MRP</p>
-                      <p className="text-sm line-through text-muted-foreground">{formatCurrency(product.mrp)}</p>
+                      <p className="text-sm line-through text-muted-foreground">
+                        {formatCurrency(product.mrp)}
+                      </p>
                     </div>
                     <div>
-                      <p className="text-xs text-muted-foreground">Selling Price</p>
-                      <p className="text-lg font-bold">{formatCurrency(product.sellingPrice)}</p>
+                      <p className="text-xs text-muted-foreground">
+                        Selling Price
+                      </p>
+                      <p className="text-lg font-bold">
+                        {formatCurrency(product.sellingPrice)}
+                      </p>
                     </div>
                   </div>
 
@@ -1397,28 +1660,28 @@ export default function Products() {
                   )}
 
                   <div className="flex gap-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="flex-1" 
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1"
                       onClick={() => handleEditProduct(product)}
                       data-testid={`button-edit-${product._id}`}
                     >
                       Edit
                     </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="flex-1" 
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1"
                       onClick={() => handleManageStock(product)}
                       data-testid={`button-stock-${product._id}`}
                     >
                       Manage Stock
                     </Button>
                     {canDeleteProducts && (
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
+                      <Button
+                        variant="outline"
+                        size="sm"
                         onClick={() => {
                           setSelectedProduct(product);
                           setIsDeleteDialogOpen(true);
@@ -1437,12 +1700,16 @@ export default function Products() {
       ) : products.length > 0 ? (
         <div className="text-center py-12">
           <Package className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-          <p className="text-muted-foreground">No products match your search criteria</p>
+          <p className="text-muted-foreground">
+            No products match your search criteria
+          </p>
         </div>
       ) : (
         <div className="text-center py-12">
           <Package className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-          <p className="text-muted-foreground">No products found. Add your first product to get started.</p>
+          <p className="text-muted-foreground">
+            No products found. Add your first product to get started.
+          </p>
         </div>
       )}
 
@@ -1471,7 +1738,9 @@ export default function Products() {
               <Label htmlFor="stock-type">Transaction Type</Label>
               <Select
                 value={stockFormData.type}
-                onValueChange={(value) => setStockFormData({ ...stockFormData, type: value })}
+                onValueChange={(value) =>
+                  setStockFormData({ ...stockFormData, type: value })
+                }
               >
                 <SelectTrigger data-testid="select-stock-type">
                   <SelectValue />
@@ -1491,7 +1760,12 @@ export default function Products() {
                 id="stock-quantity"
                 type="number"
                 value={stockFormData.quantity}
-                onChange={(e) => setStockFormData({ ...stockFormData, quantity: e.target.value })}
+                onChange={(e) =>
+                  setStockFormData({
+                    ...stockFormData,
+                    quantity: e.target.value,
+                  })
+                }
                 required
                 data-testid="input-stock-quantity"
               />
@@ -1502,7 +1776,9 @@ export default function Products() {
               <Textarea
                 id="stock-reason"
                 value={stockFormData.reason}
-                onChange={(e) => setStockFormData({ ...stockFormData, reason: e.target.value })}
+                onChange={(e) =>
+                  setStockFormData({ ...stockFormData, reason: e.target.value })
+                }
                 required
                 data-testid="input-stock-reason"
               />
@@ -1517,28 +1793,35 @@ export default function Products() {
               >
                 Cancel
               </Button>
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 disabled={updateStockMutation.isPending}
                 data-testid="button-submit-stock"
               >
-                {updateStockMutation.isPending ? 'Updating...' : 'Update Stock'}
+                {updateStockMutation.isPending ? "Updating..." : "Update Stock"}
               </Button>
             </div>
           </form>
         </DialogContent>
       </Dialog>
 
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+      <AlertDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Product</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete "{selectedProduct?.name}"? This action cannot be undone and will permanently remove this product from your inventory.
+              Are you sure you want to delete "{selectedProduct?.name}"? This
+              action cannot be undone and will permanently remove this product
+              from your inventory.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel data-testid="button-cancel-delete">Cancel</AlertDialogCancel>
+            <AlertDialogCancel data-testid="button-cancel-delete">
+              Cancel
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
                 if (selectedProduct) {

@@ -1,18 +1,73 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import { Plus, Search, MessageSquare, Send, Star, Check, ChevronsUpDown, User, Phone, Mail, MapPin, Eye, Edit, Trash2, AlertCircle } from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Plus,
+  Search,
+  MessageSquare,
+  Send,
+  Star,
+  Check,
+  ChevronsUpDown,
+  User,
+  Phone,
+  Mail,
+  MapPin,
+  Eye,
+  Edit,
+  Trash2,
+  AlertCircle,
+} from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatDistance } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
@@ -32,10 +87,11 @@ export default function SupportFeedback() {
   const [selectedCustomer, setSelectedCustomer] = useState<any>(null);
   const [newTicketForm, setNewTicketForm] = useState({
     customerId: "",
+    productId: "",
     subject: "",
     description: "",
     category: "general",
-    priority: "medium"
+    priority: "medium",
   });
   const [newNote, setNewNote] = useState("");
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -43,33 +99,62 @@ export default function SupportFeedback() {
   const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false);
   const [ticketToDelete, setTicketToDelete] = useState<string | null>(null);
 
-  const { data: tickets = [], isLoading, refetch } = useQuery<any[]>({
+  const {
+    data: tickets = [],
+    isLoading,
+    refetch,
+  } = useQuery<any[]>({
     queryKey: ["/api/support-tickets"],
-    queryFn: () => fetch('/api/support-tickets').then(res => res.json()),
+    queryFn: () => fetch("/api/support-tickets").then((res) => res.json()),
   });
 
-  const { data: ticketSearchResults, isLoading: isSearchingTickets } = useQuery({
-    queryKey: ["/api/support-tickets/search", ticketSearchQuery],
-    queryFn: () => fetch(`/api/support-tickets/search?query=${ticketSearchQuery}`).then(res => res.json()),
-    enabled: ticketSearchQuery.length > 2
-  });
+  const { data: ticketSearchResults, isLoading: isSearchingTickets } = useQuery(
+    {
+      queryKey: ["/api/support-tickets/search", ticketSearchQuery],
+      queryFn: () =>
+        fetch(`/api/support-tickets/search?query=${ticketSearchQuery}`).then(
+          (res) => res.json(),
+        ),
+      enabled: ticketSearchQuery.length > 2,
+    },
+  );
 
-  const displayedTickets = ticketSearchQuery.length > 2 && ticketSearchResults?.tickets 
-    ? ticketSearchResults.tickets 
-    : tickets;
+  const displayedTickets =
+    ticketSearchQuery.length > 2 && ticketSearchResults?.tickets
+      ? ticketSearchResults.tickets
+      : tickets;
 
-  const isLoadingTickets = ticketSearchQuery.length > 2 ? isSearchingTickets : isLoading;
+  const isLoadingTickets =
+    ticketSearchQuery.length > 2 ? isSearchingTickets : isLoading;
 
-  const { data: customers = [], isLoading: isLoadingCustomers } = useQuery<any[]>({
+  const { data: customers = [], isLoading: isLoadingCustomers } = useQuery<
+    any[]
+  >({
     queryKey: ["/api/registration/customers"],
-    queryFn: () => fetch('/api/registration/customers').then(res => res.json()),
+    queryFn: () =>
+      fetch("/api/registration/customers").then((res) => res.json()),
   });
+
+  const { data: products = [], isLoading: isLoadingProducts } = useQuery<any[]>(
+    {
+      queryKey: ["/api/support-ticket-products"],
+      queryFn: () =>
+        fetch("/api/support-ticket-products", { credentials: "include" }).then(
+          (res) => res.json(),
+        ),
+    },
+  );
 
   const filteredCustomers = customerSearchQuery
-    ? customers.filter((c: any) => 
-        c.fullName?.toLowerCase().includes(customerSearchQuery.toLowerCase()) ||
-        c.referenceCode?.toLowerCase().includes(customerSearchQuery.toLowerCase()) ||
-        c.email?.toLowerCase().includes(customerSearchQuery.toLowerCase())
+    ? customers.filter(
+        (c: any) =>
+          c.fullName
+            ?.toLowerCase()
+            .includes(customerSearchQuery.toLowerCase()) ||
+          c.referenceCode
+            ?.toLowerCase()
+            .includes(customerSearchQuery.toLowerCase()) ||
+          c.email?.toLowerCase().includes(customerSearchQuery.toLowerCase()),
       )
     : customers;
 
@@ -78,36 +163,69 @@ export default function SupportFeedback() {
   });
 
   const ticketsByStatus = {
-    pending: displayedTickets.filter((t: any) => t.status === 'pending'),
-    in_progress: displayedTickets.filter((t: any) => t.status === 'in_progress'),
-    resolved: displayedTickets.filter((t: any) => t.status === 'resolved'),
-    closed: displayedTickets.filter((t: any) => t.status === 'closed'),
+    pending: displayedTickets.filter((t: any) => t.status === "pending"),
+    in_progress: displayedTickets.filter(
+      (t: any) => t.status === "in_progress",
+    ),
+    resolved: displayedTickets.filter((t: any) => t.status === "resolved"),
+    closed: displayedTickets.filter((t: any) => t.status === "closed"),
   };
 
   const statuses = [
-    { id: "pending", label: "Pending", count: ticketsByStatus.pending.length, color: "text-yellow-700 dark:text-yellow-400", bgColor: "bg-yellow-50 dark:bg-yellow-950/20", borderColor: "border-yellow-300 dark:border-yellow-700" },
-    { id: "in_progress", label: "In Progress", count: ticketsByStatus.in_progress.length, color: "text-blue-700 dark:text-blue-400", bgColor: "bg-blue-50 dark:bg-blue-950/20", borderColor: "border-blue-300 dark:border-blue-700" },
-    { id: "resolved", label: "Resolved", count: ticketsByStatus.resolved.length, color: "text-green-700 dark:text-green-400", bgColor: "bg-green-50 dark:bg-green-950/20", borderColor: "border-green-300 dark:border-green-700" },
-    { id: "closed", label: "Closed", count: ticketsByStatus.closed.length, color: "text-gray-700 dark:text-gray-400", bgColor: "bg-gray-50 dark:bg-gray-950/20", borderColor: "border-gray-300 dark:border-gray-700" },
+    {
+      id: "pending",
+      label: "Pending",
+      count: ticketsByStatus.pending.length,
+      color: "text-yellow-700 dark:text-yellow-400",
+      bgColor: "bg-yellow-50 dark:bg-yellow-950/20",
+      borderColor: "border-yellow-300 dark:border-yellow-700",
+    },
+    {
+      id: "in_progress",
+      label: "In Progress",
+      count: ticketsByStatus.in_progress.length,
+      color: "text-blue-700 dark:text-blue-400",
+      bgColor: "bg-blue-50 dark:bg-blue-950/20",
+      borderColor: "border-blue-300 dark:border-blue-700",
+    },
+    {
+      id: "resolved",
+      label: "Resolved",
+      count: ticketsByStatus.resolved.length,
+      color: "text-green-700 dark:text-green-400",
+      bgColor: "bg-green-50 dark:bg-green-950/20",
+      borderColor: "border-green-300 dark:border-green-700",
+    },
+    {
+      id: "closed",
+      label: "Closed",
+      count: ticketsByStatus.closed.length,
+      color: "text-gray-700 dark:text-gray-400",
+      bgColor: "bg-gray-50 dark:bg-gray-950/20",
+      borderColor: "border-gray-300 dark:border-gray-700",
+    },
   ];
 
   const createTicketMutation = useMutation({
     mutationFn: async (data: any) => {
-      const response = await apiRequest('POST', '/api/support-tickets', data);
+      const response = await apiRequest("POST", "/api/support-tickets", data);
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/support-tickets'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/support-tickets/search'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/support-tickets"] });
+      queryClient.invalidateQueries({
+        queryKey: ["/api/support-tickets/search"],
+      });
       setIsCreateDialogOpen(false);
       setCustomerSearchQuery("");
       setSelectedCustomer(null);
       setNewTicketForm({
         customerId: "",
+        productId: "",
         subject: "",
         description: "",
         category: "general",
-        priority: "medium"
+        priority: "medium",
       });
       toast({
         title: "Success",
@@ -125,12 +243,18 @@ export default function SupportFeedback() {
 
   const updateTicketMutation = useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: any }) => {
-      const response = await apiRequest('PATCH', `/api/support-tickets/${id}`, updates);
+      const response = await apiRequest(
+        "PATCH",
+        `/api/support-tickets/${id}`,
+        updates,
+      );
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/support-tickets'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/support-tickets/search'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/support-tickets"] });
+      queryClient.invalidateQueries({
+        queryKey: ["/api/support-tickets/search"],
+      });
       refetch();
       toast({
         title: "Success",
@@ -141,12 +265,18 @@ export default function SupportFeedback() {
 
   const addNoteMutation = useMutation({
     mutationFn: async ({ id, note }: { id: string; note: string }) => {
-      const response = await apiRequest('POST', `/api/support-tickets/${id}/notes`, { note });
+      const response = await apiRequest(
+        "POST",
+        `/api/support-tickets/${id}/notes`,
+        { note },
+      );
       return response.json();
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['/api/support-tickets'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/support-tickets/search'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/support-tickets"] });
+      queryClient.invalidateQueries({
+        queryKey: ["/api/support-tickets/search"],
+      });
       setSelectedTicket(data);
       setNewNote("");
       toast({
@@ -158,7 +288,11 @@ export default function SupportFeedback() {
 
   const sendWhatsAppMutation = useMutation({
     mutationFn: async (id: string) => {
-      const response = await apiRequest('POST', `/api/support-tickets/${id}/send-whatsapp`, {});
+      const response = await apiRequest(
+        "POST",
+        `/api/support-tickets/${id}/send-whatsapp`,
+        {},
+      );
       return response.json();
     },
     onSuccess: () => {
@@ -171,7 +305,11 @@ export default function SupportFeedback() {
 
   const sendFeedbackMutation = useMutation({
     mutationFn: async (id: string) => {
-      const response = await apiRequest('POST', `/api/support-tickets/${id}/send-feedback`, {});
+      const response = await apiRequest(
+        "POST",
+        `/api/support-tickets/${id}/send-feedback`,
+        {},
+      );
       return response.json();
     },
     onSuccess: () => {
@@ -184,12 +322,18 @@ export default function SupportFeedback() {
 
   const deleteTicketMutation = useMutation({
     mutationFn: async (id: string) => {
-      const response = await apiRequest('DELETE', `/api/support-tickets/${id}`, {});
+      const response = await apiRequest(
+        "DELETE",
+        `/api/support-tickets/${id}`,
+        {},
+      );
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/support-tickets'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/support-tickets/search'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/support-tickets"] });
+      queryClient.invalidateQueries({
+        queryKey: ["/api/support-tickets/search"],
+      });
       setIsViewDialogOpen(false);
       setSelectedTicket(null);
       toast({
@@ -208,12 +352,18 @@ export default function SupportFeedback() {
 
   const editTicketMutation = useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: any }) => {
-      const response = await apiRequest('PATCH', `/api/support-tickets/${id}`, updates);
+      const response = await apiRequest(
+        "PATCH",
+        `/api/support-tickets/${id}`,
+        updates,
+      );
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/support-tickets'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/support-tickets/search'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/support-tickets"] });
+      queryClient.invalidateQueries({
+        queryKey: ["/api/support-tickets/search"],
+      });
       setIsEditDialogOpen(false);
       setEditTicketForm(null);
       toast({
@@ -232,12 +382,20 @@ export default function SupportFeedback() {
 
   const getStatusBadge = (status: string) => {
     const styles = {
-      pending: "bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-500/20",
-      in_progress: "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20",
-      resolved: "bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20",
-      closed: "bg-gray-500/10 text-gray-700 dark:text-gray-400 border-gray-500/20"
+      pending:
+        "bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-500/20",
+      in_progress:
+        "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20",
+      resolved:
+        "bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20",
+      closed:
+        "bg-gray-500/10 text-gray-700 dark:text-gray-400 border-gray-500/20",
     };
-    return <Badge className={styles[status as keyof typeof styles] || ""}>{status.replace('_', ' ')}</Badge>;
+    return (
+      <Badge className={styles[status as keyof typeof styles] || ""}>
+        {status.replace("_", " ")}
+      </Badge>
+    );
   };
 
   const getPriorityBadge = (priority: string) => {
@@ -245,16 +403,23 @@ export default function SupportFeedback() {
       low: "bg-gray-500/10 text-gray-700 dark:text-gray-400",
       medium: "bg-blue-500/10 text-blue-700 dark:text-blue-400",
       high: "bg-orange-500/10 text-orange-700 dark:text-orange-400",
-      urgent: "bg-red-500/10 text-red-700 dark:text-red-400"
+      urgent: "bg-red-500/10 text-red-700 dark:text-red-400",
     };
-    return <Badge variant="outline" className={styles[priority as keyof typeof styles] || ""}>{priority}</Badge>;
+    return (
+      <Badge
+        variant="outline"
+        className={styles[priority as keyof typeof styles] || ""}
+      >
+        {priority}
+      </Badge>
+    );
   };
 
   const handleCustomerSelect = (customer: any) => {
     setSelectedCustomer(customer);
     setNewTicketForm({
       ...newTicketForm,
-      customerId: customer.id || customer._id
+      customerId: customer.id || customer._id,
     });
     setOpenCustomerCombobox(false);
   };
@@ -266,7 +431,7 @@ export default function SupportFeedback() {
       description: ticket.description,
       category: ticket.category,
       priority: ticket.priority,
-      status: ticket.status
+      status: ticket.status,
     });
     setIsViewDialogOpen(false);
     setIsEditDialogOpen(true);
@@ -289,8 +454,15 @@ export default function SupportFeedback() {
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-xl font-semibold tracking-tight sm:text-2xl" data-testid="text-page-title">Support & Feedback</h1>
-          <p className="text-muted-foreground">Manage customer support tickets and feedback</p>
+          <h1
+            className="text-xl font-semibold tracking-tight sm:text-2xl"
+            data-testid="text-page-title"
+          >
+            Support & Feedback
+          </h1>
+          <p className="text-muted-foreground">
+            Manage customer support tickets and feedback
+          </p>
         </div>
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
@@ -302,12 +474,17 @@ export default function SupportFeedback() {
           <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Create Support Ticket</DialogTitle>
-              <DialogDescription>Log a new customer support ticket</DialogDescription>
+              <DialogDescription>
+                Log a new customer support ticket
+              </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label>Select Customer *</Label>
-                <Popover open={openCustomerCombobox} onOpenChange={setOpenCustomerCombobox}>
+                <Popover
+                  open={openCustomerCombobox}
+                  onOpenChange={setOpenCustomerCombobox}
+                >
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
@@ -319,61 +496,83 @@ export default function SupportFeedback() {
                       {selectedCustomer ? (
                         <span className="flex items-center gap-2">
                           <User className="h-4 w-4" />
-                          {selectedCustomer.fullName} ({selectedCustomer.referenceCode})
+                          {selectedCustomer.fullName} (
+                          {selectedCustomer.referenceCode})
                         </span>
                       ) : (
-                        <span className="text-muted-foreground">Search and select customer...</span>
+                        <span className="text-muted-foreground">
+                          Search and select customer...
+                        </span>
                       )}
                       <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-[600px] p-0" align="start">
                     <Command>
-                      <CommandInput 
-                        placeholder="Search by name, ID, or email..." 
+                      <CommandInput
+                        placeholder="Search by name, ID, or email..."
                         value={customerSearchQuery}
                         onValueChange={setCustomerSearchQuery}
                         data-testid="input-customer-search"
                       />
                       <CommandList>
                         <CommandEmpty>
-                          {isLoadingCustomers ? "Loading customers..." : "No customers found."}
+                          {isLoadingCustomers
+                            ? "Loading customers..."
+                            : "No customers found."}
                         </CommandEmpty>
                         <CommandGroup heading="Recent Customers (Latest First)">
-                          {filteredCustomers.slice(0, 50).map((customer: any) => (
-                            <CommandItem
-                              key={customer.id || customer._id}
-                              value={`${customer.fullName} ${customer.referenceCode} ${customer.mobileNumber} ${customer.email}`}
-                              onSelect={() => handleCustomerSelect(customer)}
-                              data-testid={`customer-option-${customer.referenceCode}`}
-                            >
-                              <Check
-                                className={cn(
-                                  "mr-2 h-4 w-4",
-                                  selectedCustomer?.id === customer.id || selectedCustomer?._id === customer._id
-                                    ? "opacity-100"
-                                    : "opacity-0"
-                                )}
-                              />
-                              <div className="flex-1">
-                                <div className="flex items-center gap-2">
-                                  <span className="font-medium">{customer.fullName}</span>
-                                  <Badge variant="outline" className="text-xs">{customer.referenceCode}</Badge>
-                                  {customer.isVerified && <Badge variant="outline" className="text-xs bg-green-500/10 text-green-600">Verified</Badge>}
+                          {filteredCustomers
+                            .slice(0, 50)
+                            .map((customer: any) => (
+                              <CommandItem
+                                key={customer.id || customer._id}
+                                value={`${customer.fullName} ${customer.referenceCode} ${customer.mobileNumber} ${customer.email}`}
+                                onSelect={() => handleCustomerSelect(customer)}
+                                data-testid={`customer-option-${customer.referenceCode}`}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    selectedCustomer?.id === customer.id ||
+                                      selectedCustomer?._id === customer._id
+                                      ? "opacity-100"
+                                      : "opacity-0",
+                                  )}
+                                />
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-medium">
+                                      {customer.fullName}
+                                    </span>
+                                    <Badge
+                                      variant="outline"
+                                      className="text-xs"
+                                    >
+                                      {customer.referenceCode}
+                                    </Badge>
+                                    {customer.isVerified && (
+                                      <Badge
+                                        variant="outline"
+                                        className="text-xs bg-green-500/10 text-green-600"
+                                      >
+                                        Verified
+                                      </Badge>
+                                    )}
+                                  </div>
+                                  <div className="flex items-center gap-4 text-xs text-muted-foreground mt-1">
+                                    <span className="flex items-center gap-1">
+                                      <Mail className="h-3 w-3" />
+                                      {customer.email}
+                                    </span>
+                                    <span className="flex items-center gap-1">
+                                      <MapPin className="h-3 w-3" />
+                                      {customer.city}
+                                    </span>
+                                  </div>
                                 </div>
-                                <div className="flex items-center gap-4 text-xs text-muted-foreground mt-1">
-                                  <span className="flex items-center gap-1">
-                                    <Mail className="h-3 w-3" />
-                                    {customer.email}
-                                  </span>
-                                  <span className="flex items-center gap-1">
-                                    <MapPin className="h-3 w-3" />
-                                    {customer.city}
-                                  </span>
-                                </div>
-                              </div>
-                            </CommandItem>
-                          ))}
+                              </CommandItem>
+                            ))}
                         </CommandGroup>
                       </CommandList>
                     </Command>
@@ -386,20 +585,34 @@ export default function SupportFeedback() {
                   <CardContent className="pt-4">
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
-                        <Label className="text-xs text-muted-foreground">Customer ID</Label>
-                        <p className="font-medium">{selectedCustomer.referenceCode}</p>
+                        <Label className="text-xs text-muted-foreground">
+                          Customer ID
+                        </Label>
+                        <p className="font-medium">
+                          {selectedCustomer.referenceCode}
+                        </p>
                       </div>
                       <div>
-                        <Label className="text-xs text-muted-foreground">Email</Label>
+                        <Label className="text-xs text-muted-foreground">
+                          Email
+                        </Label>
                         <p className="font-medium">{selectedCustomer.email}</p>
                       </div>
                       <div>
-                        <Label className="text-xs text-muted-foreground">Location</Label>
-                        <p className="font-medium">{selectedCustomer.city}, {selectedCustomer.district}</p>
+                        <Label className="text-xs text-muted-foreground">
+                          Location
+                        </Label>
+                        <p className="font-medium">
+                          {selectedCustomer.city}, {selectedCustomer.district}
+                        </p>
                       </div>
                       <div>
-                        <Label className="text-xs text-muted-foreground">Address</Label>
-                        <p className="font-medium">{selectedCustomer.address}</p>
+                        <Label className="text-xs text-muted-foreground">
+                          Address
+                        </Label>
+                        <p className="font-medium">
+                          {selectedCustomer.address}
+                        </p>
                       </div>
                     </div>
                   </CardContent>
@@ -407,12 +620,46 @@ export default function SupportFeedback() {
               )}
 
               <div className="space-y-2">
+                <Label>Product *</Label>
+                <Select
+                  value={newTicketForm.productId}
+                  onValueChange={(productId) =>
+                    setNewTicketForm({ ...newTicketForm, productId })
+                  }
+                  disabled={isLoadingProducts}
+                >
+                  <SelectTrigger data-testid="select-ticket-product">
+                    <SelectValue
+                      placeholder={
+                        isLoadingProducts
+                          ? "Loading products..."
+                          : "Select the affected product"
+                      }
+                    />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {products.map((product: any) => (
+                      <SelectItem key={product._id} value={product._id}>
+                        {product.productName || product.name || product.model}{" "}
+                        {product.brand ? `— ${product.brand}` : ""}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
                 <Label>Subject *</Label>
                 <Input
                   data-testid="input-subject"
                   placeholder="Brief description of the issue"
                   value={newTicketForm.subject}
-                  onChange={(e) => setNewTicketForm({...newTicketForm, subject: e.target.value})}
+                  onChange={(e) =>
+                    setNewTicketForm({
+                      ...newTicketForm,
+                      subject: e.target.value,
+                    })
+                  }
                 />
               </div>
 
@@ -422,7 +669,12 @@ export default function SupportFeedback() {
                   data-testid="input-description"
                   placeholder="Detailed description of the issue"
                   value={newTicketForm.description}
-                  onChange={(e) => setNewTicketForm({...newTicketForm, description: e.target.value})}
+                  onChange={(e) =>
+                    setNewTicketForm({
+                      ...newTicketForm,
+                      description: e.target.value,
+                    })
+                  }
                   rows={4}
                 />
               </div>
@@ -430,22 +682,38 @@ export default function SupportFeedback() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Category</Label>
-                  <Select value={newTicketForm.category} onValueChange={(val) => setNewTicketForm({...newTicketForm, category: val})}>
+                  <Select
+                    value={newTicketForm.category}
+                    onValueChange={(val) =>
+                      setNewTicketForm({ ...newTicketForm, category: val })
+                    }
+                  >
                     <SelectTrigger data-testid="select-category">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="service_quality">Service Quality</SelectItem>
-                      <SelectItem value="product_issue">Product Issue</SelectItem>
+                      <SelectItem value="service_quality">
+                        Service Quality
+                      </SelectItem>
+                      <SelectItem value="product_issue">
+                        Product Issue
+                      </SelectItem>
                       <SelectItem value="billing">Billing</SelectItem>
-                      <SelectItem value="parts_warranty">Parts/Warranty</SelectItem>
+                      <SelectItem value="parts_warranty">
+                        Parts/Warranty
+                      </SelectItem>
                       <SelectItem value="general">General</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-2">
                   <Label>Priority</Label>
-                  <Select value={newTicketForm.priority} onValueChange={(val) => setNewTicketForm({...newTicketForm, priority: val})}>
+                  <Select
+                    value={newTicketForm.priority}
+                    onValueChange={(val) =>
+                      setNewTicketForm({ ...newTicketForm, priority: val })
+                    }
+                  >
                     <SelectTrigger data-testid="select-priority">
                       <SelectValue />
                     </SelectTrigger>
@@ -459,13 +727,21 @@ export default function SupportFeedback() {
                 </div>
               </div>
 
-              <Button 
+              <Button
                 onClick={() => createTicketMutation.mutate(newTicketForm)}
-                disabled={!newTicketForm.customerId || !newTicketForm.subject || !newTicketForm.description || createTicketMutation.isPending}
+                disabled={
+                  !newTicketForm.customerId ||
+                  !newTicketForm.productId ||
+                  !newTicketForm.subject ||
+                  !newTicketForm.description ||
+                  createTicketMutation.isPending
+                }
                 className="w-full"
                 data-testid="button-submit-ticket"
               >
-                {createTicketMutation.isPending ? "Creating..." : "Create Ticket"}
+                {createTicketMutation.isPending
+                  ? "Creating..."
+                  : "Create Ticket"}
               </Button>
             </div>
           </DialogContent>
@@ -485,7 +761,9 @@ export default function SupportFeedback() {
                 <Search className="h-5 w-5" />
                 Quick Search
               </CardTitle>
-              <CardDescription>Search by Customer ID, Vehicle Number, or Ticket Number</CardDescription>
+              <CardDescription>
+                Search by Customer ID, Vehicle Number, or Ticket Number
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <Input
@@ -519,10 +797,16 @@ export default function SupportFeedback() {
           ) : (
             <div className="space-y-4">
               {statuses.map((status) => (
-                <Card key={status.id} className={`border-2 ${status.borderColor}`} data-testid={`card-status-${status.id}`}>
+                <Card
+                  key={status.id}
+                  className={`border-2 ${status.borderColor}`}
+                  data-testid={`card-status-${status.id}`}
+                >
                   <CardHeader className={`pb-4 border-b ${status.bgColor}`}>
                     <CardTitle className="text-lg flex items-center justify-between">
-                      <div className={`flex items-center gap-2 ${status.color}`}>
+                      <div
+                        className={`flex items-center gap-2 ${status.color}`}
+                      >
                         <MessageSquare className="h-5 w-5" />
                         {status.label}
                       </div>
@@ -532,30 +816,54 @@ export default function SupportFeedback() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="pt-4">
-                    {ticketsByStatus[status.id as keyof typeof ticketsByStatus].length > 0 ? (
+                    {ticketsByStatus[status.id as keyof typeof ticketsByStatus]
+                      .length > 0 ? (
                       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                        {ticketsByStatus[status.id as keyof typeof ticketsByStatus].map((ticket: any) => (
-                          <Card key={ticket._id} className={`border ${status.borderColor} ${status.bgColor} hover:shadow-md transition-shadow`} data-testid={`card-ticket-${ticket.ticketNumber}`}>
+                        {ticketsByStatus[
+                          status.id as keyof typeof ticketsByStatus
+                        ].map((ticket: any) => (
+                          <Card
+                            key={ticket._id}
+                            className={`border ${status.borderColor} ${status.bgColor} hover:shadow-md transition-shadow`}
+                            data-testid={`card-ticket-${ticket.ticketNumber}`}
+                          >
                             <CardContent className="p-4 space-y-3">
                               <div className="space-y-2">
                                 <div className="flex items-center justify-between">
-                                  <Badge variant="outline" className="font-mono text-xs">{ticket.ticketNumber}</Badge>
+                                  <Badge
+                                    variant="outline"
+                                    className="font-mono text-xs"
+                                  >
+                                    {ticket.ticketNumber}
+                                  </Badge>
                                   {getPriorityBadge(ticket.priority)}
                                 </div>
-                                <h3 className="font-semibold text-sm line-clamp-1">{ticket.subject}</h3>
-                                <p className="text-xs text-muted-foreground line-clamp-2">{ticket.description}</p>
+                                <h3 className="font-semibold text-sm line-clamp-1">
+                                  {ticket.subject}
+                                </h3>
+                                <p className="text-xs text-muted-foreground line-clamp-2">
+                                  {ticket.description}
+                                </p>
                               </div>
 
                               <div className="space-y-1 text-xs text-muted-foreground">
                                 <div className="flex items-center gap-1">
                                   <User className="h-3 w-3" />
-                                  <span className="truncate">{ticket.customerId?.fullName || 'Unknown'}</span>
+                                  <span className="truncate">
+                                    {ticket.customerId?.fullName || "Unknown"}
+                                  </span>
                                   {ticket.customerId?.referenceCode && (
-                                    <span className="text-xs opacity-70">({ticket.customerId.referenceCode})</span>
+                                    <span className="text-xs opacity-70">
+                                      ({ticket.customerId.referenceCode})
+                                    </span>
                                   )}
                                 </div>
                                 <div>
-                                  {formatDistance(new Date(ticket.createdAt), new Date(), { addSuffix: true })}
+                                  {formatDistance(
+                                    new Date(ticket.createdAt),
+                                    new Date(),
+                                    { addSuffix: true },
+                                  )}
                                 </div>
                               </div>
 
@@ -564,7 +872,10 @@ export default function SupportFeedback() {
                                   variant="outline"
                                   size="sm"
                                   className="flex-1"
-                                  onClick={() => { setSelectedTicket(ticket); setIsViewDialogOpen(true); }}
+                                  onClick={() => {
+                                    setSelectedTicket(ticket);
+                                    setIsViewDialogOpen(true);
+                                  }}
                                   data-testid={`button-view-${ticket.ticketNumber}`}
                                 >
                                   <Eye className="h-3 w-3 mr-1" />
@@ -576,7 +887,10 @@ export default function SupportFeedback() {
                         ))}
                       </div>
                     ) : (
-                      <p className="text-muted-foreground text-sm text-center py-8" data-testid={`empty-${status.id}`}>
+                      <p
+                        className="text-muted-foreground text-sm text-center py-8"
+                        data-testid={`empty-${status.id}`}
+                      >
                         No tickets in {status.label.toLowerCase()}
                       </p>
                     )}
@@ -591,39 +905,55 @@ export default function SupportFeedback() {
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium">Average Rating</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Average Rating
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="flex items-center gap-2">
                   <Star className="h-8 w-8 fill-yellow-400 text-yellow-400" />
                   <div className="text-2xl font-bold">
-                    {feedbackAnalytics?.overallStats?.averageRating?.toFixed(1) || 'N/A'}
+                    {feedbackAnalytics?.overallStats?.averageRating?.toFixed(
+                      1,
+                    ) || "N/A"}
                   </div>
                 </div>
               </CardContent>
             </Card>
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium">Total Feedbacks</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Total Feedbacks
+                </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{feedbackAnalytics?.overallStats?.totalFeedbacks || 0}</div>
+                <div className="text-2xl font-bold">
+                  {feedbackAnalytics?.overallStats?.totalFeedbacks || 0}
+                </div>
               </CardContent>
             </Card>
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium">5-Star Ratings</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  5-Star Ratings
+                </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-green-600">{feedbackAnalytics?.overallStats?.rating5 || 0}</div>
+                <div className="text-2xl font-bold text-green-600">
+                  {feedbackAnalytics?.overallStats?.rating5 || 0}
+                </div>
               </CardContent>
             </Card>
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium">1-Star Ratings</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  1-Star Ratings
+                </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-red-600">{feedbackAnalytics?.overallStats?.rating1 || 0}</div>
+                <div className="text-2xl font-bold text-red-600">
+                  {feedbackAnalytics?.overallStats?.rating1 || 0}
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -633,21 +963,30 @@ export default function SupportFeedback() {
       <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Ticket Details - {selectedTicket?.ticketNumber}</DialogTitle>
+            <DialogTitle>
+              Ticket Details - {selectedTicket?.ticketNumber}
+            </DialogTitle>
           </DialogHeader>
           {selectedTicket && (
             <div className="space-y-6">
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label className="text-muted-foreground">Customer</Label>
-                  <p className="font-medium">{selectedTicket.customerId?.fullName}</p>
+                  <p className="font-medium">
+                    {selectedTicket.customerId?.fullName}
+                  </p>
                 </div>
                 <div>
                   <Label className="text-muted-foreground">Status</Label>
                   <div className="mt-1">
-                    <Select 
-                      value={selectedTicket.status} 
-                      onValueChange={(val) => updateTicketMutation.mutate({ id: selectedTicket._id, updates: { status: val } })}
+                    <Select
+                      value={selectedTicket.status}
+                      onValueChange={(val) =>
+                        updateTicketMutation.mutate({
+                          id: selectedTicket._id,
+                          updates: { status: val },
+                        })
+                      }
                     >
                       <SelectTrigger data-testid="select-ticket-status">
                         <SelectValue />
@@ -680,7 +1019,10 @@ export default function SupportFeedback() {
                     <div key={idx} className="bg-muted p-3 rounded-md">
                       <p className="text-sm">{note.note}</p>
                       <p className="text-xs text-muted-foreground mt-1">
-                        {note.addedBy?.name || 'Unknown'} - {formatDistance(new Date(note.addedAt), new Date(), { addSuffix: true })}
+                        {note.addedBy?.name || "Unknown"} -{" "}
+                        {formatDistance(new Date(note.addedAt), new Date(), {
+                          addSuffix: true,
+                        })}
                       </p>
                     </div>
                   ))}
@@ -693,8 +1035,13 @@ export default function SupportFeedback() {
                     onChange={(e) => setNewNote(e.target.value)}
                     rows={2}
                   />
-                  <Button 
-                    onClick={() => addNoteMutation.mutate({ id: selectedTicket._id, note: newNote })}
+                  <Button
+                    onClick={() =>
+                      addNoteMutation.mutate({
+                        id: selectedTicket._id,
+                        note: newNote,
+                      })
+                    }
                     disabled={!newNote || addNoteMutation.isPending}
                     data-testid="button-add-note"
                   >
@@ -704,7 +1051,7 @@ export default function SupportFeedback() {
               </div>
 
               <div className="flex gap-2 pt-4 border-t">
-                <Button 
+                <Button
                   onClick={() => handleEditClick(selectedTicket)}
                   variant="outline"
                   className="flex-1"
@@ -713,7 +1060,7 @@ export default function SupportFeedback() {
                   <Edit className="h-4 w-4 mr-2" />
                   Edit Ticket
                 </Button>
-                <Button 
+                <Button
                   onClick={() => handleDeleteClick(selectedTicket._id)}
                   disabled={deleteTicketMutation.isPending}
                   variant="destructive"
@@ -742,7 +1089,12 @@ export default function SupportFeedback() {
                   data-testid="input-edit-subject"
                   placeholder="Brief description of the issue"
                   value={editTicketForm.subject}
-                  onChange={(e) => setEditTicketForm({...editTicketForm, subject: e.target.value})}
+                  onChange={(e) =>
+                    setEditTicketForm({
+                      ...editTicketForm,
+                      subject: e.target.value,
+                    })
+                  }
                 />
               </div>
 
@@ -752,7 +1104,12 @@ export default function SupportFeedback() {
                   data-testid="input-edit-description"
                   placeholder="Detailed description of the issue"
                   value={editTicketForm.description}
-                  onChange={(e) => setEditTicketForm({...editTicketForm, description: e.target.value})}
+                  onChange={(e) =>
+                    setEditTicketForm({
+                      ...editTicketForm,
+                      description: e.target.value,
+                    })
+                  }
                   rows={4}
                 />
               </div>
@@ -760,22 +1117,38 @@ export default function SupportFeedback() {
               <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <Label>Category</Label>
-                  <Select value={editTicketForm.category} onValueChange={(val) => setEditTicketForm({...editTicketForm, category: val})}>
+                  <Select
+                    value={editTicketForm.category}
+                    onValueChange={(val) =>
+                      setEditTicketForm({ ...editTicketForm, category: val })
+                    }
+                  >
                     <SelectTrigger data-testid="select-edit-category">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="service_quality">Service Quality</SelectItem>
-                      <SelectItem value="product_issue">Product Issue</SelectItem>
+                      <SelectItem value="service_quality">
+                        Service Quality
+                      </SelectItem>
+                      <SelectItem value="product_issue">
+                        Product Issue
+                      </SelectItem>
                       <SelectItem value="billing">Billing</SelectItem>
-                      <SelectItem value="parts_warranty">Parts/Warranty</SelectItem>
+                      <SelectItem value="parts_warranty">
+                        Parts/Warranty
+                      </SelectItem>
                       <SelectItem value="general">General</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-2">
                   <Label>Priority</Label>
-                  <Select value={editTicketForm.priority} onValueChange={(val) => setEditTicketForm({...editTicketForm, priority: val})}>
+                  <Select
+                    value={editTicketForm.priority}
+                    onValueChange={(val) =>
+                      setEditTicketForm({ ...editTicketForm, priority: val })
+                    }
+                  >
                     <SelectTrigger data-testid="select-edit-priority">
                       <SelectValue />
                     </SelectTrigger>
@@ -789,7 +1162,12 @@ export default function SupportFeedback() {
                 </div>
                 <div className="space-y-2">
                   <Label>Status</Label>
-                  <Select value={editTicketForm.status} onValueChange={(val) => setEditTicketForm({...editTicketForm, status: val})}>
+                  <Select
+                    value={editTicketForm.status}
+                    onValueChange={(val) =>
+                      setEditTicketForm({ ...editTicketForm, status: val })
+                    }
+                  >
                     <SelectTrigger data-testid="select-edit-status">
                       <SelectValue />
                     </SelectTrigger>
@@ -804,26 +1182,32 @@ export default function SupportFeedback() {
               </div>
 
               <div className="flex gap-2">
-                <Button 
+                <Button
                   onClick={() => {
-                    editTicketMutation.mutate({ 
-                      id: editTicketForm.id, 
+                    editTicketMutation.mutate({
+                      id: editTicketForm.id,
                       updates: {
                         subject: editTicketForm.subject,
                         description: editTicketForm.description,
                         category: editTicketForm.category,
                         priority: editTicketForm.priority,
-                        status: editTicketForm.status
-                      }
+                        status: editTicketForm.status,
+                      },
                     });
                   }}
-                  disabled={!editTicketForm.subject || !editTicketForm.description || editTicketMutation.isPending}
+                  disabled={
+                    !editTicketForm.subject ||
+                    !editTicketForm.description ||
+                    editTicketMutation.isPending
+                  }
                   className="flex-1"
                   data-testid="button-submit-edit"
                 >
-                  {editTicketMutation.isPending ? "Updating..." : "Update Ticket"}
+                  {editTicketMutation.isPending
+                    ? "Updating..."
+                    : "Update Ticket"}
                 </Button>
-                <Button 
+                <Button
                   onClick={() => setIsEditDialogOpen(false)}
                   variant="outline"
                   data-testid="button-cancel-edit"
@@ -841,12 +1225,15 @@ export default function SupportFeedback() {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Support Ticket</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this support ticket? This action cannot be undone.
+              Are you sure you want to delete this support ticket? This action
+              cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel data-testid="button-cancel-delete">Cancel</AlertDialogCancel>
-            <AlertDialogAction 
+            <AlertDialogCancel data-testid="button-cancel-delete">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
               onClick={confirmDelete}
               disabled={deleteTicketMutation.isPending}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"

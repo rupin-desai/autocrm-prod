@@ -1,6 +1,12 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { useQuery, useMutation } from '@tanstack/react-query';
-import { apiRequest, queryClient } from './queryClient';
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { apiRequest, queryClient } from "./queryClient";
 
 interface User {
   id: string;
@@ -15,7 +21,12 @@ interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, name: string, role?: string) => Promise<void>;
+  register: (
+    email: string,
+    password: string,
+    name: string,
+    role?: string,
+  ) => Promise<void>;
   logout: () => Promise<void>;
   sendOTP: (mobileNumber: string) => Promise<void>;
   verifyOTP: (otp: string) => Promise<void>;
@@ -26,8 +37,12 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
 
-  const { data: userData, isLoading, error } = useQuery<User>({
-    queryKey: ['/api/auth/me'],
+  const {
+    data: userData,
+    isLoading,
+    error,
+  } = useQuery<User>({
+    queryKey: ["/api/auth/me"],
     retry: false,
     refetchOnWindowFocus: false,
     staleTime: 0,
@@ -42,31 +57,55 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [userData, isLoading]);
 
   const loginMutation = useMutation({
-    mutationFn: async ({ email, password }: { email: string; password: string }) => {
-      const response = await apiRequest('POST', '/api/auth/login', { email, password });
+    mutationFn: async ({
+      email,
+      password,
+    }: {
+      email: string;
+      password: string;
+    }) => {
+      const response = await apiRequest("POST", "/api/auth/login", {
+        email,
+        password,
+      });
       return response.json();
     },
     onSuccess: async (data) => {
       setUser(data);
-      await queryClient.invalidateQueries({ queryKey: ['/api/auth/me'] });
-      await queryClient.refetchQueries({ queryKey: ['/api/auth/me'] });
+      await queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
+      await queryClient.refetchQueries({ queryKey: ["/api/auth/me"] });
     },
   });
 
   const registerMutation = useMutation({
-    mutationFn: async ({ email, password, name, role }: { email: string; password: string; name: string; role?: string }) => {
-      const response = await apiRequest('POST', '/api/auth/register', { email, password, name, role });
+    mutationFn: async ({
+      email,
+      password,
+      name,
+      role,
+    }: {
+      email: string;
+      password: string;
+      name: string;
+      role?: string;
+    }) => {
+      const response = await apiRequest("POST", "/api/auth/register", {
+        email,
+        password,
+        name,
+        role,
+      });
       return response.json();
     },
     onSuccess: (data) => {
       setUser(data);
-      queryClient.invalidateQueries({ queryKey: ['/api/auth/me'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
     },
   });
 
   const logoutMutation = useMutation({
     mutationFn: async () => {
-      await apiRequest('POST', '/api/auth/logout');
+      await apiRequest("POST", "/api/auth/logout");
     },
     onSuccess: () => {
       setUser(null);
@@ -78,7 +117,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await loginMutation.mutateAsync({ email, password });
   };
 
-  const register = async (email: string, password: string, name: string, role?: string) => {
+  const register = async (
+    email: string,
+    password: string,
+    name: string,
+    role?: string,
+  ) => {
     await registerMutation.mutateAsync({ email, password, name, role });
   };
 
@@ -88,20 +132,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const sendOTPMutation = useMutation({
     mutationFn: async ({ mobileNumber }: { mobileNumber: string }) => {
-      const response = await apiRequest('POST', '/api/auth/send-otp', { mobileNumber });
+      const response = await apiRequest("POST", "/api/auth/send-otp", {
+        mobileNumber,
+      });
       return response.json();
     },
   });
 
   const verifyOTPMutation = useMutation({
     mutationFn: async ({ otp }: { otp: string }) => {
-      const response = await apiRequest('POST', '/api/auth/verify-otp', { otp });
+      const response = await apiRequest("POST", "/api/auth/verify-otp", {
+        otp,
+      });
       return response.json();
     },
     onSuccess: async (data) => {
       setUser(data);
-      await queryClient.invalidateQueries({ queryKey: ['/api/auth/me'] });
-      await queryClient.refetchQueries({ queryKey: ['/api/auth/me'] });
+      await queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
+      await queryClient.refetchQueries({ queryKey: ["/api/auth/me"] });
     },
   });
 
@@ -114,7 +162,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, register, logout, sendOTP, verifyOTP }}>
+    <AuthContext.Provider
+      value={{ user, isLoading, login, register, logout, sendOTP, verifyOTP }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -123,12 +173,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 }
 
-export function hasPermission(user: User | null, resource: string, action: string): boolean {
+export function hasPermission(
+  user: User | null,
+  resource: string,
+  action: string,
+): boolean {
   if (!user?.permissions) return false;
   const resourcePermissions = user.permissions[resource];
   if (!resourcePermissions) return false;

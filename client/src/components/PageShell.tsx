@@ -21,7 +21,12 @@ export function PageHeader({
   className?: string;
 }) {
   return (
-    <div className={cn("flex flex-wrap items-start justify-between gap-4", className)}>
+    <div
+      className={cn(
+        "flex flex-wrap items-start justify-between gap-4",
+        className,
+      )}
+    >
       <div className="flex min-w-0 items-start gap-3">
         {Icon && (
           <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
@@ -33,11 +38,17 @@ export function PageHeader({
             {title}
           </h1>
           {description && (
-            <p className="mt-0.5 text-sm text-muted-foreground">{description}</p>
+            <p className="mt-0.5 text-sm text-muted-foreground">
+              {description}
+            </p>
           )}
         </div>
       </div>
-      {actions && <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div>}
+      {actions && (
+        <div className="flex shrink-0 flex-wrap items-center gap-2">
+          {actions}
+        </div>
+      )}
     </div>
   );
 }
@@ -97,13 +108,25 @@ export function StatTile({
             <p className="truncate text-xs font-medium uppercase tracking-wide text-muted-foreground">
               {label}
             </p>
-            <p className={cn("text-xl font-semibold tabular-nums tracking-tight", toneClasses[tone])}>
+            <p
+              className={cn(
+                "text-xl font-semibold tabular-nums tracking-tight",
+                toneClasses[tone],
+              )}
+            >
               {value}
             </p>
-            {sub && <p className="truncate text-xs text-muted-foreground">{sub}</p>}
+            {sub && (
+              <p className="truncate text-xs text-muted-foreground">{sub}</p>
+            )}
           </div>
           {Icon && (
-            <div className={cn("flex h-8 w-8 shrink-0 items-center justify-center rounded-md", chipClasses[tone])}>
+            <div
+              className={cn(
+                "flex h-8 w-8 shrink-0 items-center justify-center rounded-md",
+                chipClasses[tone],
+              )}
+            >
               <Icon className="h-4 w-4" />
             </div>
           )}
@@ -127,7 +150,12 @@ export function EmptyState({
   className?: string;
 }) {
   return (
-    <div className={cn("flex flex-col items-center justify-center px-6 py-14 text-center", className)}>
+    <div
+      className={cn(
+        "flex flex-col items-center justify-center px-6 py-14 text-center",
+        className,
+      )}
+    >
       {Icon && (
         <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
           <Icon className="h-6 w-6 text-muted-foreground" />
@@ -135,7 +163,9 @@ export function EmptyState({
       )}
       <p className="text-sm font-medium text-foreground">{title}</p>
       {description && (
-        <p className="mt-1 max-w-sm text-sm text-muted-foreground">{description}</p>
+        <p className="mt-1 max-w-sm text-sm text-muted-foreground">
+          {description}
+        </p>
       )}
       {action && <div className="mt-4">{action}</div>}
     </div>

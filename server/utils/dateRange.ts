@@ -1,7 +1,13 @@
 // Shared day / date-range / month / year filtering used by the dashboard and
 // by the list endpoints, so "today" means the same thing everywhere.
 
-export type PeriodKey = 'today' | 'yesterday' | 'week' | 'month' | 'year' | 'custom';
+export type PeriodKey =
+  | "today"
+  | "yesterday"
+  | "week"
+  | "month"
+  | "year"
+  | "custom";
 
 export interface ResolvedRange {
   from: Date;
@@ -20,8 +26,18 @@ export interface PeriodInput {
 }
 
 const MONTH_NAMES = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December',
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
 ];
 
 function startOfDay(d: Date) {
@@ -43,7 +59,11 @@ function parseDate(value?: string): Date | null {
 }
 
 function formatDay(d: Date) {
-  return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+  return d.toLocaleDateString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
 }
 
 /**
@@ -66,73 +86,129 @@ export function resolveDateRange(input: PeriodInput = {}): ResolvedRange {
     const start = startOfDay(from || to || now);
     const end = endOfDay(to || from || now);
     // Tolerate the two being supplied the wrong way round.
-    const [a, b] = start <= end ? [start, end] : [startOfDay(end), endOfDay(start)];
+    const [a, b] =
+      start <= end ? [start, end] : [startOfDay(end), endOfDay(start)];
     return {
       from: a,
       to: b,
-      period: 'custom',
-      label: a.getTime() === startOfDay(b).getTime()
-        ? formatDay(a)
-        : `${formatDay(a)} - ${formatDay(b)}`,
+      period: "custom",
+      label:
+        a.getTime() === startOfDay(b).getTime()
+          ? formatDay(a)
+          : `${formatDay(a)} - ${formatDay(b)}`,
     };
   }
 
-  const month = input.month !== undefined && input.month !== '' ? Number(input.month) : undefined;
-  const year = input.year !== undefined && input.year !== '' ? Number(input.year) : undefined;
+  const month =
+    input.month !== undefined && input.month !== ""
+      ? Number(input.month)
+      : undefined;
+  const year =
+    input.year !== undefined && input.year !== ""
+      ? Number(input.year)
+      : undefined;
 
   if (month && year) {
     const start = new Date(year, month - 1, 1, 0, 0, 0, 0);
     const end = new Date(year, month, 0, 23, 59, 59, 999);
-    return { from: start, to: end, period: 'month', label: `${MONTH_NAMES[month - 1]} ${year}` };
+    return {
+      from: start,
+      to: end,
+      period: "month",
+      label: `${MONTH_NAMES[month - 1]} ${year}`,
+    };
   }
 
   if (month && !year) {
     const y = now.getFullYear();
     const start = new Date(y, month - 1, 1, 0, 0, 0, 0);
     const end = new Date(y, month, 0, 23, 59, 59, 999);
-    return { from: start, to: end, period: 'month', label: `${MONTH_NAMES[month - 1]} ${y}` };
+    return {
+      from: start,
+      to: end,
+      period: "month",
+      label: `${MONTH_NAMES[month - 1]} ${y}`,
+    };
   }
 
   if (year) {
     const start = new Date(year, 0, 1, 0, 0, 0, 0);
     const end = new Date(year, 11, 31, 23, 59, 59, 999);
-    return { from: start, to: end, period: 'year', label: String(year) };
+    return { from: start, to: end, period: "year", label: String(year) };
   }
 
   const single = parseDate(input.date);
   if (single) {
-    return { from: startOfDay(single), to: endOfDay(single), period: 'custom', label: formatDay(single) };
+    return {
+      from: startOfDay(single),
+      to: endOfDay(single),
+      period: "custom",
+      label: formatDay(single),
+    };
   }
 
   switch (input.period) {
-    case 'yesterday': {
+    case "yesterday": {
       const y = new Date(now);
       y.setDate(y.getDate() - 1);
-      return { from: startOfDay(y), to: endOfDay(y), period: 'yesterday', label: 'Yesterday' };
+      return {
+        from: startOfDay(y),
+        to: endOfDay(y),
+        period: "yesterday",
+        label: "Yesterday",
+      };
     }
-    case 'week': {
+    case "week": {
       const start = new Date(now);
       start.setDate(start.getDate() - 6);
-      return { from: startOfDay(start), to: endOfDay(now), period: 'week', label: 'Last 7 days' };
+      return {
+        from: startOfDay(start),
+        to: endOfDay(now),
+        period: "week",
+        label: "Last 7 days",
+      };
     }
-    case 'month': {
+    case "month": {
       const start = new Date(now.getFullYear(), now.getMonth(), 1);
-      const end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
-      return { from: start, to: end, period: 'month', label: `${MONTH_NAMES[now.getMonth()]} ${now.getFullYear()}` };
+      const end = new Date(
+        now.getFullYear(),
+        now.getMonth() + 1,
+        0,
+        23,
+        59,
+        59,
+        999,
+      );
+      return {
+        from: start,
+        to: end,
+        period: "month",
+        label: `${MONTH_NAMES[now.getMonth()]} ${now.getFullYear()}`,
+      };
     }
-    case 'year': {
+    case "year": {
       const start = new Date(now.getFullYear(), 0, 1);
       const end = new Date(now.getFullYear(), 11, 31, 23, 59, 59, 999);
-      return { from: start, to: end, period: 'year', label: String(now.getFullYear()) };
+      return {
+        from: start,
+        to: end,
+        period: "year",
+        label: String(now.getFullYear()),
+      };
     }
-    case 'today':
+    case "today":
     default:
-      return { from: startOfDay(now), to: endOfDay(now), period: 'today', label: 'Today' };
+      return {
+        from: startOfDay(now),
+        to: endOfDay(now),
+        period: "today",
+        label: "Today",
+      };
   }
 }
 
 /** Mongo match fragment for a resolved range on the given field. */
-export function rangeMatch(range: ResolvedRange, field = 'createdAt') {
+export function rangeMatch(range: ResolvedRange, field = "createdAt") {
   return { [field]: { $gte: range.from, $lte: range.to } };
 }
 
@@ -141,5 +217,5 @@ export function previousRange(range: ResolvedRange): ResolvedRange {
   const span = range.to.getTime() - range.from.getTime();
   const to = new Date(range.from.getTime() - 1);
   const from = new Date(to.getTime() - span);
-  return { from, to, period: range.period, label: 'Previous period' };
+  return { from, to, period: range.period, label: "Previous period" };
 }

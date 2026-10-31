@@ -5,8 +5,12 @@ export default function Attendance() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">Attendance Management</h1>
-        <p className="text-muted-foreground mt-1">Employee attendance tracking system</p>
+        <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">
+          Attendance Management
+        </h1>
+        <p className="text-muted-foreground mt-1">
+          Employee attendance tracking system
+        </p>
       </div>
 
       <Card className="border-dashed">
@@ -18,8 +22,8 @@ export default function Attendance() {
         </CardHeader>
         <CardContent className="space-y-6">
           <p className="text-muted-foreground">
-            The attendance management module is currently under development and will be available soon.
-            This feature will include:
+            The attendance management module is currently under development and
+            will be available soon. This feature will include:
           </p>
           <div className="grid gap-4 md:grid-cols-2">
             <div className="flex items-start gap-3 p-4 rounded-lg border border-border">
@@ -27,7 +31,8 @@ export default function Attendance() {
               <div>
                 <h3 className="font-semibold mb-1">Manual Attendance</h3>
                 <p className="text-sm text-muted-foreground">
-                  Track employee check-in and check-out times manually with leave management
+                  Track employee check-in and check-out times manually with
+                  leave management
                 </p>
               </div>
             </div>
@@ -36,14 +41,16 @@ export default function Attendance() {
               <div>
                 <h3 className="font-semibold mb-1">Biometric Integration</h3>
                 <p className="text-sm text-muted-foreground">
-                  Connect with biometric devices for automated attendance tracking
+                  Connect with biometric devices for automated attendance
+                  tracking
                 </p>
               </div>
             </div>
           </div>
           <div className="p-4 rounded-lg bg-info/10 border border-info/20">
             <p className="text-sm text-info">
-              This module will be integrated in the next update. Stay tuned for more information.
+              This module will be integrated in the next update. Stay tuned for
+              more information.
             </p>
           </div>
         </CardContent>

@@ -1,5 +1,10 @@
 import { spawn } from "node:child_process";
-import { assertLocalMongoUri, loadMirrorEnv, repoRoot, runTool } from "./mirror-utils.mjs";
+import {
+  assertLocalMongoUri,
+  loadMirrorEnv,
+  repoRoot,
+  runTool,
+} from "./mirror-utils.mjs";
 
 loadMirrorEnv();
 

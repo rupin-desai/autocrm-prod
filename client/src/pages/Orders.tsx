@@ -5,7 +5,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
@@ -26,13 +33,18 @@ export default function Orders() {
 
   // Form state
   const [customerId, setCustomerId] = useState("walk-in");
-  const [items, setItems] = useState<Array<{ productId: string; quantity: string; price: string }>>([
-    { productId: "", quantity: "1", price: "" }
-  ]);
+  const [items, setItems] = useState<
+    Array<{ productId: string; quantity: string; price: string }>
+  >([{ productId: "", quantity: "1", price: "" }]);
   const [paymentStatus, setPaymentStatus] = useState("due");
   const [deliveryStatus, setDeliveryStatus] = useState("pending");
 
-  const { data: orders = [], isLoading, error, refetch } = useQuery<any[]>({
+  const {
+    data: orders = [],
+    isLoading,
+    error,
+    refetch,
+  } = useQuery<any[]>({
     queryKey: ["/api/orders"],
   });
 
@@ -46,11 +58,11 @@ export default function Orders() {
 
   const createOrderMutation = useMutation({
     mutationFn: async (data: any) => {
-      const response = await apiRequest('POST', '/api/orders', data);
+      const response = await apiRequest("POST", "/api/orders", data);
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/orders'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/orders"] });
       setIsCreateDialogOpen(false);
       resetForm();
       toast({
@@ -87,14 +99,14 @@ export default function Orders() {
   const updateItem = (index: number, field: string, value: string) => {
     const newItems = [...items];
     newItems[index] = { ...newItems[index], [field]: value };
-    
+
     if (field === "productId" && value) {
       const product = products.find((p: any) => p._id === value);
       if (product && product.sellingPrice) {
         newItems[index].price = product.sellingPrice.toString();
       }
     }
-    
+
     setItems(newItems);
   };
 
@@ -102,16 +114,16 @@ export default function Orders() {
     return items.reduce((sum, item) => {
       const quantity = parseFloat(item.quantity) || 0;
       const price = parseFloat(item.price) || 0;
-      return sum + (quantity * price);
+      return sum + quantity * price;
     }, 0);
   };
 
   const handleCreateOrder = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const orderItems = items
-      .filter(item => item.productId && item.quantity && item.price)
-      .map(item => ({
+      .filter((item) => item.productId && item.quantity && item.price)
+      .map((item) => ({
         productId: item.productId,
         quantity: parseInt(item.quantity),
         price: parseFloat(item.price),
@@ -136,28 +148,45 @@ export default function Orders() {
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
       maximumFractionDigits: 0,
     }).format(amount);
   };
 
-  const filteredOrders = orders.filter((order: any) =>
-    order.invoiceNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    order.customerName?.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredOrders = orders.filter(
+    (order: any) =>
+      order.invoiceNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.customerName?.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   const getPaymentStatusBadge = (status: string) => {
     switch (status) {
       case "paid":
-        return <Badge variant="default" data-testid={`payment-paid`}>Paid</Badge>;
+        return (
+          <Badge variant="default" data-testid={`payment-paid`}>
+            Paid
+          </Badge>
+        );
       case "partial":
-        return <Badge variant="secondary" data-testid={`payment-partial`}>Partial</Badge>;
+        return (
+          <Badge variant="secondary" data-testid={`payment-partial`}>
+            Partial
+          </Badge>
+        );
       case "due":
-        return <Badge variant="destructive" data-testid={`payment-due`}>Due</Badge>;
+        return (
+          <Badge variant="destructive" data-testid={`payment-due`}>
+            Due
+          </Badge>
+        );
       default:
-        return <Badge variant="outline" data-testid={`payment-${status}`}>{status}</Badge>;
+        return (
+          <Badge variant="outline" data-testid={`payment-${status}`}>
+            {status}
+          </Badge>
+        );
     }
   };
 
@@ -177,14 +206,19 @@ export default function Orders() {
   if (error) {
     return (
       <div className="space-y-6">
-        <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">Orders</h1>
+        <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">
+          Orders
+        </h1>
         <Card className="border-destructive">
           <CardContent className="pt-6">
             <div className="text-center py-8">
               <ShoppingCart className="h-12 w-12 mx-auto text-destructive mb-4" />
-              <h3 className="text-lg font-semibold mb-2">Failed to load orders</h3>
+              <h3 className="text-lg font-semibold mb-2">
+                Failed to load orders
+              </h3>
               <p className="text-muted-foreground mb-4">
-                {(error as Error)?.message || 'An error occurred while fetching orders'}
+                {(error as Error)?.message ||
+                  "An error occurred while fetching orders"}
               </p>
               <Button onClick={() => refetch()}>Retry</Button>
             </div>
@@ -197,7 +231,9 @@ export default function Orders() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">Orders</h1>
+        <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">
+          Orders
+        </h1>
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
             <Button data-testid="button-new-order">
@@ -220,7 +256,9 @@ export default function Orders() {
                     <SelectValue placeholder="Select a customer or leave empty for walk-in" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem key="walk-in" value="walk-in">Walk-in Customer</SelectItem>
+                    <SelectItem key="walk-in" value="walk-in">
+                      Walk-in Customer
+                    </SelectItem>
                     {customers.map((customer: any) => (
                       <SelectItem key={customer._id} value={customer._id}>
                         {customer.name} - {customer.phone}
@@ -251,15 +289,21 @@ export default function Orders() {
                       <Label htmlFor={`product-${index}`}>Product</Label>
                       <Select
                         value={item.productId}
-                        onValueChange={(value) => updateItem(index, "productId", value)}
+                        onValueChange={(value) =>
+                          updateItem(index, "productId", value)
+                        }
                       >
-                        <SelectTrigger id={`product-${index}`} data-testid={`select-product-${index}`}>
+                        <SelectTrigger
+                          id={`product-${index}`}
+                          data-testid={`select-product-${index}`}
+                        >
                           <SelectValue placeholder="Select product" />
                         </SelectTrigger>
                         <SelectContent>
                           {products.map((product: any) => (
                             <SelectItem key={product._id} value={product._id}>
-                              {product.name} - {product.brand} ({formatCurrency(product.sellingPrice)})
+                              {product.name} - {product.brand} (
+                              {formatCurrency(product.sellingPrice)})
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -272,7 +316,9 @@ export default function Orders() {
                         type="number"
                         min="1"
                         value={item.quantity}
-                        onChange={(e) => updateItem(index, "quantity", e.target.value)}
+                        onChange={(e) =>
+                          updateItem(index, "quantity", e.target.value)
+                        }
                         required
                         data-testid={`input-quantity-${index}`}
                       />
@@ -285,7 +331,9 @@ export default function Orders() {
                         step="0.01"
                         min="0"
                         value={item.price}
-                        onChange={(e) => updateItem(index, "price", e.target.value)}
+                        onChange={(e) =>
+                          updateItem(index, "price", e.target.value)
+                        }
                         required
                         data-testid={`input-price-${index}`}
                       />
@@ -308,29 +356,57 @@ export default function Orders() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="paymentStatus">Payment Status</Label>
-                  <Select value={paymentStatus} onValueChange={setPaymentStatus}>
-                    <SelectTrigger id="paymentStatus" data-testid="select-payment-status">
+                  <Select
+                    value={paymentStatus}
+                    onValueChange={setPaymentStatus}
+                  >
+                    <SelectTrigger
+                      id="paymentStatus"
+                      data-testid="select-payment-status"
+                    >
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem key="due" value="due">Due</SelectItem>
-                      <SelectItem key="partial" value="partial">Partial</SelectItem>
-                      <SelectItem key="paid" value="paid">Paid</SelectItem>
+                      <SelectItem key="due" value="due">
+                        Due
+                      </SelectItem>
+                      <SelectItem key="partial" value="partial">
+                        Partial
+                      </SelectItem>
+                      <SelectItem key="paid" value="paid">
+                        Paid
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="deliveryStatus">Delivery Status</Label>
-                  <Select value={deliveryStatus} onValueChange={setDeliveryStatus}>
-                    <SelectTrigger id="deliveryStatus" data-testid="select-delivery-status">
+                  <Select
+                    value={deliveryStatus}
+                    onValueChange={setDeliveryStatus}
+                  >
+                    <SelectTrigger
+                      id="deliveryStatus"
+                      data-testid="select-delivery-status"
+                    >
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem key="pending" value="pending">Pending</SelectItem>
-                      <SelectItem key="processing" value="processing">Processing</SelectItem>
-                      <SelectItem key="shipped" value="shipped">Shipped</SelectItem>
-                      <SelectItem key="delivered" value="delivered">Delivered</SelectItem>
-                      <SelectItem key="cancelled" value="cancelled">Cancelled</SelectItem>
+                      <SelectItem key="pending" value="pending">
+                        Pending
+                      </SelectItem>
+                      <SelectItem key="processing" value="processing">
+                        Processing
+                      </SelectItem>
+                      <SelectItem key="shipped" value="shipped">
+                        Shipped
+                      </SelectItem>
+                      <SelectItem key="delivered" value="delivered">
+                        Delivered
+                      </SelectItem>
+                      <SelectItem key="cancelled" value="cancelled">
+                        Cancelled
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -354,12 +430,14 @@ export default function Orders() {
                 >
                   Cancel
                 </Button>
-                <Button 
-                  type="submit" 
+                <Button
+                  type="submit"
                   disabled={createOrderMutation.isPending}
                   data-testid="button-submit-order"
                 >
-                  {createOrderMutation.isPending ? 'Creating...' : 'Create Order'}
+                  {createOrderMutation.isPending
+                    ? "Creating..."
+                    : "Create Order"}
                 </Button>
               </div>
             </form>
@@ -381,15 +459,23 @@ export default function Orders() {
       {filteredOrders.length > 0 ? (
         <div className="space-y-3">
           {filteredOrders.map((order: any) => (
-            <Card key={order._id} className="hover-elevate" data-testid={`card-order-${order._id}`}>
+            <Card
+              key={order._id}
+              className="hover-elevate"
+              data-testid={`card-order-${order._id}`}
+            >
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     <ShoppingCart className="h-5 w-5 text-muted-foreground" />
                     <div>
-                      <CardTitle className="text-lg">{order.invoiceNumber || 'N/A'}</CardTitle>
+                      <CardTitle className="text-lg">
+                        {order.invoiceNumber || "N/A"}
+                      </CardTitle>
                       <p className="text-sm text-muted-foreground">
-                        {order.customerName || order.customerId?.name || 'Walk-in Customer'}
+                        {order.customerName ||
+                          order.customerId?.name ||
+                          "Walk-in Customer"}
                       </p>
                     </div>
                   </div>
@@ -400,27 +486,45 @@ export default function Orders() {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div>
                     <p className="text-xs text-muted-foreground">Date</p>
-                    <p className="text-sm font-medium">{format(new Date(order.createdAt), 'dd MMM, yyyy')}</p>
+                    <p className="text-sm font-medium">
+                      {format(new Date(order.createdAt), "dd MMM, yyyy")}
+                    </p>
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground">Items</p>
-                    <p className="text-sm font-medium">{order.items?.length || 0}</p>
+                    <p className="text-sm font-medium">
+                      {order.items?.length || 0}
+                    </p>
                   </div>
                   <div>
-                    <p className="text-xs text-muted-foreground">Total Amount</p>
-                    <p className="text-sm font-medium">{formatCurrency(order.total)}</p>
+                    <p className="text-xs text-muted-foreground">
+                      Total Amount
+                    </p>
+                    <p className="text-sm font-medium">
+                      {formatCurrency(order.total)}
+                    </p>
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground">Salesperson</p>
-                    <p className="text-sm font-medium">{order.salespersonId?.name || 'N/A'}</p>
+                    <p className="text-sm font-medium">
+                      {order.salespersonId?.name || "N/A"}
+                    </p>
                   </div>
                 </div>
                 <div className="flex gap-2 mt-4">
-                  <Button variant="outline" size="sm" data-testid={`button-view-${order._id}`}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    data-testid={`button-view-${order._id}`}
+                  >
                     View Details
                   </Button>
-                  {order.paymentStatus !== 'paid' && (
-                    <Button variant="outline" size="sm" data-testid={`button-payment-${order._id}`}>
+                  {order.paymentStatus !== "paid" && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      data-testid={`button-payment-${order._id}`}
+                    >
                       Record Payment
                     </Button>
                   )}
@@ -432,12 +536,16 @@ export default function Orders() {
       ) : orders.length > 0 ? (
         <div className="text-center py-12">
           <ShoppingCart className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-          <p className="text-muted-foreground">No orders match your search criteria</p>
+          <p className="text-muted-foreground">
+            No orders match your search criteria
+          </p>
         </div>
       ) : (
         <div className="text-center py-12">
           <ShoppingCart className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-          <p className="text-muted-foreground">No orders found. Create your first order to get started.</p>
+          <p className="text-muted-foreground">
+            No orders found. Create your first order to get started.
+          </p>
         </div>
       )}
     </div>

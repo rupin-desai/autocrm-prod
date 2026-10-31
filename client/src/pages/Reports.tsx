@@ -15,15 +15,25 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Download, TrendingUp, Package, Users, DollarSign, FileText, Calendar, TrendingDown, AlertCircle } from "lucide-react";
+import {
+  Download,
+  TrendingUp,
+  Package,
+  Users,
+  DollarSign,
+  FileText,
+  Calendar,
+  TrendingDown,
+  AlertCircle,
+} from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
-import { 
-  exportToExcel, 
-  formatSalesDataForExcel, 
-  formatInventoryDataForExcel, 
-  formatTopProductsForExcel, 
-  formatEmployeePerformanceForExcel 
+import {
+  exportToExcel,
+  formatSalesDataForExcel,
+  formatInventoryDataForExcel,
+  formatTopProductsForExcel,
+  formatEmployeePerformanceForExcel,
 } from "@/lib/excelExport";
 
 type ReportPeriod = "today" | "week" | "month" | "year";
@@ -102,31 +112,40 @@ export default function Reports() {
 
   const dateRange = getDateRange(selectedPeriod);
 
-  const { data: salesReport, isLoading: salesLoading } = useQuery<SalesReportData[]>({
+  const { data: salesReport, isLoading: salesLoading } = useQuery<
+    SalesReportData[]
+  >({
     queryKey: ["/api/reports/sales", selectedPeriod],
     queryFn: async () => {
       const response = await fetch(
-        `/api/reports/sales?startDate=${dateRange.startDate}&endDate=${dateRange.endDate}&period=${selectedPeriod === "month" || selectedPeriod === "year" ? "monthly" : "daily"}`
+        `/api/reports/sales?startDate=${dateRange.startDate}&endDate=${dateRange.endDate}&period=${selectedPeriod === "month" || selectedPeriod === "year" ? "monthly" : "daily"}`,
       );
       if (!response.ok) throw new Error("Failed to fetch sales report");
       return response.json();
     },
   });
 
-  const { data: inventoryReport, isLoading: inventoryLoading } = useQuery<InventoryReportData>({
-    queryKey: ["/api/reports/inventory"],
-  });
+  const { data: inventoryReport, isLoading: inventoryLoading } =
+    useQuery<InventoryReportData>({
+      queryKey: ["/api/reports/inventory"],
+    });
 
-  const { data: topProducts, isLoading: topProductsLoading } = useQuery<TopProductData[]>({
+  const { data: topProducts, isLoading: topProductsLoading } = useQuery<
+    TopProductData[]
+  >({
     queryKey: ["/api/reports/top-products"],
   });
 
-  const { data: employeePerformance, isLoading: employeeLoading } = useQuery<EmployeePerformanceData[]>({
+  const { data: employeePerformance, isLoading: employeeLoading } = useQuery<
+    EmployeePerformanceData[]
+  >({
     queryKey: ["/api/reports/employee-performance"],
   });
 
-  const totalSales = salesReport?.reduce((sum, item) => sum + item.totalSales, 0) || 0;
-  const totalOrders = salesReport?.reduce((sum, item) => sum + item.totalOrders, 0) || 0;
+  const totalSales =
+    salesReport?.reduce((sum, item) => sum + item.totalSales, 0) || 0;
+  const totalOrders =
+    salesReport?.reduce((sum, item) => sum + item.totalOrders, 0) || 0;
   const avgOrderValue = totalOrders > 0 ? totalSales / totalOrders : 0;
 
   const reportCards = [
@@ -134,7 +153,7 @@ export default function Reports() {
       title: "Sales Report",
       description: "Total sales and order analysis",
       icon: DollarSign,
-      value: `₹${totalSales.toLocaleString('en-IN', { maximumFractionDigits: 0 })}`,
+      value: `₹${totalSales.toLocaleString("en-IN", { maximumFractionDigits: 0 })}`,
       period: `${totalOrders} Orders`,
       isLoading: salesLoading,
       type: "sales",
@@ -143,7 +162,7 @@ export default function Reports() {
       title: "Inventory Status",
       description: "Stock levels and inventory value",
       icon: Package,
-      value: `₹${(inventoryReport?.totalInventoryValue.totalValue || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}`,
+      value: `₹${(inventoryReport?.totalInventoryValue.totalValue || 0).toLocaleString("en-IN", { maximumFractionDigits: 0 })}`,
       period: `${inventoryReport?.totalInventoryValue.totalItems || 0} Items`,
       isLoading: inventoryLoading,
       type: "inventory",
@@ -175,10 +194,12 @@ export default function Reports() {
     switch (type) {
       case "sales":
         if (salesReport && salesReport.length > 0) {
-          sheets = [{
-            name: 'Sales Report',
-            data: formatSalesDataForExcel(salesReport)
-          }];
+          sheets = [
+            {
+              name: "Sales Report",
+              data: formatSalesDataForExcel(salesReport),
+            },
+          ];
         }
         filename = "sales-report";
         break;
@@ -190,19 +211,23 @@ export default function Reports() {
         break;
       case "products":
         if (topProducts && topProducts.length > 0) {
-          sheets = [{
-            name: 'Top Products',
-            data: formatTopProductsForExcel(topProducts)
-          }];
+          sheets = [
+            {
+              name: "Top Products",
+              data: formatTopProductsForExcel(topProducts),
+            },
+          ];
         }
         filename = "top-products-report";
         break;
       case "employee":
         if (employeePerformance && employeePerformance.length > 0) {
-          sheets = [{
-            name: 'Employee Performance',
-            data: formatEmployeePerformanceForExcel(employeePerformance)
-          }];
+          sheets = [
+            {
+              name: "Employee Performance",
+              data: formatEmployeePerformanceForExcel(employeePerformance),
+            },
+          ];
         }
         filename = "employee-performance-report";
         break;
@@ -210,20 +235,20 @@ export default function Reports() {
         sheets = [];
         if (salesReport && salesReport.length > 0) {
           sheets.push({
-            name: 'Sales Report',
-            data: formatSalesDataForExcel(salesReport)
+            name: "Sales Report",
+            data: formatSalesDataForExcel(salesReport),
           });
         }
         if (topProducts && topProducts.length > 0) {
           sheets.push({
-            name: 'Top Products',
-            data: formatTopProductsForExcel(topProducts)
+            name: "Top Products",
+            data: formatTopProductsForExcel(topProducts),
           });
         }
         if (employeePerformance && employeePerformance.length > 0) {
           sheets.push({
-            name: 'Employee Performance',
-            data: formatEmployeePerformanceForExcel(employeePerformance)
+            name: "Employee Performance",
+            data: formatEmployeePerformanceForExcel(employeePerformance),
           });
         }
         if (inventoryReport) {
@@ -244,7 +269,7 @@ export default function Reports() {
       toast({
         title: "No Data",
         description: "No data available to export.",
-        variant: "destructive"
+        variant: "destructive",
       });
     }
   };
@@ -257,12 +282,22 @@ export default function Reports() {
     <div className="space-y-6 p-3 md:p-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">Reports & Analytics</h1>
-          <p className="text-sm md:text-base text-muted-foreground mt-1">Business insights and performance metrics</p>
+          <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">
+            Reports & Analytics
+          </h1>
+          <p className="text-sm md:text-base text-muted-foreground mt-1">
+            Business insights and performance metrics
+          </p>
         </div>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-          <Select value={selectedPeriod} onValueChange={(v) => setSelectedPeriod(v as ReportPeriod)}>
-            <SelectTrigger className="w-full sm:w-[180px]" data-testid="select-report-period">
+          <Select
+            value={selectedPeriod}
+            onValueChange={(v) => setSelectedPeriod(v as ReportPeriod)}
+          >
+            <SelectTrigger
+              className="w-full sm:w-[180px]"
+              data-testid="select-report-period"
+            >
               <SelectValue placeholder="Select period" />
             </SelectTrigger>
             <SelectContent>
@@ -272,7 +307,12 @@ export default function Reports() {
               <SelectItem value="year">This Year</SelectItem>
             </SelectContent>
           </Select>
-          <Button variant="outline" onClick={() => handleExport("all")} data-testid="button-export-report" className="w-full sm:w-auto">
+          <Button
+            variant="outline"
+            onClick={() => handleExport("all")}
+            data-testid="button-export-report"
+            className="w-full sm:w-auto"
+          >
             <Download className="h-4 w-4 mr-2" />
             Export All
           </Button>
@@ -310,7 +350,9 @@ export default function Reports() {
                 <div className="flex items-end justify-between">
                   <div>
                     <p className="text-3xl font-bold">{report.value}</p>
-                    <p className="text-sm text-muted-foreground mt-1">{report.period}</p>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {report.period}
+                    </p>
                   </div>
                   <Button
                     variant="ghost"
@@ -331,30 +373,36 @@ export default function Reports() {
       </div>
 
       {/* Inventory Alerts */}
-      {inventoryReport && (inventoryReport.lowStockProducts.length > 0 || inventoryReport.outOfStockProducts.length > 0) && (
-        <Card className="border-orange-500/50 bg-orange-50 dark:bg-orange-950/20">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-orange-700 dark:text-orange-400">
-              <AlertCircle className="h-5 w-5" />
-              Inventory Alerts
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            {inventoryReport.outOfStockProducts.length > 0 && (
-              <div className="text-sm">
-                <span className="font-semibold text-red-600 dark:text-red-400">Out of Stock:</span>{" "}
-                {inventoryReport.outOfStockProducts.length} products
-              </div>
-            )}
-            {inventoryReport.lowStockProducts.length > 0 && (
-              <div className="text-sm">
-                <span className="font-semibold text-orange-600 dark:text-orange-400">Low Stock:</span>{" "}
-                {inventoryReport.lowStockProducts.length} products
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
+      {inventoryReport &&
+        (inventoryReport.lowStockProducts.length > 0 ||
+          inventoryReport.outOfStockProducts.length > 0) && (
+          <Card className="border-orange-500/50 bg-orange-50 dark:bg-orange-950/20">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-orange-700 dark:text-orange-400">
+                <AlertCircle className="h-5 w-5" />
+                Inventory Alerts
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              {inventoryReport.outOfStockProducts.length > 0 && (
+                <div className="text-sm">
+                  <span className="font-semibold text-red-600 dark:text-red-400">
+                    Out of Stock:
+                  </span>{" "}
+                  {inventoryReport.outOfStockProducts.length} products
+                </div>
+              )}
+              {inventoryReport.lowStockProducts.length > 0 && (
+                <div className="text-sm">
+                  <span className="font-semibold text-orange-600 dark:text-orange-400">
+                    Low Stock:
+                  </span>{" "}
+                  {inventoryReport.lowStockProducts.length} products
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
 
       {/* Additional Reports */}
       <Card>
@@ -367,7 +415,12 @@ export default function Reports() {
               <TrendingUp className="h-5 w-5 text-primary" />
               <div>
                 <span className="font-medium">Average Order Value</span>
-                <p className="text-sm text-muted-foreground">₹{avgOrderValue.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</p>
+                <p className="text-sm text-muted-foreground">
+                  ₹
+                  {avgOrderValue.toLocaleString("en-IN", {
+                    maximumFractionDigits: 0,
+                  })}
+                </p>
               </div>
             </div>
             <Button
@@ -410,7 +463,9 @@ export default function Reports() {
                 <span className="font-medium">Top Performing Salesperson</span>
                 <p className="text-sm text-muted-foreground">
                   {employeePerformance?.[0]?.employee?.name || "N/A"}
-                  {employeePerformance?.[0]?.totalSales ? ` - ₹${employeePerformance[0].totalSales.toLocaleString('en-IN')}` : ""}
+                  {employeePerformance?.[0]?.totalSales
+                    ? ` - ₹${employeePerformance[0].totalSales.toLocaleString("en-IN")}`
+                    : ""}
                 </p>
               </div>
             </div>
@@ -432,7 +487,9 @@ export default function Reports() {
                 <span className="font-medium">Top Selling Product</span>
                 <p className="text-sm text-muted-foreground">
                   {topProducts?.[0]?.product?.name || "N/A"}
-                  {topProducts?.[0]?.totalRevenue ? ` - ₹${topProducts[0].totalRevenue.toLocaleString('en-IN')}` : ""}
+                  {topProducts?.[0]?.totalRevenue
+                    ? ` - ₹${topProducts[0].totalRevenue.toLocaleString("en-IN")}`
+                    : ""}
                 </p>
               </div>
             </div>
@@ -453,7 +510,13 @@ export default function Reports() {
               <div>
                 <span className="font-medium">Period Analysis</span>
                 <p className="text-sm text-muted-foreground">
-                  {selectedPeriod === "today" ? "Today" : selectedPeriod === "week" ? "Last 7 days" : selectedPeriod === "month" ? "Last 30 days" : "Last year"}
+                  {selectedPeriod === "today"
+                    ? "Today"
+                    : selectedPeriod === "week"
+                      ? "Last 7 days"
+                      : selectedPeriod === "month"
+                        ? "Last 30 days"
+                        : "Last year"}
                 </p>
               </div>
             </div>
@@ -471,7 +534,10 @@ export default function Reports() {
       </Card>
 
       {/* Details Dialog */}
-      <Dialog open={detailsDialog.open} onOpenChange={(open) => setDetailsDialog({ ...detailsDialog, open })}>
+      <Dialog
+        open={detailsDialog.open}
+        onOpenChange={(open) => setDetailsDialog({ ...detailsDialog, open })}
+      >
         <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{detailsDialog.title} - Detailed View</DialogTitle>
@@ -482,20 +548,33 @@ export default function Reports() {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <Card>
                   <CardContent className="pt-6">
-                    <div className="text-2xl font-bold">₹{totalSales.toLocaleString('en-IN')}</div>
-                    <div className="text-sm text-muted-foreground">Total Sales</div>
+                    <div className="text-2xl font-bold">
+                      ₹{totalSales.toLocaleString("en-IN")}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      Total Sales
+                    </div>
                   </CardContent>
                 </Card>
                 <Card>
                   <CardContent className="pt-6">
                     <div className="text-2xl font-bold">{totalOrders}</div>
-                    <div className="text-sm text-muted-foreground">Total Orders</div>
+                    <div className="text-sm text-muted-foreground">
+                      Total Orders
+                    </div>
                   </CardContent>
                 </Card>
                 <Card>
                   <CardContent className="pt-6">
-                    <div className="text-2xl font-bold">₹{avgOrderValue.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</div>
-                    <div className="text-sm text-muted-foreground">Avg Order Value</div>
+                    <div className="text-2xl font-bold">
+                      ₹
+                      {avgOrderValue.toLocaleString("en-IN", {
+                        maximumFractionDigits: 0,
+                      })}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      Avg Order Value
+                    </div>
                   </CardContent>
                 </Card>
               </div>
@@ -513,11 +592,20 @@ export default function Reports() {
                     {salesReport.map((item, idx) => (
                       <tr key={idx} className="border-t">
                         <td className="p-3">
-                          {item._id.day ? `${item._id.year}-${String(item._id.month).padStart(2, '0')}-${String(item._id.day).padStart(2, '0')}` : `${item._id.year}-${String(item._id.month).padStart(2, '0')}`}
+                          {item._id.day
+                            ? `${item._id.year}-${String(item._id.month).padStart(2, "0")}-${String(item._id.day).padStart(2, "0")}`
+                            : `${item._id.year}-${String(item._id.month).padStart(2, "0")}`}
                         </td>
-                        <td className="p-3 text-right">₹{item.totalSales.toLocaleString('en-IN')}</td>
+                        <td className="p-3 text-right">
+                          ₹{item.totalSales.toLocaleString("en-IN")}
+                        </td>
                         <td className="p-3 text-right">{item.totalOrders}</td>
-                        <td className="p-3 text-right">₹{item.avgOrderValue.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</td>
+                        <td className="p-3 text-right">
+                          ₹
+                          {item.avgOrderValue.toLocaleString("en-IN", {
+                            maximumFractionDigits: 0,
+                          })}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -531,20 +619,35 @@ export default function Reports() {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <Card>
                   <CardContent className="pt-6">
-                    <div className="text-2xl font-bold">₹{inventoryReport.totalInventoryValue.totalValue.toLocaleString('en-IN')}</div>
-                    <div className="text-sm text-muted-foreground">Total Value</div>
+                    <div className="text-2xl font-bold">
+                      ₹
+                      {inventoryReport.totalInventoryValue.totalValue.toLocaleString(
+                        "en-IN",
+                      )}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      Total Value
+                    </div>
                   </CardContent>
                 </Card>
                 <Card>
                   <CardContent className="pt-6">
-                    <div className="text-2xl font-bold">{inventoryReport.lowStockProducts.length}</div>
-                    <div className="text-sm text-muted-foreground">Low Stock</div>
+                    <div className="text-2xl font-bold">
+                      {inventoryReport.lowStockProducts.length}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      Low Stock
+                    </div>
                   </CardContent>
                 </Card>
                 <Card>
                   <CardContent className="pt-6">
-                    <div className="text-2xl font-bold">{inventoryReport.outOfStockProducts.length}</div>
-                    <div className="text-sm text-muted-foreground">Out of Stock</div>
+                    <div className="text-2xl font-bold">
+                      {inventoryReport.outOfStockProducts.length}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      Out of Stock
+                    </div>
                   </CardContent>
                 </Card>
               </div>
@@ -561,13 +664,19 @@ export default function Reports() {
                         </tr>
                       </thead>
                       <tbody>
-                        {inventoryReport.lowStockProducts.slice(0, 10).map((product, idx) => (
-                          <tr key={idx} className="border-t">
-                            <td className="p-3">{product.name}</td>
-                            <td className="p-3 text-right">{product.stockQty}</td>
-                            <td className="p-3 text-right">{product.minStockLevel}</td>
-                          </tr>
-                        ))}
+                        {inventoryReport.lowStockProducts
+                          .slice(0, 10)
+                          .map((product, idx) => (
+                            <tr key={idx} className="border-t">
+                              <td className="p-3">{product.name}</td>
+                              <td className="p-3 text-right">
+                                {product.stockQty}
+                              </td>
+                              <td className="p-3 text-right">
+                                {product.minStockLevel}
+                              </td>
+                            </tr>
+                          ))}
                       </tbody>
                     </table>
                   </div>
@@ -592,8 +701,12 @@ export default function Reports() {
                     <tr key={idx} className="border-t">
                       <td className="p-3">{product.product.name}</td>
                       <td className="p-3">{product.product.category}</td>
-                      <td className="p-3 text-right">{product.totalQuantity}</td>
-                      <td className="p-3 text-right">₹{product.totalRevenue.toLocaleString('en-IN')}</td>
+                      <td className="p-3 text-right">
+                        {product.totalQuantity}
+                      </td>
+                      <td className="p-3 text-right">
+                        ₹{product.totalRevenue.toLocaleString("en-IN")}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -618,9 +731,16 @@ export default function Reports() {
                     <tr key={idx} className="border-t">
                       <td className="p-3">{emp.employee.name}</td>
                       <td className="p-3">{emp.employee.role}</td>
-                      <td className="p-3 text-right">₹{emp.totalSales.toLocaleString('en-IN')}</td>
+                      <td className="p-3 text-right">
+                        ₹{emp.totalSales.toLocaleString("en-IN")}
+                      </td>
                       <td className="p-3 text-right">{emp.orderCount}</td>
-                      <td className="p-3 text-right">₹{emp.avgOrderValue.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</td>
+                      <td className="p-3 text-right">
+                        ₹
+                        {emp.avgOrderValue.toLocaleString("en-IN", {
+                          maximumFractionDigits: 0,
+                        })}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -629,7 +749,10 @@ export default function Reports() {
           )}
 
           <div className="flex justify-end">
-            <Button onClick={() => handleExport(detailsDialog.type)} data-testid="button-export-detailed-report">
+            <Button
+              onClick={() => handleExport(detailsDialog.type)}
+              data-testid="button-export-detailed-report"
+            >
               <Download className="h-4 w-4 mr-2" />
               Export This Report
             </Button>

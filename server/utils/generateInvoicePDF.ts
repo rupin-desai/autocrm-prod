@@ -1,6 +1,6 @@
-import PDFDocument from 'pdfkit';
-import fs from 'fs';
-import path from 'path';
+import PDFDocument from "pdfkit";
+import fs from "fs";
+import path from "path";
 
 interface CustomerDetails {
   referenceCode?: string;
@@ -67,28 +67,34 @@ interface InvoiceData {
 }
 
 function formatInvoiceDate(value?: Date): string {
-  if (!value) return '';
+  if (!value) return "";
   const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return '';
+  if (Number.isNaN(date.getTime())) return "";
 
   return [
-    String(date.getDate()).padStart(2, '0'),
-    String(date.getMonth() + 1).padStart(2, '0'),
+    String(date.getDate()).padStart(2, "0"),
+    String(date.getMonth() + 1).padStart(2, "0"),
     date.getFullYear(),
-  ].join('/');
+  ].join("/");
 }
 
-export async function generateInvoicePDF(invoiceData: InvoiceData): Promise<string> {
+export async function generateInvoicePDF(
+  invoiceData: InvoiceData,
+): Promise<string> {
   return new Promise((resolve, reject) => {
     try {
-      const pdfDir = path.join(process.cwd(), 'invoices');
+      const pdfDir = path.join(process.cwd(), "invoices");
       if (!fs.existsSync(pdfDir)) {
         fs.mkdirSync(pdfDir, { recursive: true });
       }
 
-      const filename = `invoice_${invoiceData.invoiceNumber.replace(/\//g, '_')}.pdf`;
+      const filename = `invoice_${invoiceData.invoiceNumber.replace(/\//g, "_")}.pdf`;
       const filepath = path.join(pdfDir, filename);
-      const logoPath = path.join(process.cwd(), 'attached_assets', 'image_1760164042662.png');
+      const logoPath = path.join(
+        process.cwd(),
+        "attached_assets",
+        "image_1760164042662.png",
+      );
       const showGstColumns = invoiceData.showGstBreakup === true;
 
       const doc = new PDFDocument({ margin: 50 });
@@ -99,140 +105,204 @@ export async function generateInvoicePDF(invoiceData: InvoiceData): Promise<stri
       if (fs.existsSync(logoPath)) {
         doc.image(logoPath, 50, 44, { fit: [60, 35] });
       }
-      doc.fontSize(20).font('Helvetica-Bold').text('Mauli Car World', 120, 50);
-      doc.fontSize(10).font('Helvetica').text('Invoice', 50, 75);
+      doc.fontSize(20).font("Helvetica-Bold").text("Mauli Car World", 120, 50);
+      doc.fontSize(10).font("Helvetica").text("Invoice", 50, 75);
 
-      doc.fontSize(16).font('Helvetica-Bold').text('INVOICE', 400, 50, { align: 'right' });
-      doc.fontSize(10).font('Helvetica').text(invoiceData.invoiceNumber, 400, 75, { align: 'right' });
+      doc
+        .fontSize(16)
+        .font("Helvetica-Bold")
+        .text("INVOICE", 400, 50, { align: "right" });
+      doc
+        .fontSize(10)
+        .font("Helvetica")
+        .text(invoiceData.invoiceNumber, 400, 75, { align: "right" });
 
       let yPosition = 120;
 
       // Customer Details Section
-      doc.fontSize(12).font('Helvetica-Bold').text('Bill To:', 50, yPosition);
+      doc.fontSize(12).font("Helvetica-Bold").text("Bill To:", 50, yPosition);
       yPosition += 20;
-      
+
       const customer = invoiceData.customerDetails;
-      doc.fontSize(10).font('Helvetica-Bold').text(customer.fullName, 50, yPosition, { width: 280 });
+      doc
+        .fontSize(10)
+        .font("Helvetica-Bold")
+        .text(customer.fullName, 50, yPosition, { width: 280 });
       yPosition += 18;
-      
+
       if (customer.referenceCode) {
-        doc.fontSize(9).font('Helvetica').text(`Ref: ${customer.referenceCode}`, 50, yPosition, { width: 280 });
+        doc
+          .fontSize(9)
+          .font("Helvetica")
+          .text(`Ref: ${customer.referenceCode}`, 50, yPosition, {
+            width: 280,
+          });
         yPosition += 15;
       }
-      
-      doc.fontSize(9).font('Helvetica').text(`Mobile: ${customer.mobileNumber}`, 50, yPosition, { width: 280 });
+
+      doc
+        .fontSize(9)
+        .font("Helvetica")
+        .text(`Mobile: ${customer.mobileNumber}`, 50, yPosition, {
+          width: 280,
+        });
       yPosition += 15;
-      
+
       if (customer.alternativeNumber) {
-        doc.text(`Alt Mobile: ${customer.alternativeNumber}`, 50, yPosition, { width: 280 });
+        doc.text(`Alt Mobile: ${customer.alternativeNumber}`, 50, yPosition, {
+          width: 280,
+        });
         yPosition += 15;
       }
-      
+
       if (customer.email) {
         doc.text(customer.email, 50, yPosition, { width: 280 });
         yPosition += 15;
       }
-      
+
       if (customer.address) {
-        const addressHeight = doc.heightOfString(customer.address, { width: 280 });
+        const addressHeight = doc.heightOfString(customer.address, {
+          width: 280,
+        });
         doc.text(customer.address, 50, yPosition, { width: 280 });
         yPosition += Math.ceil(addressHeight) + 3;
       }
-      
-      const location = [customer.city, customer.taluka, customer.district, customer.state]
+
+      const location = [
+        customer.city,
+        customer.taluka,
+        customer.district,
+        customer.state,
+      ]
         .filter(Boolean)
-        .join(', ');
+        .join(", ");
       if (location) {
         const locationHeight = doc.heightOfString(location, { width: 280 });
         doc.text(location, 50, yPosition, { width: 280 });
         yPosition += Math.ceil(locationHeight) + 3;
       }
-      
+
       if (customer.pinCode) {
         doc.text(`PIN: ${customer.pinCode}`, 50, yPosition, { width: 280 });
         yPosition += 15;
       }
-      
+
       if (customer.referralSource) {
-        doc.text(`Referral: ${customer.referralSource}`, 50, yPosition, { width: 280 });
+        doc.text(`Referral: ${customer.referralSource}`, 50, yPosition, {
+          width: 280,
+        });
         yPosition += 15;
       }
-      
+
       if (customer.isVerified) {
-        doc.fillColor('#0a8754').text('✓ Verified Customer', 50, yPosition, { width: 280 });
-        doc.fillColor('#000');
+        doc
+          .fillColor("#0a8754")
+          .text("✓ Verified Customer", 50, yPosition, { width: 280 });
+        doc.fillColor("#000");
         yPosition += 15;
       }
 
       // Invoice Date Section (Right Side)
       const invoiceDate = formatInvoiceDate(invoiceData.createdAt);
       let rightYPos = 120;
-      doc.fontSize(10).font('Helvetica-Bold').text('Invoice Date:', 400, rightYPos, { align: 'right' });
+      doc
+        .fontSize(10)
+        .font("Helvetica-Bold")
+        .text("Invoice Date:", 400, rightYPos, { align: "right" });
       rightYPos += 15;
-      doc.font('Helvetica').text(invoiceDate, 400, rightYPos, { align: 'right' });
+      doc
+        .font("Helvetica")
+        .text(invoiceDate, 400, rightYPos, { align: "right" });
       rightYPos += 20;
 
       if (invoiceData.dueDate) {
         const dueDate = formatInvoiceDate(invoiceData.dueDate);
-        doc.font('Helvetica-Bold').text('Due Date:', 400, rightYPos, { align: 'right' });
+        doc
+          .font("Helvetica-Bold")
+          .text("Due Date:", 400, rightYPos, { align: "right" });
         rightYPos += 15;
-        doc.font('Helvetica').text(dueDate, 400, rightYPos, { align: 'right' });
+        doc.font("Helvetica").text(dueDate, 400, rightYPos, { align: "right" });
         rightYPos += 20;
       }
 
       // Vehicle Details Section
       yPosition += 10;
       if (invoiceData.vehicleDetails && invoiceData.vehicleDetails.length > 0) {
-        doc.fontSize(12).font('Helvetica-Bold').text('Vehicle Details:', 50, yPosition);
+        doc
+          .fontSize(12)
+          .font("Helvetica-Bold")
+          .text("Vehicle Details:", 50, yPosition);
         yPosition += 20;
-        
+
         invoiceData.vehicleDetails.forEach((vehicle, index) => {
           if (invoiceData.vehicleDetails.length > 1) {
-            doc.fontSize(10).font('Helvetica-Bold').text(`Vehicle ${index + 1}:`, 50, yPosition, { width: 280 });
+            doc
+              .fontSize(10)
+              .font("Helvetica-Bold")
+              .text(`Vehicle ${index + 1}:`, 50, yPosition, { width: 280 });
             yPosition += 15;
           }
-          
-          doc.fontSize(9).font('Helvetica');
-          
+
+          doc.fontSize(9).font("Helvetica");
+
           if (vehicle.vehicleNumber) {
-            doc.text(`Number: ${vehicle.vehicleNumber}`, 60, yPosition, { width: 270 });
+            doc.text(`Number: ${vehicle.vehicleNumber}`, 60, yPosition, {
+              width: 270,
+            });
             yPosition += 14;
           }
-          
+
           if (vehicle.vehicleBrand || vehicle.vehicleModel) {
-            const brandModel = [vehicle.vehicleBrand, vehicle.vehicleModel, vehicle.customModel]
+            const brandModel = [
+              vehicle.vehicleBrand,
+              vehicle.vehicleModel,
+              vehicle.customModel,
+            ]
               .filter(Boolean)
-              .join(' - ');
-            const modelHeight = doc.heightOfString(`Model: ${brandModel}`, { width: 270 });
+              .join(" - ");
+            const modelHeight = doc.heightOfString(`Model: ${brandModel}`, {
+              width: 270,
+            });
             doc.text(`Model: ${brandModel}`, 60, yPosition, { width: 270 });
             yPosition += Math.ceil(modelHeight) + 2;
           }
-          
+
           if (vehicle.variant) {
-            doc.text(`Variant: ${vehicle.variant}`, 60, yPosition, { width: 270 });
+            doc.text(`Variant: ${vehicle.variant}`, 60, yPosition, {
+              width: 270,
+            });
             yPosition += 14;
           }
-          
+
           if (vehicle.color) {
             doc.text(`Color: ${vehicle.color}`, 60, yPosition, { width: 270 });
             yPosition += 14;
           }
-          
+
           if (vehicle.yearOfPurchase) {
-            doc.text(`Year: ${vehicle.yearOfPurchase}`, 60, yPosition, { width: 270 });
+            doc.text(`Year: ${vehicle.yearOfPurchase}`, 60, yPosition, {
+              width: 270,
+            });
             yPosition += 14;
           }
-          
+
           if (vehicle.chassisNumber) {
-            doc.text(`Chassis: ${vehicle.chassisNumber}`, 60, yPosition, { width: 270 });
+            doc.text(`Chassis: ${vehicle.chassisNumber}`, 60, yPosition, {
+              width: 270,
+            });
             yPosition += 14;
           }
-          
+
           if (vehicle.isNewVehicle !== undefined) {
-            doc.text(`Condition: ${vehicle.isNewVehicle ? 'New' : 'Used'}`, 60, yPosition, { width: 270 });
+            doc.text(
+              `Condition: ${vehicle.isNewVehicle ? "New" : "Used"}`,
+              60,
+              yPosition,
+              { width: 270 },
+            );
             yPosition += 14;
           }
-          
+
           yPosition += 5;
         });
       }
@@ -242,84 +312,110 @@ export async function generateInvoicePDF(invoiceData: InvoiceData): Promise<stri
       doc.moveTo(50, yPosition).lineTo(550, yPosition).stroke();
       yPosition += 20;
 
-      doc.fontSize(10).font('Helvetica-Bold');
-      doc.text('Product Name', 50, yPosition, { width: 130 });
-      doc.text('HSN', 190, yPosition, { width: 60, align: 'left' });
-      doc.text('Qty', 255, yPosition, { width: 30, align: 'right' });
-      doc.text('Unit', 295, yPosition, { width: 60, align: 'right' });
+      doc.fontSize(10).font("Helvetica-Bold");
+      doc.text("Product Name", 50, yPosition, { width: 130 });
+      doc.text("HSN", 190, yPosition, { width: 60, align: "left" });
+      doc.text("Qty", 255, yPosition, { width: 30, align: "right" });
+      doc.text("Unit", 295, yPosition, { width: 60, align: "right" });
       if (showGstColumns) {
-        doc.text('GST %', 365, yPosition, { width: 45, align: 'right' });
-        doc.text('GST Amt', 415, yPosition, { width: 55, align: 'right' });
-        doc.text('Total', 475, yPosition, { width: 75, align: 'right' });
+        doc.text("GST %", 365, yPosition, { width: 45, align: "right" });
+        doc.text("GST Amt", 415, yPosition, { width: 55, align: "right" });
+        doc.text("Total", 475, yPosition, { width: 75, align: "right" });
       } else {
-        doc.text('Total', 415, yPosition, { width: 135, align: 'right' });
+        doc.text("Total", 415, yPosition, { width: 135, align: "right" });
       }
 
       yPosition += 20;
       doc.moveTo(50, yPosition).lineTo(550, yPosition).stroke();
       yPosition += 15;
 
-      doc.font('Helvetica');
-      
+      doc.font("Helvetica");
+
       const sortedItems = [...invoiceData.items].sort((a, b) => {
         if (a.hasGst && !b.hasGst) return -1;
         if (!a.hasGst && b.hasGst) return 1;
         return 0;
       });
-      
+
       sortedItems.forEach((item) => {
         const itemHeight = item.description ? 37 : 25;
-        
+
         if (yPosition + itemHeight > 700) {
           doc.addPage();
           yPosition = 50;
-          
-          doc.fontSize(10).font('Helvetica-Bold');
-          doc.text('Product Name', 50, yPosition, { width: 130 });
-          doc.text('HSN', 190, yPosition, { width: 60, align: 'left' });
-          doc.text('Qty', 255, yPosition, { width: 30, align: 'right' });
-          doc.text('Unit', 295, yPosition, { width: 60, align: 'right' });
+
+          doc.fontSize(10).font("Helvetica-Bold");
+          doc.text("Product Name", 50, yPosition, { width: 130 });
+          doc.text("HSN", 190, yPosition, { width: 60, align: "left" });
+          doc.text("Qty", 255, yPosition, { width: 30, align: "right" });
+          doc.text("Unit", 295, yPosition, { width: 60, align: "right" });
           if (showGstColumns) {
-            doc.text('GST %', 365, yPosition, { width: 45, align: 'right' });
-            doc.text('GST Amt', 415, yPosition, { width: 55, align: 'right' });
-            doc.text('Total', 475, yPosition, { width: 75, align: 'right' });
+            doc.text("GST %", 365, yPosition, { width: 45, align: "right" });
+            doc.text("GST Amt", 415, yPosition, { width: 55, align: "right" });
+            doc.text("Total", 475, yPosition, { width: 75, align: "right" });
           } else {
-            doc.text('Total', 415, yPosition, { width: 135, align: 'right' });
+            doc.text("Total", 415, yPosition, { width: 135, align: "right" });
           }
           yPosition += 20;
           doc.moveTo(50, yPosition).lineTo(550, yPosition).stroke();
           yPosition += 15;
-          doc.font('Helvetica');
+          doc.font("Helvetica");
         }
 
-        const displayHsn = item.hsnNumber || '-';
+        const displayHsn = item.hsnNumber || "-";
         doc.fontSize(10).text(item.name, 50, yPosition, { width: 130 });
-        doc.fontSize(9).text(displayHsn, 190, yPosition, { width: 60, align: 'left' });
+        doc
+          .fontSize(9)
+          .text(displayHsn, 190, yPosition, { width: 60, align: "left" });
         const itemYPosition = yPosition;
-        
+
         if (item.description) {
           yPosition += 12;
-          doc.fontSize(8).fillColor('#666').text(item.description, 50, yPosition, { width: 130 });
-          doc.fillColor('#000');
+          doc
+            .fontSize(8)
+            .fillColor("#666")
+            .text(item.description, 50, yPosition, { width: 130 });
+          doc.fillColor("#000");
         }
 
         const lineAmountExclGst = item.hasGst
           ? item.total - (item.gstAmount || 0)
           : item.total;
-        const unitAmountExclGst = item.quantity > 0 ? lineAmountExclGst / item.quantity : lineAmountExclGst;
-        const gstRate = item.hasGst ? `${Math.round(item.gstPercentage ?? 18)}%` : '-';
-        const gstDisplay = item.hasGst && item.gstAmount
-          ? `${Math.round(item.gstAmount)}`
-          : '-';
+        const unitAmountExclGst =
+          item.quantity > 0
+            ? lineAmountExclGst / item.quantity
+            : lineAmountExclGst;
+        const gstRate = item.hasGst
+          ? `${Math.round(item.gstPercentage ?? 18)}%`
+          : "-";
+        const gstDisplay =
+          item.hasGst && item.gstAmount ? `${Math.round(item.gstAmount)}` : "-";
 
-        doc.fontSize(10).text(item.quantity.toString(), 255, itemYPosition, { width: 30, align: 'right' });
-        doc.text(Math.round(unitAmountExclGst).toString(), 295, itemYPosition, { width: 60, align: 'right' });
+        doc
+          .fontSize(10)
+          .text(item.quantity.toString(), 255, itemYPosition, {
+            width: 30,
+            align: "right",
+          });
+        doc.text(Math.round(unitAmountExclGst).toString(), 295, itemYPosition, {
+          width: 60,
+          align: "right",
+        });
         if (showGstColumns) {
-          doc.text(gstRate, 365, itemYPosition, { width: 45, align: 'right' });
-          doc.text(gstDisplay, 415, itemYPosition, { width: 55, align: 'right' });
-          doc.text(Math.round(item.total).toString(), 475, itemYPosition, { width: 75, align: 'right' });
+          doc.text(gstRate, 365, itemYPosition, { width: 45, align: "right" });
+          doc.text(gstDisplay, 415, itemYPosition, {
+            width: 55,
+            align: "right",
+          });
+          doc.text(Math.round(item.total).toString(), 475, itemYPosition, {
+            width: 75,
+            align: "right",
+          });
         } else {
-          doc.text(Math.round(item.total).toString(), 415, itemYPosition, { width: 135, align: 'right' });
+          doc.text(Math.round(item.total).toString(), 415, itemYPosition, {
+            width: 135,
+            align: "right",
+          });
         }
 
         yPosition += item.description ? 25 : 25;
@@ -329,69 +425,102 @@ export async function generateInvoicePDF(invoiceData: InvoiceData): Promise<stri
       doc.moveTo(50, yPosition).lineTo(550, yPosition).stroke();
       yPosition += 20;
 
-      doc.fontSize(10).font('Helvetica');
-      doc.text('Subtotal:', 350, yPosition);
-      doc.text(`Rs. ${invoiceData.subtotal.toFixed(0)}`, 430, yPosition, { width: 100, align: 'right' });
+      doc.fontSize(10).font("Helvetica");
+      doc.text("Subtotal:", 350, yPosition);
+      doc.text(`Rs. ${invoiceData.subtotal.toFixed(0)}`, 430, yPosition, {
+        width: 100,
+        align: "right",
+      });
       yPosition += 20;
 
       if (invoiceData.discountAmount && invoiceData.discountAmount > 0) {
-        let discountText = 'Discount:';
-        if (invoiceData.discountType === 'percentage' && invoiceData.discountValue) {
+        let discountText = "Discount:";
+        if (
+          invoiceData.discountType === "percentage" &&
+          invoiceData.discountValue
+        ) {
           discountText = `Discount (${invoiceData.discountValue}%):`;
         }
         doc.text(discountText, 350, yPosition);
-        doc.text(`-Rs. ${invoiceData.discountAmount.toFixed(0)}`, 430, yPosition, { width: 100, align: 'right' });
+        doc.text(
+          `-Rs. ${invoiceData.discountAmount.toFixed(0)}`,
+          430,
+          yPosition,
+          { width: 100, align: "right" },
+        );
         yPosition += 20;
       }
 
-      doc.fontSize(12).font('Helvetica-Bold');
-      doc.text('Total Amount:', 350, yPosition);
-      doc.text(`Rs. ${invoiceData.totalAmount.toFixed(0)}`, 430, yPosition, { width: 100, align: 'right' });
+      doc.fontSize(12).font("Helvetica-Bold");
+      doc.text("Total Amount:", 350, yPosition);
+      doc.text(`Rs. ${invoiceData.totalAmount.toFixed(0)}`, 430, yPosition, {
+        width: 100,
+        align: "right",
+      });
       yPosition += 25;
 
       if (invoiceData.paidAmount && invoiceData.paidAmount > 0) {
-        doc.fontSize(10).font('Helvetica');
-        doc.text('Paid Amount:', 350, yPosition);
-        doc.text(`Rs. ${invoiceData.paidAmount.toFixed(0)}`, 430, yPosition, { width: 100, align: 'right' });
+        doc.fontSize(10).font("Helvetica");
+        doc.text("Paid Amount:", 350, yPosition);
+        doc.text(`Rs. ${invoiceData.paidAmount.toFixed(0)}`, 430, yPosition, {
+          width: 100,
+          align: "right",
+        });
         yPosition += 20;
 
-        doc.fontSize(12).font('Helvetica-Bold');
-        doc.text('Amount Due:', 350, yPosition);
-        doc.text(`Rs. ${invoiceData.dueAmount.toFixed(0)}`, 430, yPosition, { width: 100, align: 'right' });
+        doc.fontSize(12).font("Helvetica-Bold");
+        doc.text("Amount Due:", 350, yPosition);
+        doc.text(`Rs. ${invoiceData.dueAmount.toFixed(0)}`, 430, yPosition, {
+          width: 100,
+          align: "right",
+        });
         yPosition += 25;
       }
 
       if (invoiceData.notes) {
-        const notesHeight = doc.heightOfString(invoiceData.notes, { width: 500 });
+        const notesHeight = doc.heightOfString(invoiceData.notes, {
+          width: 500,
+        });
         if (yPosition + notesHeight + 60 > 750) {
           doc.addPage();
           yPosition = 50;
         }
         yPosition += 20;
-        doc.fontSize(10).font('Helvetica-Bold').text('Notes:', 50, yPosition);
+        doc.fontSize(10).font("Helvetica-Bold").text("Notes:", 50, yPosition);
         yPosition += 15;
-        doc.fontSize(9).font('Helvetica').text(invoiceData.notes, 50, yPosition, { width: 500 });
+        doc
+          .fontSize(9)
+          .font("Helvetica")
+          .text(invoiceData.notes, 50, yPosition, { width: 500 });
         yPosition += Math.ceil(notesHeight) + 20;
       }
 
       if (invoiceData.terms) {
-        const termsHeight = doc.heightOfString(invoiceData.terms, { width: 500 });
+        const termsHeight = doc.heightOfString(invoiceData.terms, {
+          width: 500,
+        });
         if (yPosition + termsHeight + 40 > 750) {
           doc.addPage();
           yPosition = 50;
         }
-        doc.fontSize(10).font('Helvetica-Bold').text('Terms & Conditions:', 50, yPosition);
+        doc
+          .fontSize(10)
+          .font("Helvetica-Bold")
+          .text("Terms & Conditions:", 50, yPosition);
         yPosition += 15;
-        doc.fontSize(9).font('Helvetica').text(invoiceData.terms, 50, yPosition, { width: 500 });
+        doc
+          .fontSize(9)
+          .font("Helvetica")
+          .text(invoiceData.terms, 50, yPosition, { width: 500 });
       }
 
       doc.end();
 
-      stream.on('finish', () => {
+      stream.on("finish", () => {
         resolve(filepath);
       });
 
-      stream.on('error', (error) => {
+      stream.on("error", (error) => {
         reject(error);
       });
     } catch (error) {

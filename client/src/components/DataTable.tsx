@@ -23,9 +23,14 @@ interface DataTableProps<T> {
   itemsPerPage?: number;
 }
 
-export function DataTable<T>({ columns, data, onRowClick, itemsPerPage = 10 }: DataTableProps<T>) {
+export function DataTable<T>({
+  columns,
+  data,
+  onRowClick,
+  itemsPerPage = 10,
+}: DataTableProps<T>) {
   const [currentPage, setCurrentPage] = useState(1);
-  
+
   const totalPages = Math.ceil(data.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedData = data.slice(startIndex, startIndex + itemsPerPage);
@@ -46,7 +51,10 @@ export function DataTable<T>({ columns, data, onRowClick, itemsPerPage = 10 }: D
           <TableBody>
             {paginatedData.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={columns.length} className="text-center py-12 text-muted-foreground">
+                <TableCell
+                  colSpan={columns.length}
+                  className="text-center py-12 text-muted-foreground"
+                >
                   No data available
                 </TableCell>
               </TableRow>
@@ -77,7 +85,9 @@ export function DataTable<T>({ columns, data, onRowClick, itemsPerPage = 10 }: D
       {totalPages > 1 && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
-            Showing {startIndex + 1} to {Math.min(startIndex + itemsPerPage, data.length)} of {data.length} entries
+            Showing {startIndex + 1} to{" "}
+            {Math.min(startIndex + itemsPerPage, data.length)} of {data.length}{" "}
+            entries
           </p>
           <div className="flex items-center gap-2">
             <Button

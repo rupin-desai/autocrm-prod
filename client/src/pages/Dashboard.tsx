@@ -8,12 +8,12 @@ import { PeriodOverview } from "@/components/PeriodOverview";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { 
-  IndianRupee, 
-  Package, 
-  Users, 
-  AlertTriangle, 
-  Plus, 
+import {
+  IndianRupee,
+  Package,
+  Users,
+  AlertTriangle,
+  Plus,
   TrendingUp,
   ClipboardCheck,
   UserCheck,
@@ -28,23 +28,23 @@ import {
   UserCircle,
   Ticket,
   AlertCircle,
-  Store
+  Store,
 } from "lucide-react";
 import { formatDistance } from "date-fns";
-import { 
-  BarChart, 
-  Bar, 
-  PieChart as RechartsPie, 
-  Pie, 
-  LineChart, 
-  Line, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  Legend, 
+import {
+  BarChart,
+  Bar,
+  PieChart as RechartsPie,
+  Pie,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
   ResponsiveContainer,
-  Cell 
+  Cell,
 } from "recharts";
 
 interface DashboardStats {
@@ -59,11 +59,11 @@ interface DashboardStats {
   lowStockProducts?: any[];
   totalEmployees?: number;
   totalProducts?: number;
-  
+
   // Inventory Manager stats
   totalInventoryValue?: number;
   recentTransactions?: number;
-  
+
   // Sales Executive stats (service-related)
   completedToday?: number;
   waitingServices?: number;
@@ -72,12 +72,12 @@ interface DashboardStats {
   workingServices?: number;
   activeOrders?: number;
   totalOrders?: number;
-  
+
   // HR Manager stats
   presentToday?: number;
   pendingLeaves?: number;
   activeTasks?: number;
-  
+
   // Service Staff stats
   myOpenTickets?: number;
   resolvedToday?: number;
@@ -87,53 +87,79 @@ interface DashboardStats {
 export default function Dashboard() {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
-  
-  // Get selected shop from localStorage
-  const selectedShopId = localStorage.getItem('selectedShop');
-  const shopName = selectedShopId === 'beed' ? 'Shop A - Beed' : selectedShopId === 'ahilyanagar' ? 'Shop B - Chhatrapati Sambhaji Nagar' : 'Shop Not Selected';
 
-  const { data: dashboardStats, isLoading: statsLoading, error: statsError, refetch: refetchStats } = useQuery<DashboardStats>({
+  // Get selected shop from localStorage
+  const selectedShopId = localStorage.getItem("selectedShop");
+  const shopName =
+    selectedShopId === "beed"
+      ? "Shop A - Beed"
+      : selectedShopId === "ahilyanagar"
+        ? "Shop B - Chhatrapati Sambhaji Nagar"
+        : "Shop Not Selected";
+
+  const {
+    data: dashboardStats,
+    isLoading: statsLoading,
+    error: statsError,
+    refetch: refetchStats,
+  } = useQuery<DashboardStats>({
     queryKey: ["/api/dashboard-stats"],
   });
 
-  const { data: serviceVisits, isLoading: visitsLoading, error: visitsError, refetch: refetchVisits } = useQuery<any[]>({
+  const {
+    data: serviceVisits,
+    isLoading: visitsLoading,
+    error: visitsError,
+    refetch: refetchVisits,
+  } = useQuery<any[]>({
     queryKey: ["/api/service-visits"],
-    enabled: user?.role === 'Admin' || user?.role === 'Manager' || user?.role === 'Sales Executive',
+    enabled:
+      user?.role === "Admin" ||
+      user?.role === "Manager" ||
+      user?.role === "Sales Executive",
   });
 
-  const { data: supportTickets, isLoading: ticketsLoading, error: ticketsError, refetch: refetchTickets } = useQuery<any[]>({
+  const {
+    data: supportTickets,
+    isLoading: ticketsLoading,
+    error: ticketsError,
+    refetch: refetchTickets,
+  } = useQuery<any[]>({
     queryKey: ["/api/support-tickets"],
-    enabled: user?.role === 'Service Staff',
+    enabled: user?.role === "Service Staff",
   });
 
   const { data: salesTrends = [] } = useQuery<any[]>({
     queryKey: ["/api/dashboard/sales-trends"],
-    enabled: user?.role === 'Admin' || user?.role === 'Manager',
+    enabled: user?.role === "Admin" || user?.role === "Manager",
   });
 
   const { data: serviceStatus = [] } = useQuery<any[]>({
     queryKey: ["/api/dashboard/service-status"],
-    enabled: user?.role === 'Admin' || user?.role === 'Manager',
+    enabled: user?.role === "Admin" || user?.role === "Manager",
   });
 
   const { data: customerGrowth = [] } = useQuery<any[]>({
     queryKey: ["/api/dashboard/customer-growth"],
-    enabled: user?.role === 'Admin' || user?.role === 'Manager',
+    enabled: user?.role === "Admin" || user?.role === "Manager",
   });
 
   const { data: productCategories = [] } = useQuery<any[]>({
     queryKey: ["/api/dashboard/product-categories"],
-    enabled: user?.role === 'Admin' || user?.role === 'Manager',
+    enabled: user?.role === "Admin" || user?.role === "Manager",
   });
 
-  const activeServices = serviceVisits?.filter((visit: any) => 
-    ['inquired', 'working', 'waiting'].includes(visit.status)
-  ).slice(0, 3) || [];
+  const activeServices =
+    serviceVisits
+      ?.filter((visit: any) =>
+        ["inquired", "working", "waiting"].includes(visit.status),
+      )
+      .slice(0, 3) || [];
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
       maximumFractionDigits: 0,
     }).format(amount);
   };
@@ -143,7 +169,7 @@ export default function Dashboard() {
     if (!user || !dashboardStats) return [];
 
     switch (user.role) {
-      case 'Admin':
+      case "Admin":
         return [
           {
             title: "Today's Sales",
@@ -195,8 +221,8 @@ export default function Dashboard() {
             color: "green" as const,
           },
         ];
-      
-      case 'Manager':
+
+      case "Manager":
         return [
           {
             title: "Today's Sales",
@@ -272,8 +298,8 @@ export default function Dashboard() {
             color: "pink" as const,
           },
         ];
-      
-      case 'Inventory Manager':
+
+      case "Inventory Manager":
         return [
           {
             title: "Total Products",
@@ -300,8 +326,8 @@ export default function Dashboard() {
             color: "green" as const,
           },
         ];
-      
-      case 'Sales Executive':
+
+      case "Sales Executive":
         return [
           {
             title: "Active Service Jobs",
@@ -328,8 +354,8 @@ export default function Dashboard() {
             color: "purple" as const,
           },
         ];
-      
-      case 'HR Manager':
+
+      case "HR Manager":
         return [
           {
             title: "Total Employees",
@@ -356,8 +382,8 @@ export default function Dashboard() {
             color: "purple" as const,
           },
         ];
-      
-      case 'Service Staff':
+
+      case "Service Staff":
         return [
           {
             title: "My Open Tickets",
@@ -378,7 +404,7 @@ export default function Dashboard() {
             color: "orange" as const,
           },
         ];
-      
+
       default:
         return [];
     }
@@ -391,19 +417,19 @@ export default function Dashboard() {
   // Role-based welcome message
   const getWelcomeMessage = () => {
     if (!user) return "Welcome back";
-    
+
     switch (user.role) {
-      case 'Admin':
+      case "Admin":
         return `Welcome back, ${user.name}`;
-      case 'Manager':
+      case "Manager":
         return `Branch Dashboard - ${user.name}`;
-      case 'Inventory Manager':
+      case "Inventory Manager":
         return `Inventory Overview - ${user.name}`;
-      case 'Sales Executive':
+      case "Sales Executive":
         return `Sales Dashboard - ${user.name}`;
-      case 'HR Manager':
+      case "HR Manager":
         return `HR Dashboard - ${user.name}`;
-      case 'Service Staff':
+      case "Service Staff":
         return `My Services - ${user.name}`;
       default:
         return `Welcome back, ${user.name}`;
@@ -414,16 +440,30 @@ export default function Dashboard() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0">
-          <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">Dashboard</h1>
-          <p className="mt-0.5 text-sm text-muted-foreground" data-testid="text-welcome">{getWelcomeMessage()}</p>
+          <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">
+            Dashboard
+          </h1>
+          <p
+            className="mt-0.5 text-sm text-muted-foreground"
+            data-testid="text-welcome"
+          >
+            {getWelcomeMessage()}
+          </p>
         </div>
         <div className="flex shrink-0 items-center gap-2.5 rounded-lg border border-border bg-card px-3 py-2">
           <span className="flex h-8 w-8 items-center justify-center rounded-md bg-primary/10 text-primary">
             <Store className="h-4 w-4" />
           </span>
           <div className="min-w-0">
-            <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Current Shop</p>
-            <p className="truncate text-sm font-medium" data-testid="text-current-shop">{shopName}</p>
+            <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+              Current Shop
+            </p>
+            <p
+              className="truncate text-sm font-medium"
+              data-testid="text-current-shop"
+            >
+              {shopName}
+            </p>
           </div>
         </div>
       </div>
@@ -439,7 +479,13 @@ export default function Dashboard() {
                 <AlertTriangle className="h-5 w-5 text-destructive" />
                 <p className="text-sm">Failed to load dashboard statistics</p>
               </div>
-              <Button variant="outline" size="sm" onClick={() => refetchStats()}>Retry</Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => refetchStats()}
+              >
+                Retry
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -451,155 +497,191 @@ export default function Dashboard() {
             <Skeleton key={i} className="h-32" />
           ))}
         </div>
-      ) : !statsError && (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-          {kpiData.map((kpi) => (
-            <KPICard key={kpi.title} {...kpi} />
-          ))}
-        </div>
+      ) : (
+        !statsError && (
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            {kpiData.map((kpi) => (
+              <KPICard key={kpi.title} {...kpi} />
+            ))}
+          </div>
+        )
       )}
 
       {/* Analytics Graphs - Admin and Manager */}
-      {(user?.role === 'Admin' || user?.role === 'Manager') && !statsError && !showStatsLoading && (
-        <div className="grid gap-6 lg:grid-cols-2">
-          {/* Sales Trends Bar Chart */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <BarChart3 className="h-5 w-5 text-blue-500" />
-                Sales Trends (Last 7 Days)
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={salesTrends}>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                  <XAxis dataKey="day" className="text-xs" />
-                  <YAxis className="text-xs" />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: 'hsl(var(--card))', 
-                      border: '1px solid hsl(var(--border))',
-                      borderRadius: '6px'
-                    }}
-                  />
-                  <Legend />
-                  <Bar dataKey="sales" fill="#3b82f6" name="Sales (₹)" radius={[8, 8, 0, 0]} />
-                  <Bar dataKey="orders" fill="#10b981" name="Orders" radius={[8, 8, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
+      {(user?.role === "Admin" || user?.role === "Manager") &&
+        !statsError &&
+        !showStatsLoading && (
+          <div className="grid gap-6 lg:grid-cols-2">
+            {/* Sales Trends Bar Chart */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <BarChart3 className="h-5 w-5 text-blue-500" />
+                  Sales Trends (Last 7 Days)
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={salesTrends}>
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      className="stroke-muted"
+                    />
+                    <XAxis dataKey="day" className="text-xs" />
+                    <YAxis className="text-xs" />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "hsl(var(--card))",
+                        border: "1px solid hsl(var(--border))",
+                        borderRadius: "6px",
+                      }}
+                    />
+                    <Legend />
+                    <Bar
+                      dataKey="sales"
+                      fill="#3b82f6"
+                      name="Sales (₹)"
+                      radius={[8, 8, 0, 0]}
+                    />
+                    <Bar
+                      dataKey="orders"
+                      fill="#10b981"
+                      name="Orders"
+                      radius={[8, 8, 0, 0]}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
 
-          {/* Service Status Pie Chart */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <PieChart className="h-5 w-5 text-purple-500" />
-                Service Status Distribution
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <RechartsPie>
-                  <Pie
-                    data={serviceStatus}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={({ name, percent }) => percent > 0 ? `${name} ${(percent * 100).toFixed(0)}%` : ''}
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="value"
-                  >
-                    {serviceStatus.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: 'hsl(var(--card))', 
-                      border: '1px solid hsl(var(--border))',
-                      borderRadius: '6px'
-                    }}
-                  />
-                </RechartsPie>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
+            {/* Service Status Pie Chart */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <PieChart className="h-5 w-5 text-purple-500" />
+                  Service Status Distribution
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <RechartsPie>
+                    <Pie
+                      data={serviceStatus}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ name, percent }) =>
+                        percent > 0
+                          ? `${name} ${(percent * 100).toFixed(0)}%`
+                          : ""
+                      }
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
+                      {serviceStatus.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "hsl(var(--card))",
+                        border: "1px solid hsl(var(--border))",
+                        borderRadius: "6px",
+                      }}
+                    />
+                  </RechartsPie>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
 
-          {/* Customer Growth Line Chart */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Activity className="h-5 w-5 text-green-500" />
-                Customer Growth (6 Months)
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={customerGrowth}>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                  <XAxis dataKey="month" className="text-xs" />
-                  <YAxis className="text-xs" />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: 'hsl(var(--card))', 
-                      border: '1px solid hsl(var(--border))',
-                      borderRadius: '6px'
-                    }}
-                  />
-                  <Legend />
-                  <Line 
-                    type="monotone" 
-                    dataKey="customers" 
-                    stroke="#10b981" 
-                    strokeWidth={3}
-                    name="Total Customers"
-                    dot={{ fill: '#10b981', r: 5 }}
-                    activeDot={{ r: 7 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
+            {/* Customer Growth Line Chart */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Activity className="h-5 w-5 text-green-500" />
+                  Customer Growth (6 Months)
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart data={customerGrowth}>
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      className="stroke-muted"
+                    />
+                    <XAxis dataKey="month" className="text-xs" />
+                    <YAxis className="text-xs" />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "hsl(var(--card))",
+                        border: "1px solid hsl(var(--border))",
+                        borderRadius: "6px",
+                      }}
+                    />
+                    <Legend />
+                    <Line
+                      type="monotone"
+                      dataKey="customers"
+                      stroke="#10b981"
+                      strokeWidth={3}
+                      name="Total Customers"
+                      dot={{ fill: "#10b981", r: 5 }}
+                      activeDot={{ r: 7 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
 
-          {/* Product Categories Bar Chart */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Package className="h-5 w-5 text-orange-500" />
-                Product Categories
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart 
-                  data={productCategories}
-                  layout="vertical"
-                >
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                  <XAxis type="number" className="text-xs" />
-                  <YAxis type="category" dataKey="category" className="text-xs" width={100} />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: 'hsl(var(--card))', 
-                      border: '1px solid hsl(var(--border))',
-                      borderRadius: '6px'
-                    }}
-                  />
-                  <Legend />
-                  <Bar dataKey="count" fill="#f59e0b" name="Products" radius={[0, 8, 8, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-        </div>
-      )}
+            {/* Product Categories Bar Chart */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Package className="h-5 w-5 text-orange-500" />
+                  Product Categories
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={productCategories} layout="vertical">
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      className="stroke-muted"
+                    />
+                    <XAxis type="number" className="text-xs" />
+                    <YAxis
+                      type="category"
+                      dataKey="category"
+                      className="text-xs"
+                      width={100}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "hsl(var(--card))",
+                        border: "1px solid hsl(var(--border))",
+                        borderRadius: "6px",
+                      }}
+                    />
+                    <Legend />
+                    <Bar
+                      dataKey="count"
+                      fill="#f59e0b"
+                      name="Products"
+                      radius={[0, 8, 8, 0]}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Active Service Jobs - Admin, Manager and Sales Executive */}
-        {(user?.role === 'Admin' || user?.role === 'Manager' || user?.role === 'Sales Executive') && (
+        {(user?.role === "Admin" ||
+          user?.role === "Manager" ||
+          user?.role === "Sales Executive") && (
           <Card>
             <CardHeader>
               <CardTitle>Active Service Jobs</CardTitle>
@@ -608,8 +690,16 @@ export default function Dashboard() {
               {visitsError ? (
                 <div className="text-center py-4">
                   <AlertTriangle className="h-8 w-8 mx-auto text-destructive mb-2" />
-                  <p className="text-sm text-muted-foreground mb-3">Failed to load service visits</p>
-                  <Button variant="outline" size="sm" onClick={() => refetchVisits()}>Retry</Button>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Failed to load service visits
+                  </p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => refetchVisits()}
+                  >
+                    Retry
+                  </Button>
                 </div>
               ) : showVisitsLoading ? (
                 <div className="space-y-3">
@@ -622,18 +712,29 @@ export default function Dashboard() {
                   {activeServices.map((service: any) => (
                     <ServiceWorkflowCard
                       key={service._id}
-                      customerName={service.customerId?.name || 'Unknown'}
+                      customerName={service.customerId?.name || "Unknown"}
                       vehicleReg={service.vehicleReg}
                       status={service.status}
-                      handlers={[service.handlerId?.name || 'Unassigned']}
-                      startTime={formatDistance(new Date(service.createdAt), new Date(), { addSuffix: true })}
-                      onView={() => setLocation('/visits')}
+                      handlers={[service.handlerId?.name || "Unassigned"]}
+                      startTime={formatDistance(
+                        new Date(service.createdAt),
+                        new Date(),
+                        { addSuffix: true },
+                      )}
+                      onView={() => setLocation("/visits")}
                     />
                   ))}
                   {activeServices.length === 0 && (
-                    <p className="text-muted-foreground text-center py-4">No active service jobs</p>
+                    <p className="text-muted-foreground text-center py-4">
+                      No active service jobs
+                    </p>
                   )}
-                  <Button variant="outline" className="w-full" data-testid="button-view-all-services" onClick={() => setLocation('/visits')}>
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    data-testid="button-view-all-services"
+                    onClick={() => setLocation("/visits")}
+                  >
                     View All Services
                   </Button>
                 </>
@@ -643,7 +744,7 @@ export default function Dashboard() {
         )}
 
         {/* Support Tickets - Service Staff only */}
-        {user?.role === 'Service Staff' && (
+        {user?.role === "Service Staff" && (
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -655,8 +756,16 @@ export default function Dashboard() {
               {ticketsError ? (
                 <div className="text-center py-4">
                   <AlertTriangle className="h-8 w-8 mx-auto text-destructive mb-2" />
-                  <p className="text-sm text-muted-foreground mb-3">Failed to load support tickets</p>
-                  <Button variant="outline" size="sm" onClick={() => refetchTickets()}>Retry</Button>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Failed to load support tickets
+                  </p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => refetchTickets()}
+                  >
+                    Retry
+                  </Button>
                 </div>
               ) : ticketsLoading ? (
                 <div className="space-y-3">
@@ -666,46 +775,72 @@ export default function Dashboard() {
                 </div>
               ) : (
                 <>
-                  {supportTickets?.filter((ticket: any) => 
-                    ['pending', 'in_progress'].includes(ticket.status)
-                  ).slice(0, 5).map((ticket: any) => (
-                    <div
-                      key={ticket._id}
-                      className="p-3 rounded-lg border border-border hover-elevate cursor-pointer"
-                      onClick={() => setLocation('/support')}
-                      data-testid={`ticket-${ticket._id}`}
-                    >
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="flex-1">
-                          <p className="font-medium text-sm">{ticket.subject}</p>
-                          <p className="text-xs text-muted-foreground">
-                            #{ticket.ticketNumber} • {ticket.customerId?.fullName || 'Unknown'}
-                          </p>
+                  {supportTickets
+                    ?.filter((ticket: any) =>
+                      ["pending", "in_progress"].includes(ticket.status),
+                    )
+                    .slice(0, 5)
+                    .map((ticket: any) => (
+                      <div
+                        key={ticket._id}
+                        className="p-3 rounded-lg border border-border hover-elevate cursor-pointer"
+                        onClick={() => setLocation("/support")}
+                        data-testid={`ticket-${ticket._id}`}
+                      >
+                        <div className="flex items-start justify-between mb-2">
+                          <div className="flex-1">
+                            <p className="font-medium text-sm">
+                              {ticket.subject}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              #{ticket.ticketNumber} •{" "}
+                              {ticket.customerId?.fullName || "Unknown"}
+                            </p>
+                          </div>
+                          <div className="flex flex-col items-end gap-1">
+                            <span
+                              className={`text-xs px-2 py-1 rounded-full ${
+                                ticket.priority === "urgent"
+                                  ? "bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-200"
+                                  : ticket.priority === "high"
+                                    ? "bg-orange-100 dark:bg-orange-900 text-orange-600 dark:text-orange-200"
+                                    : ticket.priority === "medium"
+                                      ? "bg-yellow-100 dark:bg-yellow-900 text-yellow-600 dark:text-yellow-200"
+                                      : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300"
+                              }`}
+                            >
+                              {ticket.priority}
+                            </span>
+                            <span
+                              className={`text-xs px-2 py-1 rounded-full ${
+                                ticket.status === "pending"
+                                  ? "bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-200"
+                                  : "bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-200"
+                              }`}
+                            >
+                              {ticket.status.replace("_", " ")}
+                            </span>
+                          </div>
                         </div>
-                        <div className="flex flex-col items-end gap-1">
-                          <span className={`text-xs px-2 py-1 rounded-full ${
-                            ticket.priority === 'urgent' ? 'bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-200' :
-                            ticket.priority === 'high' ? 'bg-orange-100 dark:bg-orange-900 text-orange-600 dark:text-orange-200' :
-                            ticket.priority === 'medium' ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-600 dark:text-yellow-200' :
-                            'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300'
-                          }`}>
-                            {ticket.priority}
-                          </span>
-                          <span className={`text-xs px-2 py-1 rounded-full ${
-                            ticket.status === 'pending' ? 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-200' :
-                            'bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-200'
-                          }`}>
-                            {ticket.status.replace('_', ' ')}
-                          </span>
-                        </div>
+                        <p className="text-xs text-muted-foreground line-clamp-2">
+                          {ticket.description}
+                        </p>
                       </div>
-                      <p className="text-xs text-muted-foreground line-clamp-2">{ticket.description}</p>
-                    </div>
-                  ))}
-                  {(!supportTickets || supportTickets.filter((t: any) => ['pending', 'in_progress'].includes(t.status)).length === 0) && (
-                    <p className="text-muted-foreground text-center py-4">No open support tickets</p>
+                    ))}
+                  {(!supportTickets ||
+                    supportTickets.filter((t: any) =>
+                      ["pending", "in_progress"].includes(t.status),
+                    ).length === 0) && (
+                    <p className="text-muted-foreground text-center py-4">
+                      No open support tickets
+                    </p>
                   )}
-                  <Button variant="outline" className="w-full" data-testid="button-view-all-tickets" onClick={() => setLocation('/support')}>
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    data-testid="button-view-all-tickets"
+                    onClick={() => setLocation("/support")}
+                  >
                     View All Tickets
                   </Button>
                 </>
@@ -715,7 +850,7 @@ export default function Dashboard() {
         )}
 
         {/* Low Stock Alerts - Admin and Inventory Manager only */}
-        {(user?.role === 'Admin' || user?.role === 'Inventory Manager') && (
+        {(user?.role === "Admin" || user?.role === "Inventory Manager") && (
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -726,7 +861,9 @@ export default function Dashboard() {
             <CardContent>
               {statsError ? (
                 <div className="text-center py-4">
-                  <p className="text-sm text-muted-foreground">Stock data unavailable</p>
+                  <p className="text-sm text-muted-foreground">
+                    Stock data unavailable
+                  </p>
                 </div>
               ) : showStatsLoading ? (
                 <div className="space-y-3">
@@ -749,13 +886,20 @@ export default function Dashboard() {
                         </p>
                       </div>
                       <div className="text-right">
-                        <p className="text-lg font-bold text-warning">{item.stockQty}</p>
-                        <p className="text-xs text-muted-foreground">in stock</p>
+                        <p className="text-lg font-bold text-warning">
+                          {item.stockQty}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          in stock
+                        </p>
                       </div>
                     </div>
                   ))}
-                  {(!dashboardStats?.lowStockProducts || dashboardStats.lowStockProducts.length === 0) && (
-                    <p className="text-muted-foreground text-center py-4">No low stock items</p>
+                  {(!dashboardStats?.lowStockProducts ||
+                    dashboardStats.lowStockProducts.length === 0) && (
+                    <p className="text-muted-foreground text-center py-4">
+                      No low stock items
+                    </p>
                   )}
                 </div>
               )}
@@ -764,9 +908,7 @@ export default function Dashboard() {
         )}
       </div>
 
-      {user?.role === 'Admin' && (
-        <ActivityFeed limit={15} />
-      )}
+      {user?.role === "Admin" && <ActivityFeed limit={15} />}
     </div>
   );
 }

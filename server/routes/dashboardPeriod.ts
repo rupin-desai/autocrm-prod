@@ -1,14 +1,19 @@
-import type { Express } from 'express';
-import { AdvancePayment } from '../models/AdvancePayment';
-import { Inquiry } from '../models/Inquiry';
-import { Invoice } from '../models/Invoice';
-import { Quotation } from '../models/Quotation';
-import { RegistrationCustomer } from '../models/RegistrationCustomer';
-import { ServiceVisit } from '../models/ServiceVisit';
-import { WarrantyClaim } from '../models/WarrantyClaim';
-import { requireAuth, requirePermission } from '../middleware';
-import { previousRange, resolveDateRange } from '../utils/dateRange';
-import { escapeRegex, handleRouteError, pagedResponse, paginate } from './helpers';
+import type { Express } from "express";
+import { AdvancePayment } from "../models/AdvancePayment";
+import { Inquiry } from "../models/Inquiry";
+import { Invoice } from "../models/Invoice";
+import { Quotation } from "../models/Quotation";
+import { RegistrationCustomer } from "../models/RegistrationCustomer";
+import { ServiceVisit } from "../models/ServiceVisit";
+import { WarrantyClaim } from "../models/WarrantyClaim";
+import { requireAuth, requirePermission } from "../middleware";
+import { previousRange, resolveDateRange } from "../utils/dateRange";
+import {
+  escapeRegex,
+  handleRouteError,
+  pagedResponse,
+  paginate,
+} from "./helpers";
 
 // Requirement 4: Dashboard date/period-wise data and customer analytics.
 //
@@ -23,19 +28,25 @@ const round2 = (n: number) => Math.round((Number(n) || 0) * 100) / 100;
 
 async function collectionByMode(from: Date, to: Date) {
   const rows = await Invoice.aggregate([
-    { $match: { status: 'approved' } },
-    { $unwind: '$payments' },
-    { $match: { 'payments.transactionDate': { $gte: from, $lte: to } } },
+    { $match: { status: "approved" } },
+    { $unwind: "$payments" },
+    { $match: { "payments.transactionDate": { $gte: from, $lte: to } } },
     {
       $group: {
-        _id: '$payments.paymentMode',
-        amount: { $sum: '$payments.amount' },
+        _id: "$payments.paymentMode",
+        amount: { $sum: "$payments.amount" },
         count: { $sum: 1 },
       },
     },
   ]);
 
-  const byMode: Record<string, number> = { UPI: 0, Cash: 0, Card: 0, 'Net Banking': 0, Cheque: 0 };
+  const byMode: Record<string, number> = {
+    UPI: 0,
+    Cash: 0,
+    Card: 0,
+    "Net Banking": 0,
+    Cheque: 0,
+  };
   let total = 0;
   let count = 0;
 
@@ -54,10 +65,26 @@ export function registerDashboardPeriodRoutes(app: Express) {
    * fromDate+toDate and returns sales, collection by mode, pending, customer
    * counts and service activity for exactly that window.
    */
-  app.get('/api/dashboard/period', requireAuth, async (req, res) => {
+  app.get("/api/dashboard/period", requireAuth, async (req, res) => {
     try {
-      const { period, date, month, year, fromDate, toDate, compare } = req.query as Record<string, string>;
-      const range = resolveDateRange({ period, date, month, year, fromDate, toDate });
+      if ((req as any).session.userRole === "Service Staff") {
+        return res
+          .status(403)
+          .json({
+            error:
+              "Financial dashboard data is not available for Service Staff",
+          });
+      }
+      const { period, date, month, year, fromDate, toDate, compare } =
+        req.query as Record<string, string>;
+      const range = resolveDateRange({
+        period,
+        date,
+        month,
+        year,
+        fromDate,
+        toDate,
+      });
       const within = { $gte: range.from, $lte: range.to };
 
       const [
@@ -76,13 +103,18 @@ export function registerDashboardPeriodRoutes(app: Express) {
       ] = await Promise.all([
         // Billed value of invoices raised in the window
         Invoice.aggregate([
-          { $match: { createdAt: within, status: { $in: ['approved', 'pending_approval'] } } },
+          {
+            $match: {
+              createdAt: within,
+              status: { $in: ["approved", "pending_approval"] },
+            },
+          },
           {
             $group: {
-              _id: '$status',
-              total: { $sum: '$totalAmount' },
-              paid: { $sum: '$paidAmount' },
-              due: { $sum: '$dueAmount' },
+              _id: "$status",
+              total: { $sum: "$totalAmount" },
+              paid: { $sum: "$paidAmount" },
+              due: { $sum: "$dueAmount" },
               count: { $sum: 1 },
             },
           },
@@ -90,33 +122,53 @@ export function registerDashboardPeriodRoutes(app: Express) {
         collectionByMode(range.from, range.to),
         // Outstanding across all approved invoices, not just this window
         Invoice.aggregate([
-          { $match: { status: 'approved', dueAmount: { $gt: 0 } } },
-          { $group: { _id: null, pending: { $sum: '$dueAmount' }, count: { $sum: 1 } } },
+          { $match: { status: "approved", dueAmount: { $gt: 0 } } },
+          {
+            $group: {
+              _id: null,
+              pending: { $sum: "$dueAmount" },
+              count: { $sum: 1 },
+            },
+          },
         ]),
         RegistrationCustomer.countDocuments({ createdAt: within }),
         RegistrationCustomer.countDocuments({}),
         // Distinct customers who had a service visit in the window
-        ServiceVisit.distinct('customerId', { createdAt: within }),
+        ServiceVisit.distinct("customerId", { createdAt: within }),
         ServiceVisit.aggregate([
           { $match: { createdAt: within } },
-          { $group: { _id: '$status', count: { $sum: 1 } } },
+          { $group: { _id: "$status", count: { $sum: 1 } } },
         ]),
         Invoice.countDocuments({ createdAt: within }),
         AdvancePayment.aggregate([
           { $match: { receivedDate: within } },
-          { $group: { _id: null, amount: { $sum: '$amount' }, count: { $sum: 1 } } },
+          {
+            $group: {
+              _id: null,
+              amount: { $sum: "$amount" },
+              count: { $sum: 1 },
+            },
+          },
         ]),
         Inquiry.countDocuments({ inquiryDate: within }),
         Quotation.aggregate([
           { $match: { quotationDate: within } },
-          { $group: { _id: '$status', count: { $sum: 1 }, value: { $sum: '$grandTotal' } } },
+          {
+            $group: {
+              _id: "$status",
+              count: { $sum: 1 },
+              value: { $sum: "$grandTotal" },
+            },
+          },
         ]),
-        WarrantyClaim.countDocuments({ status: { $nin: ['delivered_to_customer', 'cancelled'] } }),
+        WarrantyClaim.countDocuments({
+          status: { $nin: ["delivered_to_customer", "cancelled"] },
+        }),
       ]);
 
       const sales = salesRows.reduce(
         (acc: any, row: any) => {
-          if (row._id === 'approved') {
+          if (row._id === "approved") {
             acc.approvedValue = round2(row.total);
             acc.approvedCount = row.count;
           } else {
@@ -126,18 +178,30 @@ export function registerDashboardPeriodRoutes(app: Express) {
           acc.totalBilled += row.total;
           return acc;
         },
-        { approvedValue: 0, approvedCount: 0, pendingApprovalValue: 0, pendingApprovalCount: 0, totalBilled: 0 },
+        {
+          approvedValue: 0,
+          approvedCount: 0,
+          pendingApprovalValue: 0,
+          pendingApprovalCount: 0,
+          totalBilled: 0,
+        },
       );
       sales.totalBilled = round2(sales.totalBilled);
 
       const serviceStatus = serviceRows.reduce(
-        (acc: Record<string, number>, row: any) => ({ ...acc, [row._id]: row.count }),
+        (acc: Record<string, number>, row: any) => ({
+          ...acc,
+          [row._id]: row.count,
+        }),
         {},
       );
 
       const quotations = quotationRow.reduce(
         (acc: any, row: any) => {
-          acc.byStatus[row._id] = { count: row.count, value: round2(row.value) };
+          acc.byStatus[row._id] = {
+            count: row.count,
+            value: round2(row.value),
+          };
           acc.count += row.count;
           acc.value += row.value;
           return acc;
@@ -164,7 +228,7 @@ export function registerDashboardPeriodRoutes(app: Express) {
           upi: collection.byMode.UPI,
           cash: collection.byMode.Cash,
           card: collection.byMode.Card,
-          netBanking: collection.byMode['Net Banking'],
+          netBanking: collection.byMode["Net Banking"],
           cheque: collection.byMode.Cheque,
           paymentCount: collection.count,
         },
@@ -194,13 +258,18 @@ export function registerDashboardPeriodRoutes(app: Express) {
       };
 
       // Optional period-over-period comparison for the headline figures.
-      if (compare === 'true') {
+      if (compare === "true") {
         const prev = previousRange(range);
         const prevWithin = { $gte: prev.from, $lte: prev.to };
         const [prevSales, prevCollection, prevCustomers] = await Promise.all([
           Invoice.aggregate([
-            { $match: { createdAt: prevWithin, status: { $in: ['approved', 'pending_approval'] } } },
-            { $group: { _id: null, total: { $sum: '$totalAmount' } } },
+            {
+              $match: {
+                createdAt: prevWithin,
+                status: { $in: ["approved", "pending_approval"] },
+              },
+            },
+            { $group: { _id: null, total: { $sum: "$totalAmount" } } },
           ]),
           collectionByMode(prev.from, prev.to),
           RegistrationCustomer.countDocuments({ createdAt: prevWithin }),
@@ -224,7 +293,7 @@ export function registerDashboardPeriodRoutes(app: Express) {
 
       res.json(payload);
     } catch (error) {
-      handleRouteError(res, error, 'Failed to fetch dashboard data');
+      handleRouteError(res, error, "Failed to fetch dashboard data");
     }
   });
 
@@ -233,123 +302,203 @@ export function registerDashboardPeriodRoutes(app: Express) {
    * breakdown for charting. Requirement: "check how many customers were
    * added/visited in a selected Day, Date Range, Month or Year".
    */
-  app.get('/api/dashboard/customer-analytics', requireAuth, async (req, res) => {
-    try {
-      const { period, date, month, year, fromDate, toDate, groupBy } = req.query as Record<string, string>;
-      const range = resolveDateRange({ period, date, month, year, fromDate, toDate });
-      const within = { $gte: range.from, $lte: range.to };
+  app.get(
+    "/api/dashboard/customer-analytics",
+    requireAuth,
+    async (req, res) => {
+      try {
+        const { period, date, month, year, fromDate, toDate, groupBy } =
+          req.query as Record<string, string>;
+        const range = resolveDateRange({
+          period,
+          date,
+          month,
+          year,
+          fromDate,
+          toDate,
+        });
+        const within = { $gte: range.from, $lte: range.to };
 
-      // Pick a sensible bucket size for the window unless told otherwise.
-      const spanDays = (range.to.getTime() - range.from.getTime()) / 86_400_000;
-      const bucket = groupBy || (spanDays <= 1 ? 'hour' : spanDays <= 62 ? 'day' : spanDays <= 366 ? 'month' : 'year');
+        // Pick a sensible bucket size for the window unless told otherwise.
+        const spanDays =
+          (range.to.getTime() - range.from.getTime()) / 86_400_000;
+        const bucket =
+          groupBy ||
+          (spanDays <= 1
+            ? "hour"
+            : spanDays <= 62
+              ? "day"
+              : spanDays <= 366
+                ? "month"
+                : "year");
 
-      const dateFormat =
-        bucket === 'hour' ? '%Y-%m-%d %H:00'
-        : bucket === 'day' ? '%Y-%m-%d'
-        : bucket === 'month' ? '%Y-%m'
-        : '%Y';
+        const dateFormat =
+          bucket === "hour"
+            ? "%Y-%m-%d %H:00"
+            : bucket === "day"
+              ? "%Y-%m-%d"
+              : bucket === "month"
+                ? "%Y-%m"
+                : "%Y";
 
-      const [added, visited, verified, bySource, total] = await Promise.all([
-        RegistrationCustomer.aggregate([
-          { $match: { createdAt: within } },
-          { $group: { _id: { $dateToString: { format: dateFormat, date: '$createdAt' } }, count: { $sum: 1 } } },
-          { $sort: { _id: 1 } },
-        ]),
-        ServiceVisit.aggregate([
-          { $match: { createdAt: within } },
-          {
-            $group: {
-              _id: { $dateToString: { format: dateFormat, date: '$createdAt' } },
-              customers: { $addToSet: '$customerId' },
+        const [added, visited, verified, bySource, total] = await Promise.all([
+          RegistrationCustomer.aggregate([
+            { $match: { createdAt: within } },
+            {
+              $group: {
+                _id: {
+                  $dateToString: { format: dateFormat, date: "$createdAt" },
+                },
+                count: { $sum: 1 },
+              },
             },
+            { $sort: { _id: 1 } },
+          ]),
+          ServiceVisit.aggregate([
+            { $match: { createdAt: within } },
+            {
+              $group: {
+                _id: {
+                  $dateToString: { format: dateFormat, date: "$createdAt" },
+                },
+                customers: { $addToSet: "$customerId" },
+              },
+            },
+            { $project: { count: { $size: "$customers" } } },
+            { $sort: { _id: 1 } },
+          ]),
+          RegistrationCustomer.countDocuments({
+            createdAt: within,
+            isVerified: true,
+          }),
+          RegistrationCustomer.aggregate([
+            { $match: { createdAt: within } },
+            { $group: { _id: "$referralSource", count: { $sum: 1 } } },
+            { $sort: { count: -1 } },
+          ]),
+          RegistrationCustomer.countDocuments({ createdAt: within }),
+        ]);
+
+        const visitedTotal = await ServiceVisit.distinct("customerId", {
+          createdAt: within,
+        });
+
+        res.json({
+          range: {
+            from: range.from,
+            to: range.to,
+            period: range.period,
+            label: range.label,
           },
-          { $project: { count: { $size: '$customers' } } },
-          { $sort: { _id: 1 } },
-        ]),
-        RegistrationCustomer.countDocuments({ createdAt: within, isVerified: true }),
-        RegistrationCustomer.aggregate([
-          { $match: { createdAt: within } },
-          { $group: { _id: '$referralSource', count: { $sum: 1 } } },
-          { $sort: { count: -1 } },
-        ]),
-        RegistrationCustomer.countDocuments({ createdAt: within }),
-      ]);
-
-      const visitedTotal = await ServiceVisit.distinct('customerId', { createdAt: within });
-
-      res.json({
-        range: { from: range.from, to: range.to, period: range.period, label: range.label },
-        groupBy: bucket,
-        totals: {
-          added: total,
-          verified,
-          unverified: total - verified,
-          visited: (visitedTotal as any[]).length,
-        },
-        series: {
-          added: added.map((r: any) => ({ bucket: r._id, count: r.count })),
-          visited: visited.map((r: any) => ({ bucket: r._id, count: r.count })),
-        },
-        byReferralSource: bySource.map((r: any) => ({ source: r._id || 'Not specified', count: r.count })),
-      });
-    } catch (error) {
-      handleRouteError(res, error, 'Failed to fetch customer analytics');
-    }
-  });
+          groupBy: bucket,
+          totals: {
+            added: total,
+            verified,
+            unverified: total - verified,
+            visited: (visitedTotal as any[]).length,
+          },
+          series: {
+            added: added.map((r: any) => ({ bucket: r._id, count: r.count })),
+            visited: visited.map((r: any) => ({
+              bucket: r._id,
+              count: r.count,
+            })),
+          },
+          byReferralSource: bySource.map((r: any) => ({
+            source: r._id || "Not specified",
+            count: r.count,
+          })),
+        });
+      } catch (error) {
+        handleRouteError(res, error, "Failed to fetch customer analytics");
+      }
+    },
+  );
 
   /**
    * The customers behind those numbers: searchable and filterable by the same
    * day / range / month / year window.
    */
-  app.get('/api/dashboard/customer-search', requireAuth, requirePermission('customers', 'read'), async (req, res) => {
-    try {
-      const { period, date, month, year, fromDate, toDate, search, isVerified, activity } =
-        req.query as Record<string, string>;
-      const { page, limit, skip } = paginate(req);
+  app.get(
+    "/api/dashboard/customer-search",
+    requireAuth,
+    requirePermission("customers", "read"),
+    async (req, res) => {
+      try {
+        const {
+          period,
+          date,
+          month,
+          year,
+          fromDate,
+          toDate,
+          search,
+          isVerified,
+          activity,
+        } = req.query as Record<string, string>;
+        const { page, limit, skip } = paginate(req);
 
-      const range = resolveDateRange({ period, date, month, year, fromDate, toDate });
-      const within = { $gte: range.from, $lte: range.to };
+        const range = resolveDateRange({
+          period,
+          date,
+          month,
+          year,
+          fromDate,
+          toDate,
+        });
+        const within = { $gte: range.from, $lte: range.to };
 
-      const query: any = {};
+        const query: any = {};
 
-      if (activity === 'visited') {
-        // Customers who had a service visit in the window, whenever they registered.
-        const ids = await ServiceVisit.distinct('customerId', { createdAt: within });
-        query._id = { $in: ids };
-      } else {
-        query.createdAt = within;
+        if (activity === "visited") {
+          // Customers who had a service visit in the window, whenever they registered.
+          const ids = await ServiceVisit.distinct("customerId", {
+            createdAt: within,
+          });
+          query._id = { $in: ids };
+        } else {
+          query.createdAt = within;
+        }
+
+        if (isVerified !== undefined && isVerified !== "")
+          query.isVerified = isVerified === "true";
+
+        if (search) {
+          const rx = new RegExp(escapeRegex(search), "i");
+          query.$or = [
+            { fullName: rx },
+            { mobileNumber: rx },
+            { referenceCode: rx },
+            { email: rx },
+            { city: rx },
+            { district: rx },
+          ];
+        }
+
+        const [customers, total] = await Promise.all([
+          RegistrationCustomer.find(query)
+            .select(
+              "referenceCode fullName mobileNumber email city district state isVerified otpRequired otpSkipReason registeredBy registeredByRole createdAt",
+            )
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit)
+            .lean(),
+          RegistrationCustomer.countDocuments(query),
+        ]);
+
+        res.json({
+          range: {
+            from: range.from,
+            to: range.to,
+            period: range.period,
+            label: range.label,
+          },
+          ...pagedResponse(customers, total, page, limit),
+        });
+      } catch (error) {
+        handleRouteError(res, error, "Failed to search customers");
       }
-
-      if (isVerified !== undefined && isVerified !== '') query.isVerified = isVerified === 'true';
-
-      if (search) {
-        const rx = new RegExp(escapeRegex(search), 'i');
-        query.$or = [
-          { fullName: rx },
-          { mobileNumber: rx },
-          { referenceCode: rx },
-          { email: rx },
-          { city: rx },
-          { district: rx },
-        ];
-      }
-
-      const [customers, total] = await Promise.all([
-        RegistrationCustomer.find(query)
-          .select('referenceCode fullName mobileNumber email city district state isVerified otpRequired otpSkipReason registeredBy registeredByRole createdAt')
-          .sort({ createdAt: -1 })
-          .skip(skip)
-          .limit(limit)
-          .lean(),
-        RegistrationCustomer.countDocuments(query),
-      ]);
-
-      res.json({
-        range: { from: range.from, to: range.to, period: range.period, label: range.label },
-        ...pagedResponse(customers, total, page, limit),
-      });
-    } catch (error) {
-      handleRouteError(res, error, 'Failed to search customers');
-    }
-  });
+    },
+  );
 }

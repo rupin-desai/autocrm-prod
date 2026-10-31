@@ -1,14 +1,26 @@
-import type { Express } from 'express';
-import { requireAuth, requireRole } from '../middleware';
-import { expireStaleQuotations, runReminderSweep } from '../services/reminders';
-import { Notification } from '../models/Notification';
-import { handleRouteError, paginate, pagedResponse } from './helpers';
-import { registerAdvancePaymentRoutes } from './advancePayments';
-import { registerInquiryRoutes } from './inquiries';
-import { registerWarrantyClaimRoutes } from './warrantyClaims';
-import { registerQuotationRoutes } from './quotations';
-import { registerWebsiteRoutes } from './website';
-import { registerDashboardPeriodRoutes } from './dashboardPeriod';
+import type { Express } from "express";
+import { requireAuth, requireRole } from "../middleware";
+import { expireStaleQuotations, runReminderSweep } from "../services/reminders";
+import { Notification } from "../models/Notification";
+import { handleRouteError, paginate, pagedResponse } from "./helpers";
+import { registerAdvancePaymentRoutes } from "./advancePayments";
+import { registerInquiryRoutes } from "./inquiries";
+import { registerWarrantyClaimRoutes } from "./warrantyClaims";
+import { registerQuotationRoutes } from "./quotations";
+import { registerWebsiteRoutes } from "./website";
+import { registerDashboardPeriodRoutes } from "./dashboardPeriod";
+import { registerAccountingFoundationRoutes } from "./accountingFoundation";
+import { registerAccountingLedgerRoutes } from "./accountingLedger";
+import { registerAccountingVoucherRoutes } from "./accountingVouchers";
+import { registerSalesAccountingRoutes } from "./salesAccounting";
+import { registerSalesIntegrationRoutes } from "./salesIntegration";
+import { registerSalesReconciliationRoutes } from "./salesReconciliation";
+import { registerPurchaseAccountingRoutes } from "./purchaseAccounting";
+import { registerInventoryAccountingRoutes } from "./inventoryAccounting";
+import { registerInventoryReportRoutes } from "./inventoryReports";
+import { registerInventoryReturnRoutes } from "./inventoryReturns";
+import { registerInventoryReturnPostingRoutes } from "./inventoryReturnPosting";
+import { registerAccountingReportRoutes } from "./accountingReports";
 
 // Modules added for the v2 requirements. Kept out of the main routes.ts so
 // each feature stays readable on its own.
@@ -19,41 +31,65 @@ export function registerV2Routes(app: Express) {
   registerQuotationRoutes(app);
   registerWebsiteRoutes(app);
   registerDashboardPeriodRoutes(app);
+  registerAccountingFoundationRoutes(app);
+  registerAccountingLedgerRoutes(app);
+  registerAccountingVoucherRoutes(app);
+  registerSalesAccountingRoutes(app);
+  registerSalesIntegrationRoutes(app);
+  registerSalesReconciliationRoutes(app);
+  registerPurchaseAccountingRoutes(app);
+  registerInventoryAccountingRoutes(app);
+  registerInventoryReportRoutes(app);
+  registerInventoryReturnRoutes(app);
+  registerInventoryReturnPostingRoutes(app);
+  registerAccountingReportRoutes(app);
   registerReminderRoutes(app);
 }
 
 function registerReminderRoutes(app: Express) {
   // Due reminders, newest first. Read by the notification bell and the
   // reminders panel.
-  app.get('/api/reminders', requireAuth, async (req, res) => {
+  app.get("/api/reminders", requireAuth, async (req, res) => {
     try {
       const { source, unreadOnly } = req.query as Record<string, string>;
       const { page, limit, skip } = paginate(req, 25, 100);
 
-      const query: any = { type: 'reminder' };
+      const query: any = { type: "reminder" };
       if (source) query.source = source;
-      if (unreadOnly === 'true') query.read = false;
+      if (unreadOnly === "true") query.read = false;
 
       const [items, total, unread] = await Promise.all([
-        Notification.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+        Notification.find(query)
+          .sort({ createdAt: -1 })
+          .skip(skip)
+          .limit(limit)
+          .lean(),
         Notification.countDocuments(query),
-        Notification.countDocuments({ type: 'reminder', read: false }),
+        Notification.countDocuments({ type: "reminder", read: false }),
       ]);
 
-      res.json({ ...pagedResponse(items, total, page, limit), unreadCount: unread });
+      res.json({
+        ...pagedResponse(items, total, page, limit),
+        unreadCount: unread,
+      });
     } catch (error) {
-      handleRouteError(res, error, 'Failed to fetch reminders');
+      handleRouteError(res, error, "Failed to fetch reminders");
     }
   });
 
   // Manual sweep, so staff do not have to wait for the next scheduled pass.
-  app.post('/api/reminders/run-sweep', requireAuth, requireRole('Admin', 'Manager'), async (_req, res) => {
-    try {
-      const expired = await expireStaleQuotations();
-      const result = await runReminderSweep();
-      res.json({ ...result, quotationsExpired: expired });
-    } catch (error) {
-      handleRouteError(res, error, 'Failed to run reminder sweep');
-    }
-  });
+  app.post(
+    "/api/reminders/run-sweep",
+    requireAuth,
+    requireRole("Admin", "Manager"),
+    async (_req, res) => {
+      try {
+        const expired = await expireStaleQuotations();
+        const result = await runReminderSweep();
+        res.json({ ...result, quotationsExpired: expired });
+      } catch (error) {
+        handleRouteError(res, error, "Failed to run reminder sweep");
+      }
+    },
+  );
 }

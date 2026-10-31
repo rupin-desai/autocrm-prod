@@ -9,3 +9,9 @@ vite.config.ts.*
 .mirror/
 LOCAL_CREDS.md
 secrets_deployment.md
+
+# Local MongoDB replica-set data and development logs
+runtime-data/
+.*-rs-data/
+*.log
+*.log.*

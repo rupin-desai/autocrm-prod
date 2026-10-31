@@ -1,10 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 
 const MUTATING_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
-const ALLOWED_MUTATION_PATHS = new Set([
-  "/api/auth/login",
-  "/api/auth/logout",
-]);
+const ALLOWED_MUTATION_PATHS = new Set(["/api/auth/login", "/api/auth/logout"]);
 
 const LOCAL_MONGO_HOSTS = new Set([
   "localhost",
@@ -16,10 +13,17 @@ const LOCAL_MONGO_HOSTS = new Set([
 ]);
 
 export function isLocalMirrorMode() {
-  return process.env.NODE_ENV !== "production" && process.env.LOCAL_MIRROR_MODE === "true";
+  return (
+    process.env.NODE_ENV !== "production" &&
+    process.env.LOCAL_MIRROR_MODE === "true"
+  );
 }
 
-export function localMirrorReadOnlyGuard(req: Request, res: Response, next: NextFunction) {
+export function localMirrorReadOnlyGuard(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   if (!isLocalMirrorMode()) {
     return next();
   }
@@ -45,13 +49,19 @@ export function assertLocalMirrorMongoTarget(uri: string) {
 
   const parsed = new URL(uri);
   if (parsed.protocol === "mongodb+srv:") {
-    throw new Error("LOCAL_MIRROR_MODE=true requires LOCAL_MONGO_URI to point at local MongoDB, not mongodb+srv.");
+    throw new Error(
+      "LOCAL_MIRROR_MODE=true requires LOCAL_MONGO_URI to point at local MongoDB, not mongodb+srv.",
+    );
   }
 
   const hosts = parsed.host.split(",");
-  const remoteHost = hosts.find((host) => !LOCAL_MONGO_HOSTS.has(extractHostname(host)));
+  const remoteHost = hosts.find(
+    (host) => !LOCAL_MONGO_HOSTS.has(extractHostname(host)),
+  );
   if (remoteHost) {
-    throw new Error(`LOCAL_MIRROR_MODE=true requires local MongoDB. Refusing host: ${remoteHost}`);
+    throw new Error(
+      `LOCAL_MIRROR_MODE=true requires local MongoDB. Refusing host: ${remoteHost}`,
+    );
   }
 }
 

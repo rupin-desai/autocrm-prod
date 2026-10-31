@@ -2,7 +2,13 @@ import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { CalendarRange, RotateCcw } from "lucide-react";
 
 // Shared day / range / month / year picker. Every screen that filters by date
@@ -20,8 +26,18 @@ export interface PeriodValue {
 export const DEFAULT_PERIOD: PeriodValue = { period: "today" };
 
 const MONTHS = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December",
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
 ];
 
 /** Turns the selection into the query string the API expects. */
@@ -54,7 +70,11 @@ interface PeriodFilterProps {
   className?: string;
 }
 
-export function PeriodFilter({ value, onChange, className }: PeriodFilterProps) {
+export function PeriodFilter({
+  value,
+  onChange,
+  className,
+}: PeriodFilterProps) {
   const [open, setOpen] = useState(false);
   const currentYear = new Date().getFullYear();
   const years = useMemo(
@@ -70,7 +90,9 @@ export function PeriodFilter({ value, onChange, className }: PeriodFilterProps) 
   const effectiveMonth = value.month || String(new Date().getMonth() + 1);
   const effectiveYear = value.year || String(currentYear);
 
-  const showsExtraControls = ["day", "month", "year", "custom"].includes(value.period);
+  const showsExtraControls = ["day", "month", "year", "custom"].includes(
+    value.period,
+  );
 
   return (
     <div className={className}>
@@ -84,10 +106,19 @@ export function PeriodFilter({ value, onChange, className }: PeriodFilterProps) 
               const today = new Date().toISOString().slice(0, 10);
               if (period === "day") set({ period, date: value.date || today });
               else if (period === "month")
-                set({ period, month: value.month || String(new Date().getMonth() + 1), year: value.year || String(currentYear) });
-              else if (period === "year") set({ period, year: value.year || String(currentYear) });
+                set({
+                  period,
+                  month: value.month || String(new Date().getMonth() + 1),
+                  year: value.year || String(currentYear),
+                });
+              else if (period === "year")
+                set({ period, year: value.year || String(currentYear) });
               else if (period === "custom")
-                set({ period, fromDate: value.fromDate || today, toDate: value.toDate || today });
+                set({
+                  period,
+                  fromDate: value.fromDate || today,
+                  toDate: value.toDate || today,
+                });
               else set({ period });
             }}
           >
@@ -122,25 +153,37 @@ export function PeriodFilter({ value, onChange, className }: PeriodFilterProps) 
           <>
             <div className="min-w-[140px]">
               <Label className="text-xs text-muted-foreground">Month</Label>
-              <Select value={effectiveMonth} onValueChange={(month) => set({ month })}>
+              <Select
+                value={effectiveMonth}
+                onValueChange={(month) => set({ month })}
+              >
                 <SelectTrigger data-testid="select-period-month">
                   <SelectValue placeholder="Month" />
                 </SelectTrigger>
                 <SelectContent>
                   {MONTHS.map((m, i) => (
-                    <SelectItem key={m} value={String(i + 1)}>{m}</SelectItem>
+                    <SelectItem key={m} value={String(i + 1)}>
+                      {m}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="min-w-[110px]">
               <Label className="text-xs text-muted-foreground">Year</Label>
-              <Select value={effectiveYear} onValueChange={(year) => set({ year })}>
+              <Select
+                value={effectiveYear}
+                onValueChange={(year) => set({ year })}
+              >
                 <SelectTrigger data-testid="select-period-year">
                   <SelectValue placeholder="Year" />
                 </SelectTrigger>
                 <SelectContent>
-                  {years.map((y) => <SelectItem key={y} value={y}>{y}</SelectItem>)}
+                  {years.map((y) => (
+                    <SelectItem key={y} value={y}>
+                      {y}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -150,12 +193,19 @@ export function PeriodFilter({ value, onChange, className }: PeriodFilterProps) 
         {value.period === "year" && (
           <div className="min-w-[110px]">
             <Label className="text-xs text-muted-foreground">Year</Label>
-            <Select value={effectiveYear} onValueChange={(year) => set({ year })}>
+            <Select
+              value={effectiveYear}
+              onValueChange={(year) => set({ year })}
+            >
               <SelectTrigger data-testid="select-period-year-only">
                 <SelectValue placeholder="Year" />
               </SelectTrigger>
               <SelectContent>
-                {years.map((y) => <SelectItem key={y} value={y}>{y}</SelectItem>)}
+                {years.map((y) => (
+                  <SelectItem key={y} value={y}>
+                    {y}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>

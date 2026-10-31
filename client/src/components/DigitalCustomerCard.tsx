@@ -41,7 +41,8 @@ export function DigitalCustomerCard({
           <p>{customer.phone}</p>
           <p>{customer.email}</p>
           <p className="font-medium">
-            {customer.vehicle.regNo} - {customer.vehicle.make} {customer.vehicle.model} ({customer.vehicle.year})
+            {customer.vehicle.regNo} - {customer.vehicle.make}{" "}
+            {customer.vehicle.model} ({customer.vehicle.year})
           </p>
         </div>
 
@@ -62,12 +63,17 @@ export function DigitalCustomerCard({
 
         <div className="space-y-2">
           {recentVisits.map((visit) => (
-            <div key={`${visit.date}-${visit.handler}`} className="rounded-md border p-3">
+            <div
+              key={`${visit.date}-${visit.handler}`}
+              className="rounded-md border p-3"
+            >
               <div className="flex items-center justify-between gap-2">
                 <p className="text-sm font-medium">{visit.date}</p>
                 <Badge variant="secondary">{visit.status}</Badge>
               </div>
-              <p className="text-xs text-muted-foreground mt-1">{visit.handler}</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                {visit.handler}
+              </p>
               <p className="text-xs mt-2">{visit.parts.join(", ")}</p>
             </div>
           ))}

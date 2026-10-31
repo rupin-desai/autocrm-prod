@@ -8,21 +8,59 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { hasPermission, useAuth } from "@/lib/auth";
-import { PeriodFilter, periodToQuery, type PeriodValue } from "@/components/PeriodFilter";
-import { EmptyState, PageHeader, StatTile, TableSkeleton } from "@/components/PageShell";
-import { BellRing, IndianRupee, Pencil, Plus, Search, Wallet } from "lucide-react";
+import {
+  PeriodFilter,
+  periodToQuery,
+  type PeriodValue,
+} from "@/components/PeriodFilter";
+import {
+  EmptyState,
+  PageHeader,
+  StatTile,
+  TableSkeleton,
+} from "@/components/PageShell";
+import {
+  BellRing,
+  IndianRupee,
+  Pencil,
+  Plus,
+  Search,
+  Wallet,
+} from "lucide-react";
 
 // Requirement 2: Advance Payment Received.
 
 const STATUS_STYLES: Record<string, string> = {
-  pending: "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200",
-  adjusted: "bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-200",
+  pending:
+    "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200",
+  adjusted:
+    "bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-200",
   refunded: "bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-200",
   cancelled: "bg-muted text-muted-foreground",
 };
@@ -31,7 +69,13 @@ const money = (n: number) =>
   `₹${(Number(n) || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 const shortDate = (d?: string) =>
-  d ? new Date(d).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "-";
+  d
+    ? new Date(d).toLocaleDateString("en-IN", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      })
+    : "-";
 
 const emptyForm = {
   customerId: "",
@@ -50,7 +94,11 @@ export default function AdvancePayments() {
   const { toast } = useToast();
   const { user } = useAuth();
   const canUpdate = hasPermission(user, "advancePayments", "update");
-  const [reminderEdit, setReminderEdit] = useState<{ id: string; customerName: string; days: string } | null>(null);
+  const [reminderEdit, setReminderEdit] = useState<{
+    id: string;
+    customerName: string;
+    days: string;
+  } | null>(null);
   const [period, setPeriod] = useState<PeriodValue>({ period: "month" });
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -69,7 +117,9 @@ export default function AdvancePayments() {
   const { data, isLoading } = useQuery<any>({
     queryKey: ["/api/advance-payments", queryString],
     queryFn: async () => {
-      const res = await fetch(`/api/advance-payments?${queryString}`, { credentials: "include" });
+      const res = await fetch(`/api/advance-payments?${queryString}`, {
+        credentials: "include",
+      });
       if (!res.ok) throw new Error("Failed to load advance payments");
       return res.json();
     },
@@ -81,7 +131,9 @@ export default function AdvancePayments() {
     queryFn: async () => {
       const params = new URLSearchParams({ period: "year", limit: "25" });
       if (customerSearch.trim()) params.set("search", customerSearch.trim());
-      const res = await fetch(`/api/dashboard/customer-search?${params}`, { credentials: "include" });
+      const res = await fetch(`/api/dashboard/customer-search?${params}`, {
+        credentials: "include",
+      });
       if (!res.ok) throw new Error("Failed to load customers");
       return res.json();
     },
@@ -90,7 +142,8 @@ export default function AdvancePayments() {
   const createMutation = useMutation({
     mutationFn: async () => {
       if (!form.customerId) throw new Error("Select a customer");
-      if (!form.itemOrService.trim()) throw new Error("Item or service is required");
+      if (!form.itemOrService.trim())
+        throw new Error("Item or service is required");
       if (!Number(form.amount)) throw new Error("Enter an advance amount");
 
       const res = await apiRequest("POST", "/api/advance-payments", {
@@ -113,12 +166,18 @@ export default function AdvancePayments() {
       });
     },
     onError: (error: any) =>
-      toast({ title: "Error", description: error.message || "Failed to record advance", variant: "destructive" }),
+      toast({
+        title: "Error",
+        description: error.message || "Failed to record advance",
+        variant: "destructive",
+      }),
   });
 
   const statusMutation = useMutation({
     mutationFn: async ({ id, status }: { id: string; status: string }) => {
-      const res = await apiRequest("PATCH", `/api/advance-payments/${id}`, { status });
+      const res = await apiRequest("PATCH", `/api/advance-payments/${id}`, {
+        status,
+      });
       return res.json();
     },
     onSuccess: () => {
@@ -126,16 +185,28 @@ export default function AdvancePayments() {
       toast({ title: "Updated", description: "Advance payment updated" });
     },
     onError: (error: any) =>
-      toast({ title: "Error", description: error.message || "Failed to update", variant: "destructive" }),
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update",
+        variant: "destructive",
+      }),
   });
 
   const reminderMutation = useMutation({
     mutationFn: async ({ id, days }: { id: string; days: string }) => {
       const reminderDays = Number(days);
-      if (!Number.isInteger(reminderDays) || reminderDays < 0 || reminderDays > 365) {
+      if (
+        !Number.isInteger(reminderDays) ||
+        reminderDays < 0 ||
+        reminderDays > 365
+      ) {
         throw new Error("Enter a whole number of days between 0 and 365");
       }
-      const res = await apiRequest("PATCH", `/api/advance-payments/${id}/reminder`, { reminderDays });
+      const res = await apiRequest(
+        "PATCH",
+        `/api/advance-payments/${id}/reminder`,
+        { reminderDays },
+      );
       return res.json();
     },
     onSuccess: () => {
@@ -144,7 +215,11 @@ export default function AdvancePayments() {
       toast({ title: "Reminder updated" });
     },
     onError: (error: any) =>
-      toast({ title: "Error", description: error.message || "Failed to update reminder", variant: "destructive" }),
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update reminder",
+        variant: "destructive",
+      }),
   });
 
   const items = data?.items || [];
@@ -157,7 +232,10 @@ export default function AdvancePayments() {
         title="Advance Payment Received"
         description="Advances taken against pending work, with follow-up reminders."
         actions={
-          <Button onClick={() => setDialogOpen(true)} data-testid="button-new-advance">
+          <Button
+            onClick={() => setDialogOpen(true)}
+            data-testid="button-new-advance"
+          >
             <Plus className="h-4 w-4 mr-2" />
             Record Advance
           </Button>
@@ -180,7 +258,11 @@ export default function AdvancePayments() {
           tone="warning"
           testId="text-pending-advances"
         />
-        <StatTile label="Entries" value={summary?.totalCount || 0} icon={Wallet} />
+        <StatTile
+          label="Entries"
+          value={summary?.totalCount || 0}
+          icon={Wallet}
+        />
       </div>
 
       <Card>
@@ -190,7 +272,9 @@ export default function AdvancePayments() {
             <div className="min-w-[150px]">
               <Label className="text-xs text-muted-foreground">Status</Label>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger data-testid="select-advance-status"><SelectValue /></SelectTrigger>
+                <SelectTrigger data-testid="select-advance-status">
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All</SelectItem>
                   <SelectItem value="pending">Pending</SelectItem>
@@ -223,7 +307,11 @@ export default function AdvancePayments() {
               title="No advance payments in this period"
               description="Advances you record against pending work will appear here."
               action={
-                <Button variant="outline" size="sm" onClick={() => setDialogOpen(true)}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setDialogOpen(true)}
+                >
                   <Plus className="h-4 w-4 mr-2" /> Record Advance
                 </Button>
               }
@@ -246,23 +334,49 @@ export default function AdvancePayments() {
                 </TableHeader>
                 <TableBody>
                   {items.map((a: any) => {
-                    const overdue = a.status === "pending" && a.reminderDate && new Date(a.reminderDate) <= new Date();
+                    const overdue =
+                      a.status === "pending" &&
+                      a.reminderDate &&
+                      new Date(a.reminderDate) <= new Date();
                     return (
-                      <TableRow key={a._id} data-testid={`row-advance-${a._id}`}>
+                      <TableRow
+                        key={a._id}
+                        data-testid={`row-advance-${a._id}`}
+                      >
                         <TableCell>
                           <div className="font-medium">{a.customerName}</div>
-                          <div className="text-xs text-muted-foreground">{a.customerMobile}</div>
+                          <div className="text-xs text-muted-foreground">
+                            {a.customerMobile}
+                          </div>
                         </TableCell>
                         <TableCell>
                           <div>{a.itemOrService}</div>
-                          {a.relatedWork && <div className="text-xs text-muted-foreground">{a.relatedWork}</div>}
+                          {a.relatedWork && (
+                            <div className="text-xs text-muted-foreground">
+                              {a.relatedWork}
+                            </div>
+                          )}
                         </TableCell>
-                        <TableCell className="text-sm">{a.vehicleNumber || "-"}</TableCell>
-                        <TableCell className="text-right font-semibold">{money(a.amount)}</TableCell>
-                        <TableCell className="text-sm">{a.paymentMode}</TableCell>
-                        <TableCell className="text-sm">{shortDate(a.receivedDate)}</TableCell>
                         <TableCell className="text-sm">
-                          <span className={overdue ? "text-red-600 font-medium inline-flex items-center gap-1" : ""}>
+                          {a.vehicleNumber || "-"}
+                        </TableCell>
+                        <TableCell className="text-right font-semibold">
+                          {money(a.amount)}
+                        </TableCell>
+                        <TableCell className="text-sm">
+                          {a.paymentMode}
+                        </TableCell>
+                        <TableCell className="text-sm">
+                          {shortDate(a.receivedDate)}
+                        </TableCell>
+                        <TableCell className="text-sm">
+                          <span
+                            className={
+                              overdue
+                                ? "text-red-600 font-medium inline-flex items-center gap-1"
+                                : ""
+                            }
+                          >
                             {overdue && <BellRing className="h-3.5 w-3.5" />}
                             {shortDate(a.reminderDate)}
                           </span>
@@ -275,7 +389,11 @@ export default function AdvancePayments() {
                                 className="h-5 w-5"
                                 title="Change reminder days"
                                 onClick={() =>
-                                  setReminderEdit({ id: a._id, customerName: a.customerName, days: String(a.reminderDays) })
+                                  setReminderEdit({
+                                    id: a._id,
+                                    customerName: a.customerName,
+                                    days: String(a.reminderDays),
+                                  })
                                 }
                                 data-testid={`button-edit-reminder-${a._id}`}
                               >
@@ -285,18 +403,36 @@ export default function AdvancePayments() {
                           </div>
                         </TableCell>
                         <TableCell>
-                          <Badge className={STATUS_STYLES[a.status]} variant="secondary">{a.status}</Badge>
+                          <Badge
+                            className={STATUS_STYLES[a.status]}
+                            variant="secondary"
+                          >
+                            {a.status}
+                          </Badge>
                         </TableCell>
                         <TableCell>
                           {a.status === "pending" && canUpdate && (
-                            <Select onValueChange={(status) => statusMutation.mutate({ id: a._id, status })}>
-                              <SelectTrigger className="w-[130px] h-8" data-testid={`select-status-${a._id}`}>
+                            <Select
+                              onValueChange={(status) =>
+                                statusMutation.mutate({ id: a._id, status })
+                              }
+                            >
+                              <SelectTrigger
+                                className="w-[130px] h-8"
+                                data-testid={`select-status-${a._id}`}
+                              >
                                 <SelectValue placeholder="Change" />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="adjusted">Mark adjusted</SelectItem>
-                                <SelectItem value="refunded">Mark refunded</SelectItem>
-                                <SelectItem value="cancelled">Cancel</SelectItem>
+                                <SelectItem value="adjusted">
+                                  Mark adjusted
+                                </SelectItem>
+                                <SelectItem value="refunded">
+                                  Mark refunded
+                                </SelectItem>
+                                <SelectItem value="cancelled">
+                                  Cancel
+                                </SelectItem>
                               </SelectContent>
                             </Select>
                           )}
@@ -311,12 +447,16 @@ export default function AdvancePayments() {
         </CardContent>
       </Card>
 
-      <Dialog open={!!reminderEdit} onOpenChange={(open) => !open && setReminderEdit(null)}>
+      <Dialog
+        open={!!reminderEdit}
+        onOpenChange={(open) => !open && setReminderEdit(null)}
+      >
         <DialogContent className="max-w-sm">
           <DialogHeader>
             <DialogTitle>Change Reminder</DialogTitle>
             <DialogDescription>
-              Remind about {reminderEdit?.customerName}'s advance this many days after it was received.
+              Remind about {reminderEdit?.customerName}'s advance this many days
+              after it was received.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-2">
@@ -327,14 +467,25 @@ export default function AdvancePayments() {
               min={0}
               max={365}
               value={reminderEdit?.days ?? ""}
-              onChange={(e) => reminderEdit && setReminderEdit({ ...reminderEdit, days: e.target.value })}
+              onChange={(e) =>
+                reminderEdit &&
+                setReminderEdit({ ...reminderEdit, days: e.target.value })
+              }
               data-testid="input-edit-reminder-days"
             />
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setReminderEdit(null)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setReminderEdit(null)}>
+              Cancel
+            </Button>
             <Button
-              onClick={() => reminderEdit && reminderMutation.mutate({ id: reminderEdit.id, days: reminderEdit.days })}
+              onClick={() =>
+                reminderEdit &&
+                reminderMutation.mutate({
+                  id: reminderEdit.id,
+                  days: reminderEdit.days,
+                })
+              }
               disabled={reminderMutation.isPending}
               data-testid="button-save-reminder"
             >
@@ -349,7 +500,8 @@ export default function AdvancePayments() {
           <DialogHeader>
             <DialogTitle>Record Advance Payment</DialogTitle>
             <DialogDescription>
-              Link the advance to a customer and the work it is against. The reminder defaults to 15 days and can be changed.
+              Link the advance to a customer and the work it is against. The
+              reminder defaults to 15 days and can be changed.
             </DialogDescription>
           </DialogHeader>
 
@@ -363,7 +515,10 @@ export default function AdvancePayments() {
                 className="mb-2"
                 data-testid="input-customer-search"
               />
-              <Select value={form.customerId} onValueChange={(customerId) => setForm({ ...form, customerId })}>
+              <Select
+                value={form.customerId}
+                onValueChange={(customerId) => setForm({ ...form, customerId })}
+              >
                 <SelectTrigger data-testid="select-advance-customer">
                   <SelectValue placeholder="Select customer" />
                 </SelectTrigger>
@@ -382,7 +537,9 @@ export default function AdvancePayments() {
                 <Label>Item / Service *</Label>
                 <Input
                   value={form.itemOrService}
-                  onChange={(e) => setForm({ ...form, itemOrService: e.target.value })}
+                  onChange={(e) =>
+                    setForm({ ...form, itemOrService: e.target.value })
+                  }
                   placeholder="e.g. Ceramic coating"
                   data-testid="input-item-service"
                 />
@@ -391,7 +548,9 @@ export default function AdvancePayments() {
                 <Label>Related work / order</Label>
                 <Input
                   value={form.relatedWork}
-                  onChange={(e) => setForm({ ...form, relatedWork: e.target.value })}
+                  onChange={(e) =>
+                    setForm({ ...form, relatedWork: e.target.value })
+                  }
                   placeholder="e.g. Job for MH12AB1234"
                   data-testid="input-related-work"
                 />
@@ -405,19 +564,32 @@ export default function AdvancePayments() {
                     type="number"
                     min="0"
                     value={form.amount}
-                    onChange={(e) => setForm({ ...form, amount: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, amount: e.target.value })
+                    }
                     data-testid="input-advance-amount"
                   />
                 </div>
               </div>
               <div>
                 <Label>Payment mode</Label>
-                <Select value={form.paymentMode} onValueChange={(paymentMode) => setForm({ ...form, paymentMode })}>
-                  <SelectTrigger data-testid="select-payment-mode"><SelectValue /></SelectTrigger>
+                <Select
+                  value={form.paymentMode}
+                  onValueChange={(paymentMode) =>
+                    setForm({ ...form, paymentMode })
+                  }
+                >
+                  <SelectTrigger data-testid="select-payment-mode">
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent>
-                    {["Cash", "UPI", "Card", "Net Banking", "Cheque"].map((m) => (
-                      <SelectItem key={m} value={m}>{m}</SelectItem>
-                    ))}
+                    {["Cash", "UPI", "Card", "Net Banking", "Cheque"].map(
+                      (m) => (
+                        <SelectItem key={m} value={m}>
+                          {m}
+                        </SelectItem>
+                      ),
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -426,7 +598,9 @@ export default function AdvancePayments() {
                 <Input
                   type="date"
                   value={form.receivedDate}
-                  onChange={(e) => setForm({ ...form, receivedDate: e.target.value })}
+                  onChange={(e) =>
+                    setForm({ ...form, receivedDate: e.target.value })
+                  }
                   data-testid="input-received-date"
                 />
               </div>
@@ -436,21 +610,29 @@ export default function AdvancePayments() {
                   type="number"
                   min="0"
                   value={form.reminderDays}
-                  onChange={(e) => setForm({ ...form, reminderDays: e.target.value })}
+                  onChange={(e) =>
+                    setForm({ ...form, reminderDays: e.target.value })
+                  }
                   data-testid="input-reminder-days"
                 />
-                <p className="text-xs text-muted-foreground mt-1">Default 15 days. Editable per advance.</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Default 15 days. Editable per advance.
+                </p>
               </div>
             </div>
 
             <div className="flex items-center justify-between rounded-md border p-3">
               <div>
                 <Label className="text-sm">Reminder enabled</Label>
-                <p className="text-xs text-muted-foreground">Raise a follow-up if the work is still pending.</p>
+                <p className="text-xs text-muted-foreground">
+                  Raise a follow-up if the work is still pending.
+                </p>
               </div>
               <Switch
                 checked={form.reminderEnabled}
-                onCheckedChange={(reminderEnabled) => setForm({ ...form, reminderEnabled })}
+                onCheckedChange={(reminderEnabled) =>
+                  setForm({ ...form, reminderEnabled })
+                }
                 data-testid="switch-reminder-enabled"
               />
             </div>
@@ -467,7 +649,9 @@ export default function AdvancePayments() {
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setDialogOpen(false)}>
+              Cancel
+            </Button>
             <Button
               onClick={() => createMutation.mutate()}
               disabled={createMutation.isPending}

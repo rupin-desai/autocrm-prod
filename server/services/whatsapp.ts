@@ -23,31 +23,45 @@ function parseEnvValue(envKey: string): string | undefined {
   return match ? match[1].trim() : undefined;
 }
 
-const WHATSAPP_API_KEY = parseEnvValue('WHATSAPP_API_KEY');
-const WHATSAPP_PHONE_NUMBER_ID = parseEnvValue('WHATSAPP_PHONE_NUMBER_ID') || '919970127778';
+const WHATSAPP_API_KEY = parseEnvValue("WHATSAPP_API_KEY");
+const WHATSAPP_PHONE_NUMBER_ID =
+  parseEnvValue("WHATSAPP_PHONE_NUMBER_ID") || "919970127778";
 
-const WHATSAPP_BASE_URL = 'https://cloudapi.akst.in/api/v1.0/messages';
-const WHATSAPP_ONBOARDING_BASE_URL = process.env.WHATSAPP_ONBOARDING_BASE_URL?.trim() || 'https://onboarding.akst.in';
-const WHATSAPP_ONBOARDING_VERSION = process.env.WHATSAPP_ONBOARDING_VERSION?.trim() || 'v23.0';
-const WHATSAPP_ONBOARDING_PHONE_NUMBER_ID = parseEnvValue('WHATSAPP_ONBOARDING_PHONE_NUMBER_ID') || '951514724722583';
-const WHATSAPP_ONBOARDING_ACCESS_TOKEN = parseEnvValue('WHATSAPP_ONBOARDING_ACCESS_TOKEN');
-const WHATSAPP_ONBOARDING_OTP_TEMPLATE = process.env.WHATSAPP_ONBOARDING_OTP_TEMPLATE?.trim() || 'verify_code_1';
-const WHATSAPP_ONBOARDING_OTP_BUTTON_TEXT = process.env.WHATSAPP_ONBOARDING_OTP_BUTTON_TEXT?.trim() || 'Copy';
-const WHATSAPP_BIZ_OPAQUE_CALLBACK_DATA = process.env.WHATSAPP_BIZ_OPAQUE_CALLBACK_DATA?.trim() || '{{BizOpaqueCallbackData}}';
-export const WHATSAPP_OTP_BRAND_NAME = process.env.WHATSAPP_OTP_BRAND_NAME?.trim() || 'MAULI CAR DECOR';
+const WHATSAPP_BASE_URL = "https://cloudapi.akst.in/api/v1.0/messages";
+const WHATSAPP_ONBOARDING_BASE_URL =
+  process.env.WHATSAPP_ONBOARDING_BASE_URL?.trim() ||
+  "https://onboarding.akst.in";
+const WHATSAPP_ONBOARDING_VERSION =
+  process.env.WHATSAPP_ONBOARDING_VERSION?.trim() || "v23.0";
+const WHATSAPP_ONBOARDING_PHONE_NUMBER_ID =
+  parseEnvValue("WHATSAPP_ONBOARDING_PHONE_NUMBER_ID") || "951514724722583";
+const WHATSAPP_ONBOARDING_ACCESS_TOKEN = parseEnvValue(
+  "WHATSAPP_ONBOARDING_ACCESS_TOKEN",
+);
+const WHATSAPP_ONBOARDING_OTP_TEMPLATE =
+  process.env.WHATSAPP_ONBOARDING_OTP_TEMPLATE?.trim() || "verify_code_1";
+const WHATSAPP_ONBOARDING_OTP_BUTTON_TEXT =
+  process.env.WHATSAPP_ONBOARDING_OTP_BUTTON_TEXT?.trim() || "Copy";
+const WHATSAPP_BIZ_OPAQUE_CALLBACK_DATA =
+  process.env.WHATSAPP_BIZ_OPAQUE_CALLBACK_DATA?.trim() ||
+  "{{BizOpaqueCallbackData}}";
+export const WHATSAPP_OTP_BRAND_NAME =
+  process.env.WHATSAPP_OTP_BRAND_NAME?.trim() || "MAULI CAR DECOR";
 
-export const WHATSAPP_REQUEST_TIMEOUT_MS = Number(process.env.WHATSAPP_TIMEOUT_MS || 10000);
+export const WHATSAPP_REQUEST_TIMEOUT_MS = Number(
+  process.env.WHATSAPP_TIMEOUT_MS || 10000,
+);
 
 // Template names for the automatic customer update messages (requirement 6).
 // Each must be approved on the WhatsApp provider before it will deliver.
 export const WHATSAPP_TEMPLATES = {
-  workStarted: process.env.WHATSAPP_WORK_STARTED_TEMPLATE || '',
-  workUpdated: process.env.WHATSAPP_WORK_UPDATED_TEMPLATE || '',
-  workCompleted: process.env.WHATSAPP_WORK_COMPLETED_TEMPLATE || '',
-  paymentReceived: process.env.WHATSAPP_PAYMENT_RECEIVED_TEMPLATE || '',
-  advanceReceived: process.env.WHATSAPP_ADVANCE_RECEIVED_TEMPLATE || '',
-  quotationShared: process.env.WHATSAPP_QUOTATION_TEMPLATE || '',
-  warrantyUpdate: process.env.WHATSAPP_WARRANTY_TEMPLATE || '',
+  workStarted: process.env.WHATSAPP_WORK_STARTED_TEMPLATE || "",
+  workUpdated: process.env.WHATSAPP_WORK_UPDATED_TEMPLATE || "",
+  workCompleted: process.env.WHATSAPP_WORK_COMPLETED_TEMPLATE || "",
+  paymentReceived: process.env.WHATSAPP_PAYMENT_RECEIVED_TEMPLATE || "",
+  advanceReceived: process.env.WHATSAPP_ADVANCE_RECEIVED_TEMPLATE || "",
+  quotationShared: process.env.WHATSAPP_QUOTATION_TEMPLATE || "",
+  warrantyUpdate: process.env.WHATSAPP_WARRANTY_TEMPLATE || "",
 };
 
 /**
@@ -58,8 +72,8 @@ export async function sendWhatsAppTemplateMessage({
   to,
   templateName,
   bodyParams,
-  logLabel = 'WhatsApp Template',
-  languageCode = 'en',
+  logLabel = "WhatsApp Template",
+  languageCode = "en",
 }: {
   to: string;
   templateName: string;
@@ -68,7 +82,10 @@ export async function sendWhatsAppTemplateMessage({
   languageCode?: string;
 }): Promise<WhatsAppResponse> {
   if (!templateName) {
-    return { success: false, error: 'No WhatsApp template configured for this message type' };
+    return {
+      success: false,
+      error: "No WhatsApp template configured for this message type",
+    };
   }
 
   const formattedPhone = formatPhoneNumber(to);
@@ -83,15 +100,23 @@ export async function sendWhatsAppTemplateMessage({
     url: `${WHATSAPP_BASE_URL}/send-template/${WHATSAPP_PHONE_NUMBER_ID}`,
     logLabel,
     payload: {
-      messaging_product: 'whatsapp',
-      recipient_type: 'individual',
+      messaging_product: "whatsapp",
+      recipient_type: "individual",
       to: formattedPhone,
-      type: 'template',
+      type: "template",
       template: {
         name: templateName,
         language: { code: languageCode },
         components: bodyParams.length
-          ? [{ type: 'body', parameters: bodyParams.map((text) => ({ type: 'text', text: String(text ?? '') })) }]
+          ? [
+              {
+                type: "body",
+                parameters: bodyParams.map((text) => ({
+                  type: "text",
+                  text: String(text ?? ""),
+                })),
+              },
+            ]
           : [],
       },
     },
@@ -99,19 +124,27 @@ export async function sendWhatsAppTemplateMessage({
 }
 
 function extractProviderMessageId(data: any): string | undefined {
-  if (Array.isArray(data?.messages) && typeof data.messages[0]?.id === 'string' && data.messages[0].id.trim()) {
+  if (
+    Array.isArray(data?.messages) &&
+    typeof data.messages[0]?.id === "string" &&
+    data.messages[0].id.trim()
+  ) {
     return data.messages[0].id.trim();
   }
 
-  if (Array.isArray(data?.data) && typeof data.data[0]?.MaskId === 'string' && data.data[0].MaskId.trim()) {
+  if (
+    Array.isArray(data?.data) &&
+    typeof data.data[0]?.MaskId === "string" &&
+    data.data[0].MaskId.trim()
+  ) {
     return data.data[0].MaskId.trim();
   }
 
-  if (typeof data?.data?.id === 'string' && data.data.id.trim()) {
+  if (typeof data?.data?.id === "string" && data.data.id.trim()) {
     return data.data.id.trim();
   }
 
-  if (typeof data?.id === 'string' && data.id.trim()) {
+  if (typeof data?.id === "string" && data.id.trim()) {
     return data.id.trim();
   }
 
@@ -119,41 +152,50 @@ function extractProviderMessageId(data: any): string | undefined {
 }
 
 function isAcceptedByWhatsAppProvider(response: Response, data: any): boolean {
-  return response.ok && data?.success === true && !!extractProviderMessageId(data);
+  return (
+    response.ok && data?.success === true && !!extractProviderMessageId(data)
+  );
 }
 
-function isAcceptedByOnboardingProvider(response: Response, data: any): boolean {
+function isAcceptedByOnboardingProvider(
+  response: Response,
+  data: any,
+): boolean {
   return response.ok && !!extractProviderMessageId(data);
 }
 
 function formatPhoneNumber(phone: string): string | null {
-  if (!phone || typeof phone !== 'string') {
-    console.error('Invalid phone number: empty or not a string');
+  if (!phone || typeof phone !== "string") {
+    console.error("Invalid phone number: empty or not a string");
     return null;
   }
 
-  let formattedPhone = phone.trim().replace(/\D/g, '');
+  let formattedPhone = phone.trim().replace(/\D/g, "");
 
   if (!formattedPhone) {
-    console.error('Phone number contains no digits');
+    console.error("Phone number contains no digits");
     return null;
   }
 
-  if (formattedPhone.startsWith('0') && formattedPhone.length === 11) {
+  if (formattedPhone.startsWith("0") && formattedPhone.length === 11) {
     formattedPhone = formattedPhone.substring(1);
   }
 
-  if (formattedPhone.startsWith('91') && formattedPhone.length === 12) {
+  if (formattedPhone.startsWith("91") && formattedPhone.length === 12) {
     return formattedPhone;
   }
 
   if (formattedPhone.length === 10) {
-    formattedPhone = '91' + formattedPhone;
+    formattedPhone = "91" + formattedPhone;
   }
 
-  if (formattedPhone.length !== 12 || !formattedPhone.startsWith('91')) {
-    console.error(`Invalid phone number format after normalization: "${formattedPhone}" (original: "${phone}")`);
-    console.error('Expected format: 12 digits starting with 91 (for example 919619523254)');
+  if (formattedPhone.length !== 12 || !formattedPhone.startsWith("91")) {
+    console.error(
+      `Invalid phone number format after normalization: "${formattedPhone}" (original: "${phone}")`,
+    );
+    console.error(
+      "Expected format: 12 digits starting with 91 (for example 919619523254)",
+    );
     return null;
   }
 
@@ -162,7 +204,7 @@ function formatPhoneNumber(phone: string): string | null {
 
 function validatePhoneNumber(phone: string | null): boolean {
   if (!phone) return false;
-  return phone.length === 12 && phone.startsWith('91') && /^\d+$/.test(phone);
+  return phone.length === 12 && phone.startsWith("91") && /^\d+$/.test(phone);
 }
 
 async function postWhatsAppTemplate({
@@ -175,19 +217,22 @@ async function postWhatsAppTemplate({
   logLabel: string;
 }): Promise<WhatsAppResponse> {
   if (!WHATSAPP_API_KEY) {
-    console.error('WhatsApp API key not configured');
-    return { success: false, error: 'WhatsApp credentials not configured' };
+    console.error("WhatsApp API key not configured");
+    return { success: false, error: "WhatsApp credentials not configured" };
   }
 
   const startTime = Date.now();
 
   try {
-    console.log(`Request Payload (${logLabel}):`, JSON.stringify(payload, null, 2));
+    console.log(
+      `Request Payload (${logLabel}):`,
+      JSON.stringify(payload, null, 2),
+    );
 
     const response = await fetch(url, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         Authorization: `Bearer ${WHATSAPP_API_KEY}`,
       },
       body: JSON.stringify(payload),
@@ -199,16 +244,16 @@ async function postWhatsAppTemplate({
     const providerMessageId = extractProviderMessageId(data);
 
     console.log(`${logLabel} response (${responseTime}ms)`);
-    console.log('HTTP Status:', response.status);
-    console.log('Response:', JSON.stringify(data, null, 2));
-    console.log('Provider Message ID:', providerMessageId || 'Not provided');
+    console.log("HTTP Status:", response.status);
+    console.log("Response:", JSON.stringify(data, null, 2));
+    console.log("Provider Message ID:", providerMessageId || "Not provided");
 
     if (isAcceptedByWhatsAppProvider(response, data)) {
       console.log(`${logLabel} accepted by provider`);
-      console.log('Delivery still depends on provider/Meta status');
+      console.log("Delivery still depends on provider/Meta status");
       return {
         success: true,
-        statusDesc: data.statusDesc || 'Message accepted by provider',
+        statusDesc: data.statusDesc || "Message accepted by provider",
         statusCode: data.statusCode,
         data: data.data,
         providerMessageId,
@@ -218,7 +263,11 @@ async function postWhatsAppTemplate({
     console.error(`${logLabel} was not confirmed by provider`);
     return {
       success: false,
-      error: data?.statusDesc || data?.error?.message || data?.message || 'WhatsApp provider did not confirm request acceptance',
+      error:
+        data?.statusDesc ||
+        data?.error?.message ||
+        data?.message ||
+        "WhatsApp provider did not confirm request acceptance",
       statusCode: data?.statusCode || response.status,
       data,
       providerMessageId,
@@ -227,7 +276,7 @@ async function postWhatsAppTemplate({
     console.error(`${logLabel} API error:`, error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'WhatsApp request failed',
+      error: error instanceof Error ? error.message : "WhatsApp request failed",
     };
   }
 }
@@ -242,19 +291,25 @@ async function postOnboardingOTP({
   logLabel: string;
 }): Promise<WhatsAppResponse> {
   if (!WHATSAPP_ONBOARDING_ACCESS_TOKEN) {
-    console.error('WhatsApp Onboarding access token not configured');
-    return { success: false, error: 'WhatsApp Onboarding credentials not configured' };
+    console.error("WhatsApp Onboarding access token not configured");
+    return {
+      success: false,
+      error: "WhatsApp Onboarding credentials not configured",
+    };
   }
 
   const startTime = Date.now();
 
   try {
-    console.log(`Request Payload (${logLabel}):`, JSON.stringify(payload, null, 2));
+    console.log(
+      `Request Payload (${logLabel}):`,
+      JSON.stringify(payload, null, 2),
+    );
 
     const response = await fetch(url, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         authorization: `Bearer ${WHATSAPP_ONBOARDING_ACCESS_TOKEN}`,
       },
       body: JSON.stringify(payload),
@@ -265,15 +320,16 @@ async function postOnboardingOTP({
     const providerMessageId = extractProviderMessageId(data);
 
     console.log(`${logLabel} response (${responseTime}ms)`);
-    console.log('HTTP Status:', response.status);
-    console.log('Response:', JSON.stringify(data, null, 2));
-    console.log('Provider Message ID:', providerMessageId || 'Not provided');
+    console.log("HTTP Status:", response.status);
+    console.log("Response:", JSON.stringify(data, null, 2));
+    console.log("Provider Message ID:", providerMessageId || "Not provided");
 
     if (isAcceptedByOnboardingProvider(response, data)) {
       console.log(`${logLabel} accepted by Onboarding provider`);
       return {
         success: true,
-        statusDesc: data.statusDesc || 'Message accepted by Onboarding provider',
+        statusDesc:
+          data.statusDesc || "Message accepted by Onboarding provider",
         statusCode: data.statusCode || response.status,
         data,
         providerMessageId,
@@ -283,7 +339,11 @@ async function postOnboardingOTP({
     console.error(`${logLabel} was not confirmed by Onboarding provider`);
     return {
       success: false,
-      error: data?.error?.message || data?.statusDesc || data?.message || 'WhatsApp Onboarding provider did not confirm request acceptance',
+      error:
+        data?.error?.message ||
+        data?.statusDesc ||
+        data?.message ||
+        "WhatsApp Onboarding provider did not confirm request acceptance",
       statusCode: data?.statusCode || response.status,
       data,
       providerMessageId,
@@ -292,7 +352,10 @@ async function postOnboardingOTP({
     console.error(`${logLabel} API error:`, error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'WhatsApp Onboarding request failed',
+      error:
+        error instanceof Error
+          ? error.message
+          : "WhatsApp Onboarding request failed",
     };
   }
 }
@@ -307,51 +370,59 @@ async function sendOnboardingOTP({
   logLabel: string;
 }): Promise<WhatsAppResponse> {
   if (!WHATSAPP_ONBOARDING_ACCESS_TOKEN) {
-    console.error(`WhatsApp Onboarding access token not configured for ${WHATSAPP_OTP_BRAND_NAME}`);
-    return { success: false, error: `WhatsApp Onboarding credentials not configured for ${WHATSAPP_OTP_BRAND_NAME}` };
+    console.error(
+      `WhatsApp Onboarding access token not configured for ${WHATSAPP_OTP_BRAND_NAME}`,
+    );
+    return {
+      success: false,
+      error: `WhatsApp Onboarding credentials not configured for ${WHATSAPP_OTP_BRAND_NAME}`,
+    };
   }
 
   const formattedPhone = formatPhoneNumber(to);
   if (!formattedPhone) {
     return {
       success: false,
-      error: 'Invalid phone number format. Please provide a valid Indian mobile number (10 digits or with +91/91 prefix)',
+      error:
+        "Invalid phone number format. Please provide a valid Indian mobile number (10 digits or with +91/91 prefix)",
     };
   }
 
-  const baseUrl = WHATSAPP_ONBOARDING_BASE_URL.replace(/\/$/, '');
-  const version = WHATSAPP_ONBOARDING_VERSION.replace(/^\/|\/$/g, '');
+  const baseUrl = WHATSAPP_ONBOARDING_BASE_URL.replace(/\/$/, "");
+  const version = WHATSAPP_ONBOARDING_VERSION.replace(/^\/|\/$/g, "");
   const url = `${baseUrl}/${version}/${WHATSAPP_ONBOARDING_PHONE_NUMBER_ID}/messages`;
 
   console.log(`Sending ${logLabel} via WhatsApp Onboarding template`);
-  console.log('API URL:', url);
-  console.log('Phone Number ID:', WHATSAPP_ONBOARDING_PHONE_NUMBER_ID);
-  console.log('Brand Name:', WHATSAPP_OTP_BRAND_NAME);
-  console.log('Template Name:', WHATSAPP_ONBOARDING_OTP_TEMPLATE);
-  console.log('To (Original):', to);
-  console.log('To (Formatted):', formattedPhone);
+  console.log("API URL:", url);
+  console.log("Phone Number ID:", WHATSAPP_ONBOARDING_PHONE_NUMBER_ID);
+  console.log("Brand Name:", WHATSAPP_OTP_BRAND_NAME);
+  console.log("Template Name:", WHATSAPP_ONBOARDING_OTP_TEMPLATE);
+  console.log("To (Original):", to);
+  console.log("To (Formatted):", formattedPhone);
 
   return postOnboardingOTP({
     url,
     logLabel,
     payload: {
-      messaging_product: 'whatsapp',
-      recipient_type: 'individual',
+      messaging_product: "whatsapp",
+      recipient_type: "individual",
       to: formattedPhone,
-      type: 'template',
+      type: "template",
       template: {
         name: WHATSAPP_ONBOARDING_OTP_TEMPLATE,
-        language: { code: 'en' },
+        language: { code: "en" },
         components: [
           {
-            type: 'body',
-            parameters: [{ type: 'text', text: otp }],
+            type: "body",
+            parameters: [{ type: "text", text: otp }],
           },
           {
-            type: 'button',
-            parameters: [{ type: 'text', text: WHATSAPP_ONBOARDING_OTP_BUTTON_TEXT }],
-            sub_type: 'url',
-            index: '0',
+            type: "button",
+            parameters: [
+              { type: "text", text: WHATSAPP_ONBOARDING_OTP_BUTTON_TEXT },
+            ],
+            sub_type: "url",
+            index: "0",
           },
         ],
       },
@@ -367,7 +438,7 @@ export async function sendWhatsAppOTP({
   to: string;
   otp: string;
 }): Promise<WhatsAppResponse> {
-  return sendOnboardingOTP({ to, otp, logLabel: 'WhatsApp OTP' });
+  return sendOnboardingOTP({ to, otp, logLabel: "WhatsApp OTP" });
 }
 
 export async function sendRoleOTP({
@@ -377,7 +448,7 @@ export async function sendRoleOTP({
   to: string;
   otp: string;
 }): Promise<WhatsAppResponse> {
-  return sendOnboardingOTP({ to, otp, logLabel: 'WhatsApp Role OTP' });
+  return sendOnboardingOTP({ to, otp, logLabel: "WhatsApp Role OTP" });
 }
 
 export function generateOTP(): string {
@@ -394,42 +465,43 @@ export async function sendWhatsAppWelcome({
   customerId: string;
 }): Promise<WhatsAppResponse> {
   if (!WHATSAPP_API_KEY) {
-    console.error('WhatsApp API key not configured');
-    return { success: false, error: 'WhatsApp credentials not configured' };
+    console.error("WhatsApp API key not configured");
+    return { success: false, error: "WhatsApp credentials not configured" };
   }
 
   const formattedPhone = formatPhoneNumber(to);
   if (!formattedPhone) {
     return {
       success: false,
-      error: 'Invalid phone number format. Please provide a valid Indian mobile number (10 digits or with +91/91 prefix)',
+      error:
+        "Invalid phone number format. Please provide a valid Indian mobile number (10 digits or with +91/91 prefix)",
     };
   }
 
   const url = `${WHATSAPP_BASE_URL}/send-template/${WHATSAPP_PHONE_NUMBER_ID}`;
-  console.log('Sending WhatsApp welcome template');
-  console.log('API URL:', url);
-  console.log('Channel Number:', WHATSAPP_PHONE_NUMBER_ID);
-  console.log('Template Name:', templateName);
-  console.log('To (Original):', to);
-  console.log('To (Formatted):', formattedPhone);
-  console.log('Customer ID:', customerId);
+  console.log("Sending WhatsApp welcome template");
+  console.log("API URL:", url);
+  console.log("Channel Number:", WHATSAPP_PHONE_NUMBER_ID);
+  console.log("Template Name:", templateName);
+  console.log("To (Original):", to);
+  console.log("To (Formatted):", formattedPhone);
+  console.log("Customer ID:", customerId);
 
   return postWhatsAppTemplate({
     url,
-    logLabel: 'WhatsApp Welcome',
+    logLabel: "WhatsApp Welcome",
     payload: {
-      messaging_product: 'whatsapp',
-      recipient_type: 'individual',
+      messaging_product: "whatsapp",
+      recipient_type: "individual",
       to: formattedPhone,
-      type: 'template',
+      type: "template",
       template: {
         name: templateName,
-        language: { code: 'en' },
+        language: { code: "en" },
         components: [
           {
-            type: 'body',
-            parameters: [{ type: 'text', text: customerId }],
+            type: "body",
+            parameters: [{ type: "text", text: customerId }],
           },
         ],
       },
@@ -453,13 +525,16 @@ export async function sendWhatsAppInvoice({
   pdfUrl: string;
 }): Promise<WhatsAppResponse> {
   if (!WHATSAPP_API_KEY) {
-    console.error('WhatsApp API key not configured');
-    return { success: false, error: 'WhatsApp credentials not configured' };
+    console.error("WhatsApp API key not configured");
+    return { success: false, error: "WhatsApp credentials not configured" };
   }
 
-  if (!pdfUrl || !pdfUrl.startsWith('http')) {
-    console.error('Invalid PDF URL provided:', pdfUrl);
-    return { success: false, error: 'Invalid PDF URL - must be a valid HTTP/HTTPS URL' };
+  if (!pdfUrl || !pdfUrl.startsWith("http")) {
+    console.error("Invalid PDF URL provided:", pdfUrl);
+    return {
+      success: false,
+      error: "Invalid PDF URL - must be a valid HTTP/HTTPS URL",
+    };
   }
 
   const formattedPhone = formatPhoneNumber(to);
@@ -471,41 +546,41 @@ export async function sendWhatsAppInvoice({
   }
 
   const url = `${WHATSAPP_BASE_URL}/send-template/${WHATSAPP_PHONE_NUMBER_ID}`;
-  const templateName = process.env.WHATSAPP_INVOICE_TEMPLATE || 'invoicetest1';
+  const templateName = process.env.WHATSAPP_INVOICE_TEMPLATE || "invoicetest1";
 
-  console.log('Sending WhatsApp invoice template with PDF');
-  console.log('API URL:', url);
-  console.log('Channel Number:', WHATSAPP_PHONE_NUMBER_ID);
-  console.log('Template Name:', templateName);
-  console.log('To (Original):', to);
-  console.log('To (Formatted):', formattedPhone);
-  console.log('Customer Name:', customerName);
-  console.log('Invoice Number:', invoiceNumber);
-  console.log('Service:', service);
-  console.log('Total Amount:', totalAmount);
-  console.log('PDF URL:', pdfUrl);
+  console.log("Sending WhatsApp invoice template with PDF");
+  console.log("API URL:", url);
+  console.log("Channel Number:", WHATSAPP_PHONE_NUMBER_ID);
+  console.log("Template Name:", templateName);
+  console.log("To (Original):", to);
+  console.log("To (Formatted):", formattedPhone);
+  console.log("Customer Name:", customerName);
+  console.log("Invoice Number:", invoiceNumber);
+  console.log("Service:", service);
+  console.log("Total Amount:", totalAmount);
+  console.log("PDF URL:", pdfUrl);
 
   return postWhatsAppTemplate({
     url,
-    logLabel: 'WhatsApp Invoice',
+    logLabel: "WhatsApp Invoice",
     payload: {
-      messaging_product: 'whatsapp',
-      recipient_type: 'individual',
+      messaging_product: "whatsapp",
+      recipient_type: "individual",
       to: formattedPhone,
-      type: 'template',
+      type: "template",
       template: {
         name: templateName,
-        language: { code: 'en' },
+        language: { code: "en" },
         components: [
           {
-            type: 'header',
+            type: "header",
             parameters: [
               {
-                type: 'document',
+                type: "document",
                 document: {
                   link: pdfUrl,
-                  caption: '',
-                  filename: `Invoice_${invoiceNumber.replace(/\//g, '_')}.pdf`,
+                  caption: "",
+                  filename: `Invoice_${invoiceNumber.replace(/\//g, "_")}.pdf`,
                 },
               },
             ],

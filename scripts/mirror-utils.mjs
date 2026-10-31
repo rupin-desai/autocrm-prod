@@ -10,7 +10,10 @@ export const mirrorDir = path.join(repoRoot, ".mirror");
 
 export function loadMirrorEnv() {
   dotenv.config({ path: path.join(repoRoot, ".env") });
-  dotenv.config({ path: path.join(repoRoot, ".env.local-mirror"), override: true });
+  dotenv.config({
+    path: path.join(repoRoot, ".env.local-mirror"),
+    override: true,
+  });
 
   process.env.LOCAL_MONGO_URI ||= "mongodb://127.0.0.1:27017/mauli-car-world";
 }
@@ -18,7 +21,9 @@ export function loadMirrorEnv() {
 export function requireEnv(name) {
   const value = process.env[name]?.trim();
   if (!value) {
-    throw new Error(`${name} is required. Add it to .env.local-mirror or your shell environment.`);
+    throw new Error(
+      `${name} is required. Add it to .env.local-mirror or your shell environment.`,
+    );
   }
 
   return value;
@@ -26,10 +31,14 @@ export function requireEnv(name) {
 
 export function getMongoDatabaseName(uri, envName) {
   const parsed = new URL(uri);
-  const dbName = decodeURIComponent(parsed.pathname.replace(/^\/+/, "").split("/")[0] || "");
+  const dbName = decodeURIComponent(
+    parsed.pathname.replace(/^\/+/, "").split("/")[0] || "",
+  );
 
   if (!dbName) {
-    throw new Error(`${envName} must include a database name, for example mongodb://host:27017/mauli-car-world`);
+    throw new Error(
+      `${envName} must include a database name, for example mongodb://host:27017/mauli-car-world`,
+    );
   }
 
   return dbName;
@@ -38,14 +47,27 @@ export function getMongoDatabaseName(uri, envName) {
 export function assertLocalMongoUri(uri) {
   const parsed = new URL(uri);
   if (parsed.protocol === "mongodb+srv:") {
-    throw new Error("LOCAL_MONGO_URI must point at local MongoDB, not mongodb+srv.");
+    throw new Error(
+      "LOCAL_MONGO_URI must point at local MongoDB, not mongodb+srv.",
+    );
   }
 
-  const allowedHosts = new Set(["localhost", "127.0.0.1", "::1", "0.0.0.0", "host.docker.internal", "mongodb"]);
+  const allowedHosts = new Set([
+    "localhost",
+    "127.0.0.1",
+    "::1",
+    "0.0.0.0",
+    "host.docker.internal",
+    "mongodb",
+  ]);
   const hosts = parsed.host.split(",");
-  const remoteHost = hosts.find((host) => !allowedHosts.has(extractHostname(host)));
+  const remoteHost = hosts.find(
+    (host) => !allowedHosts.has(extractHostname(host)),
+  );
   if (remoteHost) {
-    throw new Error(`LOCAL_MONGO_URI must point at local MongoDB. Refusing host: ${remoteHost}`);
+    throw new Error(
+      `LOCAL_MONGO_URI must point at local MongoDB. Refusing host: ${remoteHost}`,
+    );
   }
 }
 
@@ -62,7 +84,9 @@ export function runTool(command, args, label) {
 
   if (result.error) {
     if (result.error.code === "ENOENT") {
-      throw new Error(`${command} was not found on PATH. Install MongoDB Database Tools and try again.`);
+      throw new Error(
+        `${command} was not found on PATH. Install MongoDB Database Tools and try again.`,
+      );
     }
 
     throw result.error;

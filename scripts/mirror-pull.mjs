@@ -16,7 +16,10 @@ ensureMirrorDir();
 const prodUri = requireEnv("PROD_MIRROR_URI");
 const sourceDb = getMongoDatabaseName(prodUri, "PROD_MIRROR_URI");
 const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-const archivePath = path.join(mirrorDir, `prod-${sourceDb}-${timestamp}.archive.gz`);
+const archivePath = path.join(
+  mirrorDir,
+  `prod-${sourceDb}-${timestamp}.archive.gz`,
+);
 const latestArchivePath = path.join(mirrorDir, "prod-latest.archive.gz");
 const latestMetaPath = path.join(mirrorDir, "latest.json");
 
