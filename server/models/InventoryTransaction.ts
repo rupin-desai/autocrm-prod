@@ -43,3 +43,7 @@ const inventoryTransactionSchema = new mongoose.Schema(
 export const InventoryTransaction =
   mongoose.models.InventoryTransaction ||
   mongoose.model("InventoryTransaction", inventoryTransactionSchema);
+
+export function isLinkedTransaction(tx: any) {
+  return Boolean(tx.returnId) || /^((Rejected invoice|Deleted invoice|Invoice stock reversal|Invoice) INV|Order ORD-)/.test(tx.reason || "");
+}

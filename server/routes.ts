@@ -35,7 +35,6 @@ import {
   verifyOTP,
   sendEmployeeOTP,
   verifyEmployeeOTP,
-  canSeeCharges,
 } from "./auth";
 import {
   requireAuth,
@@ -695,12 +694,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           message: "Brand created successfully",
         });
       } catch (error) {
-        res
-          .status(400)
-          .json({
-            error:
-              error instanceof Error ? error.message : "Failed to create brand",
-          });
+        res.status(400).json({
+          error:
+            error instanceof Error ? error.message : "Failed to create brand",
+        });
       }
     },
   );
@@ -756,12 +753,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           message: "Brand updated successfully",
         });
       } catch (error) {
-        res
-          .status(400)
-          .json({
-            error:
-              error instanceof Error ? error.message : "Failed to update brand",
-          });
+        res.status(400).json({
+          error:
+            error instanceof Error ? error.message : "Failed to update brand",
+        });
       }
     },
   );
@@ -802,12 +797,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         await VehicleMasterBrand.findByIdAndDelete(req.params.id);
         res.json({ success: true, message: "Brand deleted successfully" });
       } catch (error) {
-        res
-          .status(400)
-          .json({
-            error:
-              error instanceof Error ? error.message : "Failed to delete brand",
-          });
+        res.status(400).json({
+          error:
+            error instanceof Error ? error.message : "Failed to delete brand",
+        });
       }
     },
   );
@@ -847,12 +840,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           message: "Model created successfully",
         });
       } catch (error) {
-        res
-          .status(400)
-          .json({
-            error:
-              error instanceof Error ? error.message : "Failed to create model",
-          });
+        res.status(400).json({
+          error:
+            error instanceof Error ? error.message : "Failed to create model",
+        });
       }
     },
   );
@@ -923,12 +914,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           message: "Model updated successfully",
         });
       } catch (error) {
-        res
-          .status(400)
-          .json({
-            error:
-              error instanceof Error ? error.message : "Failed to update model",
-          });
+        res.status(400).json({
+          error:
+            error instanceof Error ? error.message : "Failed to update model",
+        });
       }
     },
   );
@@ -976,12 +965,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           message: "Model deleted successfully",
         });
       } catch (error) {
-        res
-          .status(400)
-          .json({
-            error:
-              error instanceof Error ? error.message : "Failed to delete model",
-          });
+        res.status(400).json({
+          error:
+            error instanceof Error ? error.message : "Failed to delete model",
+        });
       }
     },
   );
@@ -1002,11 +989,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       if (selectedRole && user.role !== selectedRole) {
-        return res
-          .status(403)
-          .json({
-            error: `Invalid role selection. This account is registered as ${user.role}.`,
-          });
+        return res.status(403).json({
+          error: `Invalid role selection. This account is registered as ${user.role}.`,
+        });
       }
 
       if (!user.mobileNumber) {
@@ -1321,11 +1306,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const passwordReset = (req as any).session.passwordReset;
       if (!passwordReset || !passwordReset.mobileNumber) {
-        return res
-          .status(400)
-          .json({
-            error: "No password reset request found. Please request OTP again.",
-          });
+        return res.status(400).json({
+          error: "No password reset request found. Please request OTP again.",
+        });
       }
 
       const result = await verifyOTP(passwordReset.mobileNumber, otp);
@@ -1376,11 +1359,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       );
 
       if (isSamePassword) {
-        return res
-          .status(400)
-          .json({
-            error: "New password cannot be the same as your old password",
-          });
+        return res.status(400).json({
+          error: "New password cannot be the same as your old password",
+        });
       }
 
       const passwordHash = await bcrypt.hash(newPassword, 10);
@@ -2044,11 +2025,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         const existingUser = await User.findOne({ mobileNumber });
         if (existingUser && purpose === "employee_verification") {
-          return res
-            .status(400)
-            .json({
-              error: "An employee with this mobile number already exists",
-            });
+          return res.status(400).json({
+            error: "An employee with this mobile number already exists",
+          });
         }
 
         const result = await sendEmployeeOTP(
@@ -2149,12 +2128,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }).sort({ createdAt: -1 });
 
         if (!verifiedOTP) {
-          return res
-            .status(400)
-            .json({
-              error:
-                "Please verify the mobile number with OTP before creating the employee",
-            });
+          return res.status(400).json({
+            error:
+              "Please verify the mobile number with OTP before creating the employee",
+          });
         }
 
         if (req.body.role === "Admin" && currentUserRole !== "Admin") {
@@ -2257,12 +2234,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }).sort({ createdAt: -1 });
 
           if (!verifiedOTP) {
-            return res
-              .status(400)
-              .json({
-                error:
-                  "Please verify the new mobile number with OTP before updating",
-              });
+            return res.status(400).json({
+              error:
+                "Please verify the new mobile number with OTP before updating",
+            });
           }
 
           await OTP.deleteMany({
@@ -2673,9 +2648,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           brand: p.brand,
           model: p.model,
           category: p.category,
-          ...(canSeeCharges((req as any).session?.userRole)
-            ? { price: Number(p.sellingPrice) || 0 }
-            : {}),
+          ...(canSeeMoney(req) ? { price: Number(p.sellingPrice) || 0 } : {}),
           stockQty: Number(p.stockQty) || 0,
         }));
         res.json(
@@ -3079,21 +3052,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         if (req.body.beforeImages && !validateImages(req.body.beforeImages)) {
           console.log("❌ [SERVICE UPDATE] Invalid before images");
-          return res
-            .status(400)
-            .json({
-              error:
-                "Invalid before images: must be valid base64 image data (PNG, JPEG, GIF, WebP) under 50MB per image",
-            });
+          return res.status(400).json({
+            error:
+              "Invalid before images: must be valid base64 image data (PNG, JPEG, GIF, WebP) under 50MB per image",
+          });
         }
         if (req.body.afterImages && !validateImages(req.body.afterImages)) {
           console.log("❌ [SERVICE UPDATE] Invalid after images");
-          return res
-            .status(400)
-            .json({
-              error:
-                "Invalid after images: must be valid base64 image data (PNG, JPEG, GIF, WebP) under 50MB per image",
-            });
+          return res.status(400).json({
+            error:
+              "Invalid after images: must be valid base64 image data (PNG, JPEG, GIF, WebP) under 50MB per image",
+          });
         }
 
         // Store previous status for loyalty and notification logic
@@ -3624,11 +3593,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         if (!updatedProduct) {
           await InventoryTransaction.findByIdAndDelete(transaction._id);
-          return res
-            .status(500)
-            .json({
-              error: "Stock transaction was not saved. Please try again.",
-            });
+          return res.status(500).json({
+            error: "Stock transaction was not saved. Please try again.",
+          });
         }
 
         // Check for low stock and create notification
@@ -4157,12 +4124,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/dashboard/sales-trends", requireAuth, async (req, res) => {
     try {
       if ((req as any).session.userRole === "Service Staff") {
-        return res
-          .status(403)
-          .json({
-            error:
-              "Financial dashboard data is not available for Service Staff",
-          });
+        return res.status(403).json({
+          error: "Financial dashboard data is not available for Service Staff",
+        });
       }
       const days = [];
       const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -4541,14 +4505,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         res.json(leave);
       } catch (error) {
         console.error("❌ Leave update error:", error);
-        res
-          .status(400)
-          .json({
-            error:
-              error instanceof Error
-                ? error.message
-                : "Failed to update leave request",
-          });
+        res.status(400).json({
+          error:
+            error instanceof Error
+              ? error.message
+              : "Failed to update leave request",
+        });
       }
     },
   );
@@ -4694,12 +4656,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         res.json(task);
       } catch (error) {
         console.error("❌ Task creation error:", error);
-        res
-          .status(400)
-          .json({
-            error:
-              error instanceof Error ? error.message : "Failed to create task",
-          });
+        res.status(400).json({
+          error:
+            error instanceof Error ? error.message : "Failed to create task",
+        });
       }
     },
   );
@@ -4757,12 +4717,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         res.json(task);
       } catch (error) {
         console.error("❌ Task update error:", error);
-        res
-          .status(400)
-          .json({
-            error:
-              error instanceof Error ? error.message : "Failed to update task",
-          });
+        res.status(400).json({
+          error:
+            error instanceof Error ? error.message : "Failed to update task",
+        });
       }
     },
   );
@@ -5951,11 +5909,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/reports/dashboard", requireAuth, async (req, res) => {
     try {
       if ((req as any).session.userRole === "Service Staff") {
-        return res
-          .status(403)
-          .json({
-            error: "Financial reports are not available for Service Staff",
-          });
+        return res.status(403).json({
+          error: "Financial reports are not available for Service Staff",
+        });
       }
       const now = new Date();
       const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
@@ -6230,14 +6186,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         whatsappError: whatsappResult.error,
       });
     } catch (error) {
-      res
-        .status(400)
-        .json({
-          error:
-            error instanceof Error
-              ? error.message
-              : "Failed to register customer",
-        });
+      res.status(400).json({
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to register customer",
+      });
     }
   });
 
@@ -6411,14 +6365,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         message: "Vehicle registered successfully",
       });
     } catch (error) {
-      res
-        .status(400)
-        .json({
-          error:
-            error instanceof Error
-              ? error.message
-              : "Failed to register vehicle",
-        });
+      res.status(400).json({
+        error:
+          error instanceof Error ? error.message : "Failed to register vehicle",
+      });
     }
   });
 
@@ -6532,12 +6482,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           createdAt: vehicle.createdAt,
         });
       } catch (error) {
-        res
-          .status(400)
-          .json({
-            error:
-              error instanceof Error ? error.message : "Failed to add vehicle",
-          });
+        res.status(400).json({
+          error:
+            error instanceof Error ? error.message : "Failed to add vehicle",
+        });
       }
     },
   );
@@ -6610,14 +6558,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         message: "Registration completed successfully",
       });
     } catch (error) {
-      res
-        .status(400)
-        .json({
-          error:
-            error instanceof Error
-              ? error.message
-              : "Failed to complete registration",
-        });
+      res.status(400).json({
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to complete registration",
+      });
     }
   });
 
@@ -7408,11 +7354,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
 
         if (serviceVisit.status !== "completed") {
-          return res
-            .status(400)
-            .json({
-              error: "Can only generate invoice for completed service visits",
-            });
+          return res.status(400).json({
+            error: "Can only generate invoice for completed service visits",
+          });
         }
 
         // One live invoice per job: the visit may already be billed directly or
@@ -7878,12 +7822,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           error instanceof Error ? error.stack : "No stack trace",
         );
         console.error("=".repeat(80) + "\n");
-        res
-          .status(500)
-          .json({
-            error: "Failed to approve invoice",
-            details: error instanceof Error ? error.message : "Unknown error",
-          });
+        res.status(500).json({
+          error: "Failed to approve invoice",
+          details: error instanceof Error ? error.message : "Unknown error",
+        });
       }
     },
   );
@@ -7960,12 +7902,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           !paymentStatus ||
           !["paid", "unpaid", "partial"].includes(paymentStatus)
         ) {
-          return res
-            .status(400)
-            .json({
-              error:
-                "Invalid payment status. Must be 'paid', 'unpaid', or 'partial'",
-            });
+          return res.status(400).json({
+            error:
+              "Invalid payment status. Must be 'paid', 'unpaid', or 'partial'",
+          });
         }
 
         // Validate payment method when marking as paid
@@ -7985,11 +7925,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
 
         if (invoice.status !== "approved") {
-          return res
-            .status(400)
-            .json({
-              error: "Can only update payment status for approved invoices",
-            });
+          return res.status(400).json({
+            error: "Can only update payment status for approved invoices",
+          });
         }
 
         const oldStatus = invoice.paymentStatus;
@@ -8666,11 +8604,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           "application/pdf",
         ];
         if (!allowedMimeTypes.includes(mimeType)) {
-          return res
-            .status(400)
-            .json({
-              error: "Invalid file type. Only images and PDFs are allowed",
-            });
+          return res.status(400).json({
+            error: "Invalid file type. Only images and PDFs are allowed",
+          });
         }
 
         const fileSizeBytes = Math.ceil((base64Data.length * 3) / 4);
