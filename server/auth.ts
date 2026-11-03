@@ -33,7 +33,7 @@ export async function createUser(
 }
 
 export async function authenticateUser(email: string, password: string) {
-  const user = await User.findOne({ email, isActive: true });
+  const user = await User.findOne({ email, isActive: true }).select("+passwordHash");
   if (!user) {
     return null;
   }

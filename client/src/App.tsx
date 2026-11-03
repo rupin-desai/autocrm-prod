@@ -12,6 +12,7 @@ import { AuthProvider, useAuth } from "@/lib/auth";
 import Dashboard from "@/pages/Dashboard";
 import Products from "@/pages/Products";
 import Inventory from "@/pages/Inventory";
+import BarcodeInventory from "@/pages/BarcodeInventory";
 import ServiceVisits from "@/pages/ServiceVisits";
 import Orders from "@/pages/Orders";
 import Employees from "@/pages/Employees";
@@ -73,6 +74,7 @@ const ROUTE_PERMISSIONS: Record<
   "/car-master": { resource: "customers", action: "update" },
   "/products": { resource: "products", action: "read" },
   "/inventory": { resource: "inventory", action: "read" },
+  "/barcode-inventory": { resource: "inventory", action: "read" },
   "/orders": { resource: "orders", action: "read" },
   "/employees": { resource: "employees", action: "read" },
   "/attendance": { resource: "attendance", action: "read" },
@@ -189,6 +191,9 @@ function Router() {
       </Route>
       <Route path="/inventory">
         {() => <ProtectedRoute component={Inventory} />}
+      </Route>
+      <Route path="/barcode-inventory">
+        {() => <ProtectedRoute component={BarcodeInventory} />}
       </Route>
       <Route path="/visits">
         {() => <ProtectedRoute component={ServiceVisits} />}

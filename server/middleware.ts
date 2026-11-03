@@ -39,6 +39,21 @@ export function requirePermission(resource: string, action: string) {
   };
 }
 
+export function requireAnyPermission(...checks: Array<[string, string]>) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    if (!(req as any).session?.userId) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    const userRole = (req as any).session?.userRole;
+    if (!checks.some(([resource, action]) => hasPermission(userRole, resource, action))) {
+      return res.status(403).json({ error: 'Insufficient permissions for this action' });
+    }
+
+    next();
+  };
+}
+
 export function attachUser(req: Request, res: Response, next: NextFunction) {
   const session = (req as any).session;
   if (session?.userId) {

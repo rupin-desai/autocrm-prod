@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { getNextSequence } from "./Counter";
 
 const variantSchema = new mongoose.Schema(
   {
@@ -77,10 +78,33 @@ productSchema.index({ category: 1 });
 productSchema.index({ stockQty: 1 });
 productSchema.index({ barcode: 1 });
 
-productSchema.pre("save", function (next) {
+productSchema.pre("save", async function (next) {
   this.status = getProductStockStatus(this.stockQty, this.minStockLevel);
+  if (!this.barcode?.trim()) {
+    this.barcode = await nextProductBarcode();
+  }
   next();
 });
 
 export const Product =
   mongoose.models.Product || mongoose.model("Product", productSchema);
+
+export async function nextProductBarcode() {
+  return `MAW-${String(999 + (await getNextSequence("productBarcode"))).padStart(6, "0")}`;
+}
+
+export async function moveStock(productId: any, delta: number, allowNegative = false) {
+  const filter = delta < 0 && !allowNegative
+    ? { _id: productId, stockQty: { $gte: -delta } }
+    : { _id: productId };
+  const product: any = await Product.findOneAndUpdate(
+    filter,
+    { $inc: { stockQty: delta } },
+    { new: true },
+  );
+  if (product) {
+    product.status = getProductStockStatus(product.stockQty, product.minStockLevel);
+    await Product.updateOne({ _id: product._id }, { status: product.status });
+  }
+  return product;
+}

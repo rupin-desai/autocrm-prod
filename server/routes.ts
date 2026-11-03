@@ -2,11 +2,11 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import fs from "fs";
 import { connectDB } from "./db";
-import { Product, getProductStockStatus } from "./models/Product";
+import { Product, getProductStockStatus, moveStock } from "./models/Product";
 import { Employee } from "./models/Employee";
 import { ServiceVisit } from "./models/ServiceVisit";
 import { Order } from "./models/Order";
-import { InventoryTransaction } from "./models/InventoryTransaction";
+import { InventoryTransaction, isLinkedTransaction } from "./models/InventoryTransaction";
 import { ProductReturn } from "./models/ProductReturn";
 import { Notification } from "./models/Notification";
 import { Attendance } from "./models/Attendance";
@@ -35,12 +35,14 @@ import {
   verifyOTP,
   sendEmployeeOTP,
   verifyEmployeeOTP,
+  canSeeCharges,
 } from "./auth";
 import {
   requireAuth,
   requireRole,
   attachUser,
   requirePermission,
+  requireAnyPermission,
 } from "./middleware";
 import { registerV2Routes } from "./routes/index";
 import { sendCustomerUpdate } from "./services/customerUpdates";
@@ -1362,7 +1364,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           .json({ error: "Please verify OTP first before resetting password" });
       }
 
-      const user = await User.findById(passwordReset.userId);
+      const user = await User.findById(passwordReset.userId).select("+passwordHash");
       if (!user) {
         return res.status(404).json({ error: "User not found" });
       }
@@ -2532,11 +2534,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Service visits - use 'orders' resource for permissions (Service Staff can read/update)
+  // Service visits - service staff can read a sanitized view.
   app.get(
     "/api/service-visits",
     requireAuth,
-    requirePermission("orders", "read"),
+    requireAnyPermission(["orders", "read"], ["serviceVisits", "read"]),
     async (req, res) => {
       try {
         const visits = await ServiceVisit.find()
@@ -2613,12 +2615,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     },
   );
 
-  // Catalogue lookup for the job card parts editor. Gated on service-visit
-  // access rather than product access so service desk roles can use it.
+  // Catalogue lookup for job cards and support tickets.
   app.get(
     "/api/service-visits/part-search",
     requireAuth,
-    requirePermission("orders", "update"),
+    requireAnyPermission(["orders", "update"], ["supportTickets", "create"]),
     async (req, res) => {
       try {
         const search = String(req.query.q || "").trim();
@@ -2671,7 +2672,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           name: p.productName,
           brand: p.brand,
           model: p.model,
-          price: Number(p.sellingPrice) || 0,
+          category: p.category,
+          ...(canSeeCharges((req as any).session?.userRole)
+            ? { price: Number(p.sellingPrice) || 0 }
+            : {}),
           stockQty: Number(p.stockQty) || 0,
         }));
         res.json(
