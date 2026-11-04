@@ -85,11 +85,9 @@ export function registerSalesReconciliationRoutes(app: Express) {
           },
         });
       } catch (e: any) {
-        res
-          .status(400)
-          .json({
-            error: e.message || "Failed to reconcile invoice accounting",
-          });
+        res.status(400).json({
+          error: e.message || "Failed to reconcile invoice accounting",
+        });
       }
     },
   );

@@ -337,23 +337,19 @@ export function registerAccountingLedgerRoutes(app: Express) {
           "default_groups_initialized",
           { createdCount: created.length },
         );
-        res
-          .status(201)
-          .json({
-            createdCount: created.length,
-            groups: await AccountGroup.find({ companyId: company._id })
-              .sort({ code: 1 })
-              .lean(),
-          });
+        res.status(201).json({
+          createdCount: created.length,
+          groups: await AccountGroup.find({ companyId: company._id })
+            .sort({ code: 1 })
+            .lean(),
+        });
       } catch (error: any) {
-        res
-          .status(400)
-          .json({
-            error:
-              error?.code === 11000
-                ? "A default account group already exists"
-                : "Failed to initialize default account groups",
-          });
+        res.status(400).json({
+          error:
+            error?.code === 11000
+              ? "A default account group already exists"
+              : "Failed to initialize default account groups",
+        });
       }
     },
   );
@@ -403,11 +399,9 @@ export function registerAccountingLedgerRoutes(app: Express) {
             (parent.rootCategory !== data.rootCategory ||
               parent.normalBalance !== data.normalBalance)
           )
-            return res
-              .status(400)
-              .json({
-                error: "Child group classification must match its parent group",
-              });
+            return res.status(400).json({
+              error: "Child group classification must match its parent group",
+            });
         }
         const group = await AccountGroup.create({
           ...data,
@@ -424,15 +418,12 @@ export function registerAccountingLedgerRoutes(app: Express) {
         );
         res.status(201).json(group);
       } catch (error: any) {
-        res
-          .status(error?.code === 11000 ? 409 : 400)
-          .json({
-            error:
-              error?.code === 11000
-                ? "Account group code already exists in this company"
-                : error?.issues?.[0]?.message ||
-                  "Failed to create account group",
-          });
+        res.status(error?.code === 11000 ? 409 : 400).json({
+          error:
+            error?.code === 11000
+              ? "Account group code already exists in this company"
+              : error?.issues?.[0]?.message || "Failed to create account group",
+        });
       }
     },
   );
@@ -472,12 +463,9 @@ export function registerAccountingLedgerRoutes(app: Express) {
               (parent.rootCategory !== group.rootCategory ||
                 parent.normalBalance !== group.normalBalance)
             )
-              return res
-                .status(400)
-                .json({
-                  error:
-                    "Child group classification must match its parent group",
-                });
+              return res.status(400).json({
+                error: "Child group classification must match its parent group",
+              });
           }
         }
         Object.assign(group, data, {
@@ -495,15 +483,12 @@ export function registerAccountingLedgerRoutes(app: Express) {
         );
         res.json(group);
       } catch (error: any) {
-        res
-          .status(error?.code === 11000 ? 409 : 400)
-          .json({
-            error:
-              error?.code === 11000
-                ? "Account group code already exists in this company"
-                : error?.issues?.[0]?.message ||
-                  "Failed to update account group",
-          });
+        res.status(error?.code === 11000 ? 409 : 400).json({
+          error:
+            error?.code === 11000
+              ? "Account group code already exists in this company"
+              : error?.issues?.[0]?.message || "Failed to update account group",
+        });
       }
     },
   );
@@ -550,11 +535,9 @@ export function registerAccountingLedgerRoutes(app: Express) {
           totalPages: Math.ceil(total / query.limit),
         });
       } catch (error: any) {
-        res
-          .status(400)
-          .json({
-            error: error?.issues?.[0]?.message || "Failed to fetch ledgers",
-          });
+        res.status(400).json({
+          error: error?.issues?.[0]?.message || "Failed to fetch ledgers",
+        });
       }
     },
   );
@@ -640,15 +623,13 @@ export function registerAccountingLedgerRoutes(app: Express) {
             ),
           );
       } catch (error: any) {
-        res
-          .status(error?.code === 11000 ? 409 : 400)
-          .json({
-            error:
-              error?.code === 11000
-                ? "Ledger code already exists in this company"
-                : error?.issues?.[0]?.message ||
-                  "Failed to create ledger account",
-          });
+        res.status(error?.code === 11000 ? 409 : 400).json({
+          error:
+            error?.code === 11000
+              ? "Ledger code already exists in this company"
+              : error?.issues?.[0]?.message ||
+                "Failed to create ledger account",
+        });
       }
     },
   );
@@ -708,15 +689,13 @@ export function registerAccountingLedgerRoutes(app: Express) {
           ),
         );
       } catch (error: any) {
-        res
-          .status(error?.code === 11000 ? 409 : 400)
-          .json({
-            error:
-              error?.code === 11000
-                ? "Ledger code already exists in this company"
-                : error?.issues?.[0]?.message ||
-                  "Failed to update ledger account",
-          });
+        res.status(error?.code === 11000 ? 409 : 400).json({
+          error:
+            error?.code === 11000
+              ? "Ledger code already exists in this company"
+              : error?.issues?.[0]?.message ||
+                "Failed to update ledger account",
+        });
       }
     },
   );
@@ -801,12 +780,9 @@ export function registerAccountingLedgerRoutes(app: Express) {
             .status(403)
             .json({ error: "Financial year does not belong to this company" });
         if (financialYear.status === "closed")
-          return res
-            .status(400)
-            .json({
-              error:
-                "Cannot update opening balances in a closed financial year",
-            });
+          return res.status(400).json({
+            error: "Cannot update opening balances in a closed financial year",
+          });
         const validation = validateOpeningBalanceAmounts(
           data.debitPaise,
           data.creditPaise,
@@ -871,12 +847,10 @@ export function registerAccountingLedgerRoutes(app: Express) {
         );
         res.json(balance);
       } catch (error: any) {
-        res
-          .status(400)
-          .json({
-            error:
-              error?.issues?.[0]?.message || "Failed to save opening balance",
-          });
+        res.status(400).json({
+          error:
+            error?.issues?.[0]?.message || "Failed to save opening balance",
+        });
       }
     },
   );
@@ -908,12 +882,10 @@ export function registerAccountingLedgerRoutes(app: Express) {
         }).lean();
         const summary = summarizeOpeningBalances(balances);
         if (!summary.balanced)
-          return res
-            .status(400)
-            .json({
-              error: "Opening balances must be balanced before finalization",
-              summary,
-            });
+          return res.status(400).json({
+            error: "Opening balances must be balanced before finalization",
+            summary,
+          });
         if (balances.some((item: any) => item.status === "finalized"))
           return res
             .status(409)
@@ -937,14 +909,12 @@ export function registerAccountingLedgerRoutes(app: Express) {
         );
         res.json({ finalizedCount: result.modifiedCount, summary });
       } catch (error: any) {
-        res
-          .status(400)
-          .json({
-            error:
-              error?.issues?.[0]?.message ||
-              error?.message ||
-              "Failed to finalize opening balances",
-          });
+        res.status(400).json({
+          error:
+            error?.issues?.[0]?.message ||
+            error?.message ||
+            "Failed to finalize opening balances",
+        });
       }
     },
   );

@@ -68,12 +68,9 @@ export function registerDashboardPeriodRoutes(app: Express) {
   app.get("/api/dashboard/period", requireAuth, async (req, res) => {
     try {
       if ((req as any).session.userRole === "Service Staff") {
-        return res
-          .status(403)
-          .json({
-            error:
-              "Financial dashboard data is not available for Service Staff",
-          });
+        return res.status(403).json({
+          error: "Financial dashboard data is not available for Service Staff",
+        });
       }
       const { period, date, month, year, fromDate, toDate, compare } =
         req.query as Record<string, string>;

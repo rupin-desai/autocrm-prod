@@ -391,12 +391,10 @@ export async function generateInvoicePDF(
         const gstDisplay =
           item.hasGst && item.gstAmount ? `${Math.round(item.gstAmount)}` : "-";
 
-        doc
-          .fontSize(10)
-          .text(item.quantity.toString(), 255, itemYPosition, {
-            width: 30,
-            align: "right",
-          });
+        doc.fontSize(10).text(item.quantity.toString(), 255, itemYPosition, {
+          width: 30,
+          align: "right",
+        });
         doc.text(Math.round(unitAmountExclGst).toString(), 295, itemYPosition, {
           width: 60,
           align: "right",

@@ -207,11 +207,9 @@ export function registerAccountingFoundationRoutes(app: Express) {
             data.financialYearId,
           );
           if (!financialYear)
-            return res
-              .status(403)
-              .json({
-                error: "Financial year does not belong to this company",
-              });
+            return res.status(403).json({
+              error: "Financial year does not belong to this company",
+            });
         }
 
         request.session.accountingCompanyId = data.companyId;
@@ -228,11 +226,9 @@ export function registerAccountingFoundationRoutes(app: Express) {
         );
         res.json({ company, financialYear });
       } catch (error: any) {
-        res
-          .status(400)
-          .json({
-            error: error?.issues?.[0]?.message || "Invalid accounting context",
-          });
+        res.status(400).json({
+          error: error?.issues?.[0]?.message || "Invalid accounting context",
+        });
       }
     },
   );
@@ -328,11 +324,9 @@ export function registerAccountingFoundationRoutes(app: Express) {
         );
         res.json(company);
       } catch (error: any) {
-        res
-          .status(400)
-          .json({
-            error: error?.issues?.[0]?.message || "Failed to update company",
-          });
+        res.status(400).json({
+          error: error?.issues?.[0]?.message || "Failed to update company",
+        });
       }
     },
   );
@@ -385,11 +379,9 @@ export function registerAccountingFoundationRoutes(app: Express) {
           endDate.getUTCDate() !== 31 ||
           endDate <= startDate
         ) {
-          return res
-            .status(400)
-            .json({
-              error: "Financial year must run from April 1 to March 31",
-            });
+          return res.status(400).json({
+            error: "Financial year must run from April 1 to March 31",
+          });
         }
         const overlap = await FinancialYear.findOne({
           companyId: data.companyId,
@@ -397,11 +389,9 @@ export function registerAccountingFoundationRoutes(app: Express) {
           endDate: { $gte: startDate },
         });
         if (overlap)
-          return res
-            .status(409)
-            .json({
-              error: "Financial year overlaps an existing financial year",
-            });
+          return res.status(409).json({
+            error: "Financial year overlaps an existing financial year",
+          });
         if (data.status === "active")
           await FinancialYear.updateMany(
             { companyId: data.companyId, status: "active" },
@@ -463,12 +453,10 @@ export function registerAccountingFoundationRoutes(app: Express) {
           data.status !== "closed" &&
           !hasPermission(request.session.userRole || "", "accounting", "unlock")
         )
-          return res
-            .status(403)
-            .json({
-              error:
-                "Closed financial years require an authorized unlock permission",
-            });
+          return res.status(403).json({
+            error:
+              "Closed financial years require an authorized unlock permission",
+          });
         if (data.status === "active")
           await FinancialYear.updateMany(
             {
@@ -497,12 +485,10 @@ export function registerAccountingFoundationRoutes(app: Express) {
         );
         res.json(financialYear);
       } catch (error: any) {
-        res
-          .status(400)
-          .json({
-            error:
-              error?.issues?.[0]?.message || "Failed to update financial year",
-          });
+        res.status(400).json({
+          error:
+            error?.issues?.[0]?.message || "Failed to update financial year",
+        });
       }
     },
   );
@@ -554,11 +540,9 @@ export function registerAccountingFoundationRoutes(app: Express) {
           financialYearId: financialYear._id,
         });
         if (existing > 0)
-          return res
-            .status(409)
-            .json({
-              error: "Accounting periods already exist for this financial year",
-            });
+          return res.status(409).json({
+            error: "Accounting periods already exist for this financial year",
+          });
         await createPeriods(financialYear.companyId.toString(), financialYear);
         res
           .status(201)
@@ -591,11 +575,9 @@ export function registerAccountingFoundationRoutes(app: Express) {
           data.status === "open" &&
           !hasPermission(request.session.userRole || "", "accounting", "unlock")
         )
-          return res
-            .status(403)
-            .json({
-              error: "You are not authorized to unlock accounting periods",
-            });
+          return res.status(403).json({
+            error: "You are not authorized to unlock accounting periods",
+          });
         period.status = data.status;
         if (data.status === "closed") {
           period.closedAt = new Date();
@@ -617,13 +599,10 @@ export function registerAccountingFoundationRoutes(app: Express) {
         );
         res.json(period);
       } catch (error: any) {
-        res
-          .status(400)
-          .json({
-            error:
-              error?.issues?.[0]?.message ||
-              "Failed to update accounting period",
-          });
+        res.status(400).json({
+          error:
+            error?.issues?.[0]?.message || "Failed to update accounting period",
+        });
       }
     },
   );
@@ -698,13 +677,11 @@ export function registerAccountingFoundationRoutes(app: Express) {
         );
         res.json(settings);
       } catch (error: any) {
-        res
-          .status(400)
-          .json({
-            error:
-              error?.issues?.[0]?.message ||
-              "Failed to update accounting settings",
-          });
+        res.status(400).json({
+          error:
+            error?.issues?.[0]?.message ||
+            "Failed to update accounting settings",
+        });
       }
     },
   );

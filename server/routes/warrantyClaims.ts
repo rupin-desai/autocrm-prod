@@ -334,11 +334,9 @@ export function registerWarrantyClaimRoutes(app: Express) {
           return res.status(404).json({ error: "Warranty claim not found" });
 
         if (["delivered_to_customer", "cancelled"].includes(claim.status)) {
-          return res
-            .status(400)
-            .json({
-              error: `Cannot dispatch an item on a ${claim.status.replace(/_/g, " ")} claim`,
-            });
+          return res.status(400).json({
+            error: `Cannot dispatch an item on a ${claim.status.replace(/_/g, " ")} claim`,
+          });
         }
 
         const givenDate = data.givenDate || new Date();
@@ -398,11 +396,9 @@ export function registerWarrantyClaimRoutes(app: Express) {
           return res.status(404).json({ error: "Vendor dispatch not found" });
 
         if (dispatch.status !== "with_vendor") {
-          return res
-            .status(400)
-            .json({
-              error: `This dispatch is already marked "${dispatch.status}"`,
-            });
+          return res.status(400).json({
+            error: `This dispatch is already marked "${dispatch.status}"`,
+          });
         }
 
         dispatch.status = data.status;
@@ -453,12 +449,9 @@ export function registerWarrantyClaimRoutes(app: Express) {
             (d) => d.status === "with_vendor",
           )
         ) {
-          return res
-            .status(400)
-            .json({
-              error:
-                "Cannot delete a claim while an item is still with a vendor",
-            });
+          return res.status(400).json({
+            error: "Cannot delete a claim while an item is still with a vendor",
+          });
         }
 
         await WarrantyClaim.findByIdAndDelete(req.params.id);

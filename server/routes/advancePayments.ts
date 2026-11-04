@@ -224,12 +224,10 @@ export function registerAdvancePaymentRoutes(app: Express) {
           data.amount !== undefined &&
           data.amount !== advance.amount
         ) {
-          return res
-            .status(400)
-            .json({
-              error:
-                "Cannot change the amount of an advance already adjusted against an invoice",
-            });
+          return res.status(400).json({
+            error:
+              "Cannot change the amount of an advance already adjusted against an invoice",
+          });
         }
 
         // Changing the reminder window re-derives reminderDate and re-arms the reminder.
@@ -279,11 +277,9 @@ export function registerAdvancePaymentRoutes(app: Express) {
           return res.status(404).json({ error: "Advance payment not found" });
 
         if (advance.status !== "pending") {
-          return res
-            .status(400)
-            .json({
-              error: `This advance is ${advance.status}; its reminder can no longer be changed`,
-            });
+          return res.status(400).json({
+            error: `This advance is ${advance.status}; its reminder can no longer be changed`,
+          });
         }
 
         const previousDays = advance.reminderDays;

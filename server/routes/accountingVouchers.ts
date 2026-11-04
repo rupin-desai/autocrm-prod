@@ -158,12 +158,10 @@ export function registerAccountingVoucherRoutes(app: Express) {
           });
           if (existing) {
             if (existing.idempotencyFingerprint !== requestFingerprint)
-              return res
-                .status(409)
-                .json({
-                  error:
-                    "Idempotency key was already used with a different payload",
-                });
+              return res.status(409).json({
+                error:
+                  "Idempotency key was already used with a different payload",
+              });
             return res.status(200).json(existing);
           }
         }
@@ -204,21 +202,17 @@ export function registerAccountingVoucherRoutes(app: Express) {
           )
             return res.status(200).json(existing);
           if (existing)
-            return res
-              .status(409)
-              .json({
-                error:
-                  "Idempotency key was already used with a different payload",
-              });
+            return res.status(409).json({
+              error:
+                "Idempotency key was already used with a different payload",
+            });
         }
-        res
-          .status(e?.code === 11000 ? 409 : 400)
-          .json({
-            error:
-              e?.code === 11000
-                ? "Duplicate idempotency or source identity"
-                : errorMessage(e),
-          });
+        res.status(e?.code === 11000 ? 409 : 400).json({
+          error:
+            e?.code === 11000
+              ? "Duplicate idempotency or source identity"
+              : errorMessage(e),
+        });
       }
     },
   );

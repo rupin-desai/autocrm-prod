@@ -188,11 +188,9 @@ export function registerSalesAccountingRoutes(app: Express) {
           ),
         });
       } catch (e: any) {
-        res
-          .status(400)
-          .json({
-            error: e.message || "Failed to load sales accounting mappings",
-          });
+        res.status(400).json({
+          error: e.message || "Failed to load sales accounting mappings",
+        });
       }
     },
   );
@@ -224,14 +222,12 @@ export function registerSalesAccountingRoutes(app: Express) {
         });
         res.json(mapping);
       } catch (e: any) {
-        res
-          .status(e?.code === 11000 ? 409 : 400)
-          .json({
-            error:
-              e?.issues?.[0]?.message ||
-              e.message ||
-              "Failed to save sales accounting mappings",
-          });
+        res.status(e?.code === 11000 ? 409 : 400).json({
+          error:
+            e?.issues?.[0]?.message ||
+            e.message ||
+            "Failed to save sales accounting mappings",
+        });
       }
     },
   );

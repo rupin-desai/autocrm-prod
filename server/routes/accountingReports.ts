@@ -66,11 +66,9 @@ export function registerAccountingReportRoutes(app: Express) {
               parsed.financialYearId,
             ))
           )
-            return res
-              .status(403)
-              .json({
-                error: "Financial year does not belong to this company",
-              });
+            return res.status(403).json({
+              error: "Financial year does not belong to this company",
+            });
           const result = await fn(parsed);
           if (parsed.format === "csv") {
             res.type("text/csv").send(toCsv(result));

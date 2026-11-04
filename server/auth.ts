@@ -195,9 +195,7 @@ export function hasPermission(
   return resourcePermissions.includes(action);
 }
 
-export async function sendOTPToMobile(
-  mobileNumber: string,
-): Promise<{
+export async function sendOTPToMobile(mobileNumber: string): Promise<{
   success: boolean;
   error?: string;
   providerMessageId?: string;
