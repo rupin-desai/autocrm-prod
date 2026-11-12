@@ -31,7 +31,9 @@ import {
   BookOpen,
   ArrowLeftRight,
   Link2,
+  ChevronDown,
 } from "lucide-react";
+import { useState } from "react";
 import logoImage from "@assets/image_1760164042662.png";
 import {
   Sidebar,
@@ -51,6 +53,12 @@ import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { financeSections } from "@/components/FinanceModuleLayout";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -513,6 +521,9 @@ const systemItems: MenuItem[] = [
 export function AppSidebar() {
   const [location] = useLocation();
   const { user, logout } = useAuth();
+  const [financeOpen, setFinanceOpen] = useState(() =>
+    location.startsWith("/accounting"),
+  );
 
   // Helper function to check if user has permission
   const hasPermission = (item: MenuItem) => {
@@ -561,6 +572,19 @@ export function AppSidebar() {
   const visibleMainMenuItems = mainMenuItems.filter(hasPermission);
   const visibleManagementItems = managementItems.filter(hasPermission);
   const visibleSystemItems = systemItems.filter(hasPermission);
+  const isFinanceRoute = location.startsWith("/accounting");
+  const visibleFinanceSections = financeSections
+    .map((section) => ({
+      ...section,
+      items: section.items.filter((item) => {
+        const configuredItem = financeItems.find(
+          (candidate) => candidate.url === item.url,
+        );
+        return configuredItem ? hasPermission(configuredItem) : true;
+      }),
+    }))
+    .filter((section) => section.items.length > 0);
+  const hasFinanceAccess = visibleFinanceSections.length > 0;
 
   const getInitials = (name: string) => {
     return name
@@ -626,34 +650,62 @@ export function AppSidebar() {
           </SidebarGroup>
         )}
 
-        {financeItems.filter(hasPermission).length > 0 && (
+        {hasFinanceAccess && (
           <SidebarGroup>
-            <SidebarGroupLabel className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground/70">
-              Finance
-            </SidebarGroupLabel>
             <SidebarGroupContent>
-              <SidebarMenu>
-                {financeItems.filter(hasPermission).map((item) => (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton
-                      asChild
-                      isActive={location === item.url}
-                      data-testid={`link-${item.title.toLowerCase().replace(/\s+/g, "-")}`}
-                      className={navItemClass(location === item.url)}
-                    >
-                      <Link href={item.url}>
-                        <item.icon
+              <Collapsible
+                open={financeOpen}
+                onOpenChange={setFinanceOpen}
+                className="group/finance"
+              >
+                <SidebarMenu>
+                  <SidebarMenuItem>
+                    <CollapsibleTrigger asChild>
+                      <SidebarMenuButton
+                        isActive={isFinanceRoute}
+                        data-testid="link-finance"
+                        className={navItemClass(isFinanceRoute)}
+                      >
+                        <Wallet
                           className={cn(
                             "h-4 w-4 shrink-0",
-                            getGroupIconColor(item.group),
+                            getGroupIconColor("finance"),
                           )}
                         />
-                        <span className="truncate">{item.title}</span>
-                      </Link>
-                    </SidebarMenuButton>
+                        <span className="truncate">Finance</span>
+                        <ChevronDown className="ml-auto h-4 w-4 shrink-0 transition-transform duration-200 group-data-[state=open]/finance:rotate-180" />
+                      </SidebarMenuButton>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent>
+                      <SidebarMenu className="mt-1 space-y-1 border-l border-sidebar-border/70 pl-2 ml-3">
+                        {visibleFinanceSections.map((section) => {
+                          const sectionIsActive =
+                            location === `/accounting?section=${section.slug}` ||
+                            section.items.some((item) => location === item.url);
+                          return (
+                            <SidebarMenuItem key={section.slug}>
+                              <SidebarMenuButton
+                                asChild
+                                isActive={sectionIsActive}
+                                data-testid={`finance-category-${section.slug}`}
+                                className={cn(
+                                  navItemClass(sectionIsActive),
+                                  "h-9 text-xs font-semibold",
+                                )}
+                              >
+                                <Link href={`/accounting?section=${section.slug}`}>
+                                  <span className="truncate">{section.title}</span>
+                                  <ChevronDown className="ml-auto h-3.5 w-3.5 -rotate-90 shrink-0" />
+                                </Link>
+                              </SidebarMenuButton>
+                            </SidebarMenuItem>
+                          );
+                        })}
+                      </SidebarMenu>
+                    </CollapsibleContent>
                   </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
+                </SidebarMenu>
+              </Collapsible>
             </SidebarGroupContent>
           </SidebarGroup>
         )}

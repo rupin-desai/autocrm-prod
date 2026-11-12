@@ -43,6 +43,7 @@ import AccountingCompanies from "@/pages/AccountingCompanies";
 import AccountingFinancialYears from "@/pages/AccountingFinancialYears";
 import AccountingSettings from "@/pages/AccountingSettings";
 import AccountingContextSelector from "@/components/AccountingContextSelector";
+import { FinanceModuleLayout } from "@/components/FinanceModuleLayout";
 import AccountGroups from "@/pages/AccountGroups";
 import LedgerManagement from "@/pages/LedgerManagement";
 import OpeningBalances from "@/pages/OpeningBalances";
@@ -57,6 +58,7 @@ import InventoryMappings from "@/pages/InventoryMappings";
 import InventoryReports from "@/pages/InventoryReports";
 import InventoryReturns from "@/pages/InventoryReturns";
 import FinancialReports from "@/pages/FinancialReports";
+import FinanceSectionLanding from "@/pages/FinanceSectionLanding";
 import { useEffect } from "react";
 import { User } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -92,6 +94,7 @@ const ROUTE_PERMISSIONS: Record<
   "/quotations": { resource: "quotations", action: "read" },
   "/website-products": { resource: "website", action: "read" },
   "/accounting/companies": { resource: "accounting", action: "read" },
+  "/accounting": { resource: "accounting", action: "read" },
   "/accounting/financial-years": { resource: "accounting", action: "read" },
   "/accounting/settings": { resource: "accounting", action: "read" },
   "/accounting/account-groups": { resource: "accounting", action: "read" },
@@ -145,7 +148,7 @@ function ProtectedRoute({
   // Check route permissions after user is loaded
   useEffect(() => {
     if (user && !isLoading) {
-      const routePermission = ROUTE_PERMISSIONS[location];
+      const routePermission = ROUTE_PERMISSIONS[location.split("?")[0]];
 
       // If route requires specific permission, check it
       if (routePermission) {
@@ -173,6 +176,22 @@ function ProtectedRoute({
   }
 
   return <Component />;
+}
+
+function FinanceRoute({
+  component: Component,
+}: {
+  component: React.ComponentType;
+}) {
+  return (
+    <ProtectedRoute
+      component={() => (
+        <FinanceModuleLayout>
+          <Component />
+        </FinanceModuleLayout>
+      )}
+    />
+  );
 }
 
 function Router() {
@@ -253,152 +272,189 @@ function Router() {
       <Route path="/website-products">
         {() => <ProtectedRoute component={WebsiteProducts} />}
       </Route>
+      <Route path="/accounting">
+        {() => <FinanceRoute component={FinanceSectionLanding} />}
+      </Route>
       <Route path="/accounting/companies">
-        {() => <ProtectedRoute component={AccountingCompanies} />}
+        {() => <FinanceRoute component={AccountingCompanies} />}
       </Route>
       <Route path="/accounting/financial-years">
-        {() => <ProtectedRoute component={AccountingFinancialYears} />}
+        {() => <FinanceRoute component={AccountingFinancialYears} />}
       </Route>
       <Route path="/accounting/settings">
-        {() => <ProtectedRoute component={AccountingSettings} />}
+        {() => <FinanceRoute component={AccountingSettings} />}
       </Route>
       <Route path="/accounting/account-groups">
-        {() => <ProtectedRoute component={AccountGroups} />}
+        {() => <FinanceRoute component={AccountGroups} />}
       </Route>
       <Route path="/accounting/ledgers">
-        {() => <ProtectedRoute component={LedgerManagement} />}
+        {() => <FinanceRoute component={LedgerManagement} />}
       </Route>
       <Route path="/accounting/opening-balances">
-        {() => <ProtectedRoute component={OpeningBalances} />}
+        {() => <FinanceRoute component={OpeningBalances} />}
       </Route>
       <Route path="/accounting/vouchers">
-        {() => <ProtectedRoute component={AccountingVouchers} />}
+        {() => <FinanceRoute component={AccountingVouchers} />}
       </Route>
       <Route path="/accounting/sales-mappings">
-        {() => <ProtectedRoute component={SalesAccountingMappings} />}
+        {() => <FinanceRoute component={SalesAccountingMappings} />}
       </Route>
       <Route path="/accounting/sales">
-        {() => <ProtectedRoute component={SalesAccounting} />}
+        {() => <FinanceRoute component={SalesAccounting} />}
       </Route>
       <Route path="/accounting/customer-ledger">
-        {() => <ProtectedRoute component={CustomerLedger} />}
+        {() => <FinanceRoute component={CustomerLedger} />}
       </Route>
       <Route path="/accounting/reconciliation">
-        {() => <ProtectedRoute component={SalesReconciliation} />}
+        {() => <FinanceRoute component={SalesReconciliation} />}
       </Route>
       <Route path="/accounting/purchase/suppliers">
-        {() => <ProtectedRoute component={PurchaseAccounting} />}
+        {() => <FinanceRoute component={PurchaseAccounting} />}
       </Route>
       <Route path="/accounting/purchase/bills">
-        {() => <ProtectedRoute component={PurchaseAccounting} />}
+        {() => <FinanceRoute component={PurchaseAccounting} />}
       </Route>
       <Route path="/accounting/purchase/mappings">
-        {() => <ProtectedRoute component={PurchaseAccounting} />}
+        {() => <FinanceRoute component={PurchaseAccounting} />}
       </Route>
       <Route path="/accounting/purchase/payments">
-        {() => <ProtectedRoute component={PurchaseAccounting} />}
+        {() => <FinanceRoute component={PurchaseAccounting} />}
       </Route>
       <Route path="/accounting/purchase/advances">
-        {() => <ProtectedRoute component={PurchaseAccounting} />}
+        {() => <FinanceRoute component={PurchaseAccounting} />}
       </Route>
       <Route path="/accounting/purchase/returns">
-        {() => <ProtectedRoute component={PurchaseAccounting} />}
+        {() => <FinanceRoute component={PurchaseAccounting} />}
       </Route>
       <Route path="/accounting/purchase/supplier-ledger">
-        {() => <ProtectedRoute component={PurchaseAccounting} />}
+        {() => <FinanceRoute component={PurchaseAccounting} />}
       </Route>
       <Route path="/accounting/purchase/reconciliation">
-        {() => <ProtectedRoute component={PurchaseAccounting} />}
+        {() => <FinanceRoute component={PurchaseAccounting} />}
       </Route>
       <Route path="/accounting/inventory/warehouses">
-        {() => <ProtectedRoute component={InventoryAccounting} />}
+        {() => <FinanceRoute component={InventoryAccounting} />}
       </Route>
       <Route path="/accounting/inventory/stock-summary">
-        {() => <ProtectedRoute component={InventoryAccounting} />}
+        {() => <FinanceRoute component={InventoryAccounting} />}
       </Route>
       <Route path="/accounting/inventory/stock-ledger">
-        {() => <ProtectedRoute component={InventoryAccounting} />}
+        {() => <FinanceRoute component={InventoryAccounting} />}
       </Route>
       <Route path="/accounting/inventory/valuation">
-        {() => <ProtectedRoute component={InventoryAccounting} />}
+        {() => <FinanceRoute component={InventoryAccounting} />}
       </Route>
       <Route path="/accounting/inventory/mappings">
-        {() => <ProtectedRoute component={InventoryMappings} />}
+        {() => <FinanceRoute component={InventoryMappings} />}
       </Route>
       <Route path="/accounting/inventory/receipts">
-        {() => <ProtectedRoute component={InventoryAccounting} />}
+        {() => <FinanceRoute component={InventoryAccounting} />}
       </Route>
       <Route path="/accounting/inventory/issues">
-        {() => <ProtectedRoute component={InventoryAccounting} />}
+        {() => <FinanceRoute component={InventoryAccounting} />}
       </Route>
       <Route path="/accounting/inventory/adjustments">
-        {() => <ProtectedRoute component={InventoryAccounting} />}
+        {() => <FinanceRoute component={InventoryAccounting} />}
       </Route>
       <Route path="/accounting/inventory/opening-stock">
-        {() => <ProtectedRoute component={InventoryAccounting} />}
+        {() => <FinanceRoute component={InventoryAccounting} />}
       </Route>
       <Route path="/accounting/inventory/transfers">
-        {() => <ProtectedRoute component={InventoryAccounting} />}
+        {() => <FinanceRoute component={InventoryAccounting} />}
       </Route>
       <Route path="/accounting/inventory/reconciliation">
-        {() => <ProtectedRoute component={InventoryAccounting} />}
+        {() => <FinanceRoute component={InventoryAccounting} />}
       </Route>
       <Route path="/accounting/inventory/reports/purchase-receipts">
         {() => (
           <ProtectedRoute
-            component={() => <InventoryReports type="purchase_receipt" />}
+            component={() => (
+              <FinanceModuleLayout>
+                <InventoryReports type="purchase_receipt" />
+              </FinanceModuleLayout>
+            )}
           />
         )}
       </Route>
       <Route path="/accounting/inventory/reports/sales-issues">
         {() => (
           <ProtectedRoute
-            component={() => <InventoryReports type="sales_issue" />}
+            component={() => (
+              <FinanceModuleLayout>
+                <InventoryReports type="sales_issue" />
+              </FinanceModuleLayout>
+            )}
           />
         )}
       </Route>
       <Route path="/accounting/inventory/reports/purchase-returns">
         {() => (
           <ProtectedRoute
-            component={() => <InventoryReports type="purchase_return" />}
+            component={() => (
+              <FinanceModuleLayout>
+                <InventoryReports type="purchase_return" />
+              </FinanceModuleLayout>
+            )}
           />
         )}
       </Route>
       <Route path="/accounting/inventory/reports/sales-returns">
         {() => (
           <ProtectedRoute
-            component={() => <InventoryReports type="sales_return" />}
+            component={() => (
+              <FinanceModuleLayout>
+                <InventoryReports type="sales_return" />
+              </FinanceModuleLayout>
+            )}
           />
         )}
       </Route>
       <Route path="/accounting/inventory/reports/adjustments">
         {() => (
           <ProtectedRoute
-            component={() => <InventoryReports type="stock_adjustment" />}
+            component={() => (
+              <FinanceModuleLayout>
+                <InventoryReports type="stock_adjustment" />
+              </FinanceModuleLayout>
+            )}
           />
         )}
       </Route>
       <Route path="/accounting/inventory/reports/transfers">
         {() => (
           <ProtectedRoute
-            component={() => <InventoryReports type="stock_transfer" />}
+            component={() => (
+              <FinanceModuleLayout>
+                <InventoryReports type="stock_transfer" />
+              </FinanceModuleLayout>
+            )}
           />
         )}
       </Route>
       <Route path="/accounting/inventory/purchase-returns">
         {() => (
           <ProtectedRoute
-            component={() => <InventoryReturns kind="purchase" />}
+            component={() => (
+              <FinanceModuleLayout>
+                <InventoryReturns kind="purchase" />
+              </FinanceModuleLayout>
+            )}
           />
         )}
       </Route>
       <Route path="/accounting/inventory/sales-returns">
         {() => (
-          <ProtectedRoute component={() => <InventoryReturns kind="sales" />} />
+          <ProtectedRoute
+            component={() => (
+              <FinanceModuleLayout>
+                <InventoryReturns kind="sales" />
+              </FinanceModuleLayout>
+            )}
+          />
         )}
       </Route>
       <Route path="/accounting/reports">
-        {() => <ProtectedRoute component={FinancialReports} />}
+        {() => <FinanceRoute component={FinancialReports} />}
       </Route>
     </Switch>
   );
