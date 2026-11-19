@@ -9,6 +9,7 @@ import { registerWarrantyClaimRoutes } from "./warrantyClaims";
 import { registerQuotationRoutes } from "./quotations";
 import { registerWebsiteRoutes } from "./website";
 import { registerDashboardPeriodRoutes } from "./dashboardPeriod";
+import { registerBarcodeInventoryRoutes } from "./barcodeInventory";
 import { registerAccountingFoundationRoutes } from "./accountingFoundation";
 import { registerAccountingLedgerRoutes } from "./accountingLedger";
 import { registerAccountingVoucherRoutes } from "./accountingVouchers";
@@ -31,6 +32,7 @@ export function registerV2Routes(app: Express) {
   registerQuotationRoutes(app);
   registerWebsiteRoutes(app);
   registerDashboardPeriodRoutes(app);
+  registerBarcodeInventoryRoutes(app);
   registerAccountingFoundationRoutes(app);
   registerAccountingLedgerRoutes(app);
   registerAccountingVoucherRoutes(app);

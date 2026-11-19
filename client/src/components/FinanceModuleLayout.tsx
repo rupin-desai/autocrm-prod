@@ -15,7 +15,7 @@ import {
   Wallet,
   Warehouse,
 } from "lucide-react";
-import { Link, useLocation } from "wouter";
+import { Link, useLocation, useSearch } from "wouter";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -250,10 +250,10 @@ export const financeSections: FinanceNavSection[] = [
 
 export function FinanceModuleLayout({ children }: { children: ReactNode }) {
   const [location] = useLocation();
-  const pathname = location.split("?")[0];
+  const search = useSearch();
+  const pathname = location;
   const selectedSectionSlug =
-    new URLSearchParams(location.split("?")[1] || "").get("section") ||
-    financeSections[0].slug;
+    new URLSearchParams(search).get("section") || financeSections[0].slug;
   const activeItem = financeSections
     .flatMap((section) => section.items)
     .find((item) => item.url === pathname);

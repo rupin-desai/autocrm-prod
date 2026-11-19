@@ -1,13 +1,12 @@
 import { ArrowRight, WalletCards } from "lucide-react";
-import { Link, useLocation } from "wouter";
+import { Link, useSearch } from "wouter";
 import { financeSections } from "@/components/FinanceModuleLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function FinanceSectionLanding() {
-  const [location] = useLocation();
+  const search = useSearch();
   const sectionSlug =
-    new URLSearchParams(location.split("?")[1] || "").get("section") ||
-    financeSections[0].slug;
+    new URLSearchParams(search).get("section") || financeSections[0].slug;
   const selectedSection =
     financeSections.find((section) => section.slug === sectionSlug) ||
     financeSections[0];

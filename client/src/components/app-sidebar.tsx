@@ -47,7 +47,7 @@ import {
   SidebarHeader,
   SidebarFooter,
 } from "@/components/ui/sidebar";
-import { Link, useLocation } from "wouter";
+import { Link, useLocation, useSearch } from "wouter";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/lib/auth";
@@ -520,6 +520,7 @@ const systemItems: MenuItem[] = [
 
 export function AppSidebar() {
   const [location] = useLocation();
+  const search = useSearch();
   const { user, logout } = useAuth();
   const [financeOpen, setFinanceOpen] = useState(() =>
     location.startsWith("/accounting"),
@@ -680,7 +681,8 @@ export function AppSidebar() {
                       <SidebarMenu className="mt-1 space-y-1 border-l border-sidebar-border/70 pl-2 ml-3">
                         {visibleFinanceSections.map((section) => {
                           const sectionIsActive =
-                            location === `/accounting?section=${section.slug}` ||
+                            (location === "/accounting" &&
+              new URLSearchParams(search).get("section") === section.slug) ||
                             section.items.some((item) => location === item.url);
                           return (
                             <SidebarMenuItem key={section.slug}>
