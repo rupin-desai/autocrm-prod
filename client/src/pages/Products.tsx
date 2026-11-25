@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
@@ -64,6 +65,9 @@ export default function Products() {
   const { user } = useAuth();
   const canDeleteProducts = (user?.permissions?.products || []).includes(
     "delete",
+  );
+  const canPublishWebsite = (user?.permissions?.website || []).includes(
+    "update",
   );
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("brand-asc");
@@ -198,6 +202,32 @@ export default function Products() {
       toast({
         title: "Stock save failed",
         description: error.message || "Stock was not saved. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const websiteVisibilityMutation = useMutation({
+    mutationFn: async ({
+      id,
+      showOnWebsite,
+    }: {
+      id: string;
+      showOnWebsite: boolean;
+    }) => {
+      const response = await apiRequest("PATCH", `/api/website/products/${id}`, {
+        showOnWebsite,
+      });
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/products"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/website/products"] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Could not update website visibility",
+        description: error.message || "Please try again.",
         variant: "destructive",
       });
     },
@@ -1658,6 +1688,30 @@ export default function Products() {
                       Location: {product.warehouseLocation}
                     </p>
                   )}
+
+                  <div className="flex items-center justify-between rounded-md border px-3 py-2">
+                    <Label
+                      htmlFor={`website-${product._id}`}
+                      className="text-sm"
+                    >
+                      Show on website
+                    </Label>
+                    <Switch
+                      id={`website-${product._id}`}
+                      checked={!!product.showOnWebsite}
+                      disabled={
+                        !canPublishWebsite ||
+                        websiteVisibilityMutation.isPending
+                      }
+                      onCheckedChange={(checked) =>
+                        websiteVisibilityMutation.mutate({
+                          id: product._id,
+                          showOnWebsite: checked,
+                        })
+                      }
+                      data-testid={`switch-website-${product._id}`}
+                    />
+                  </div>
 
                   <div className="flex gap-2">
                     <Button

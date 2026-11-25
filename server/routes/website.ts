@@ -192,6 +192,8 @@ export function registerWebsiteRoutes(app: Express) {
         images: p.images || [],
         warranty: p.warranty || null,
         inStock: (Number(p.stockQty) || 0) > 0,
+        // Capped so the public feed never reveals real stock levels.
+        availableQty: Math.min(Math.max(Number(p.stockQty) || 0, 0), 20),
         fitsModels: p.modelCompatibility || [],
       }));
 
@@ -226,6 +228,7 @@ export function registerWebsiteRoutes(app: Express) {
         images: product.images || [],
         warranty: product.warranty || null,
         inStock: (Number(product.stockQty) || 0) > 0,
+        availableQty: Math.min(Math.max(Number(product.stockQty) || 0, 0), 20),
         fitsModels: product.modelCompatibility || [],
         variants: product.variants || [],
       });
